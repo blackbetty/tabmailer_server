@@ -1,0 +1,16 @@
+{
+  "name": "tabmailer",
+  "version": "0.0.1",
+  "description": "An extension that saves tabs youve been hoarding and randomly emails them to you",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "tabs",
+    "email",
+    "hoarding"
+  ],
+  "author": "Dan Golant",
+  "license": "ISC"
+}

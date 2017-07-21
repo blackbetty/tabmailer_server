@@ -1,32 +1,30 @@
 {
-  "name": "tabmailer",
-  "version": "0.0.1",
-  "description": "An extension that saves tabs youve been hoarding and randomly emails them to you",
-  "main": "app.js",
-  "repository": "https://gitlab.com/tabmailer/tabmailer_server.git",
-  "scripts": {
-    "test": "test",
-    "start": "node app.js",
-    "startdev": "nodemon app.js"
-  },
-  "keywords": [
-    "tabs",
-    "email",
-    "hoarding"
-  ],
-  "author": "Dan Golant",
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^4.0.0",
-    "install": "^0.10.1",
-    "npm": "^5.3.0",
-    "sync": "^0.2.5",
-    "synchronize": "^2.0.0"
-  },
-  "devDependencies": {
-    "body-parser": "^1.17.2",
-    "cors": "^2.8.4",
-    "express": "^4.15.3",
-    "pem": "^1.9.7"
-  }
+    "name": "tabmailer",
+    "version": "0.0.1",
+    "description": "An extension that saves tabs youve been hoarding and randomly emails them to you",
+    "main": "app.js",
+    "repository": "https://gitlab.com/tabmailer/tabmailer_server.git",
+    "scripts": {
+        "test": "test",
+        "start": "node app.js",
+        "startdev": "nodemon app.js"
+    },
+    "keywords": [
+        "tabs",
+        "email",
+        "hoarding"
+    ],
+    "author": "Dan Golant",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^4.0.0",
+        "install": "^0.10.1",
+        "npm": "^5.3.0",
+        "sync": "^0.2.5",
+        "synchronize": "^2.0.0",
+        "body-parser": "^1.17.2",
+        "cors": "^2.8.4",
+        "express": "^4.15.3",
+        "pem": "^1.9.7"
+    }
 }

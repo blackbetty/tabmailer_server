@@ -17,30 +17,13 @@ const datastoreClient = Datastore({
     projectId: projectId
 });
 
+if (process.env.NODE_ENV === 'development') {
+    var config = {
+        projectId: 'tabmailer-174400',
+        keyFilename: '/keys/tabmailer-946de2b4591a.json'
+    };
 
-// // The kind for the new entity
-// const kind = 'Task';
-// // The name/ID for the new entity
-// const name = 'sampletask1';
-// // The Cloud Datastore key for the new entity
-// const taskKey = datastore.key([kind, name]);
-
-// // Prepares the new entity
-// const task = {
-//   key: taskKey,
-//   data: {
-//     description: 'Buy milk'
-//   }
-// };
-
-// // Saves the entity
-// datastore.save(task)
-//   .then(() => {
-//     console.log(`Saved ${task.key.name}: ${task.data.description}`);
-//   })
-//   .catch((err) => {
-//     console.error('ERROR:', err);
-//   });
+}
 
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
 app.use(function(req, res, next) {
@@ -57,25 +40,32 @@ app.use(function(req, res, next) {
 
 app.post('/savelink', function(req, res) {
     console.log(req.body.tab_url);
-    res.sendStatus(200);
+
+
+    var query = datastoreClient.createQuery('tabmailer_user');
+    query.filter('username', 'dan');
+    datastoreClient.runQuery(query, function(err, entities) {
+        var firstEntity = entities[0];
+        console.log(firstEntity);
+
+        firstEntity['article_list'].push(req.body['tab_url']);
+        datastoreClient.update(firstEntity)
+            .then(() => {
+                // Task updated successfully.
+                console.log(firstEntity);
+                res.send(firstEntity);
+            });
+    });
 });
 
 app.get('/savelink', function(req, res) {
-
-    // var key = datastoreClient.key(['tabmailer_user', 'dan']);
-
-    // datastoreClient.get(key, function(err, entity) {
-    //     console.log(err || entity);
-    // });
-    var query = datastore.createQuery('tabmailer_user');
+    var query = datastoreClient.createQuery('tabmailer_user');
     query.filter('username', 'dan');
     datastoreClient.runQuery(query, function(err, entities) {
-        // entities = An array of records.
 
-        // Access the Key object for an entity.
-        var firstEntityKey = entities[0][datastore.KEY];
+        var firstEntityKey = entities[0];
         console.log(firstEntityKey);
-        res.send('get request to link page');
+        res.send(firstEntityKey);
     });
 });
 

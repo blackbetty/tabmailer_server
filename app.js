@@ -6,17 +6,55 @@ var app = express();
 var bodyParser = require('body-parser');
 
 
-var config = {
-  projectId: 'tabmailer-174400',
-  keyFilename: '/path/to/keyfile.json'
-};
+// Imports the Google Cloud client library
+const Datastore = require('@google-cloud/datastore');
 
-if (process.env.NODE_ENV === 'production'){
-    var gcloud = require('google-cloud');
-}
+// Your Google Cloud Platform project ID
+const projectId = 'tabmailer-174400';
+
+// Instantiates a client
+const datastoreClient = Datastore({
+  projectId: projectId
+});
 
 
-var datastore = require('@google-cloud/datastore')(config);
+// // The kind for the new entity
+// const kind = 'Task';
+// // The name/ID for the new entity
+// const name = 'sampletask1';
+// // The Cloud Datastore key for the new entity
+// const taskKey = datastore.key([kind, name]);
+
+// // Prepares the new entity
+// const task = {
+//   key: taskKey,
+//   data: {
+//     description: 'Buy milk'
+//   }
+// };
+
+// // Saves the entity
+// datastore.save(task)
+//   .then(() => {
+//     console.log(`Saved ${task.key.name}: ${task.data.description}`);
+//   })
+//   .catch((err) => {
+//     console.error('ERROR:', err);
+//   });
+
+
+var key = datastoreClient.key(['tabmailer_user', 'dan']);
+
+datastoreClient.get(key, function(err, entity) {
+  console.log(err || entity);
+});
+
+
+
+
+
+
+
 
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
 app.use(function(req, res, next) {

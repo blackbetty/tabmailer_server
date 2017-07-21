@@ -69,7 +69,7 @@ app.get('/savelink', function(req, res) {
     // });
     var query = datastore.createQuery('tabmailer_user');
     query.filter('username', 'dan');
-    datastore.runQuery(query, function(err, entities) {
+    datastoreClient.runQuery(query, function(err, entities) {
         // entities = An array of records.
 
         // Access the Key object for an entity.

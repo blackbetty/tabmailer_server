@@ -14,7 +14,7 @@ const projectId = 'tabmailer-174400';
 
 // Instantiates a client
 const datastoreClient = Datastore({
-  projectId: projectId
+    projectId: projectId
 });
 
 
@@ -42,20 +42,6 @@ const datastoreClient = Datastore({
 //     console.error('ERROR:', err);
 //   });
 
-
-var key = datastoreClient.key(['tabmailer_user', 'dan']);
-
-datastoreClient.get(key, function(err, entity) {
-  console.log(err || entity);
-});
-
-
-
-
-
-
-
-
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
 app.use(function(req, res, next) {
     sync.fiber(next);
@@ -64,9 +50,9 @@ app.use(bodyParser.json()); // for parsing application/json
 
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
 });
 
 app.post('/savelink', function(req, res) {
@@ -75,7 +61,22 @@ app.post('/savelink', function(req, res) {
 });
 
 app.get('/savelink', function(req, res) {
-    res.send('get request to link page');
+
+    // var key = datastoreClient.key(['tabmailer_user', 'dan']);
+
+    // datastoreClient.get(key, function(err, entity) {
+    //     console.log(err || entity);
+    // });
+    var query = datastore.createQuery('tabmailer_user');
+    query.filter('username', 'dan');
+    datastore.runQuery(query, function(err, entities) {
+        // entities = An array of records.
+
+        // Access the Key object for an entity.
+        var firstEntityKey = entities[0][datastore.KEY];
+        console.log(firstEntityKey);
+        res.send('get request to link page');
+    });
 });
 
 app.get('/', function(req, res) {

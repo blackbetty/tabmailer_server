@@ -6,7 +6,7 @@
   "repository": "https://gitlab.com/tabmailer/tabmailer_server.git",
   "scripts": {
     "test": "test",
-    "start": "NODE_ENV=production node app.js",
+    "start": "node app.js",
     "startdev": "NODE_ENV=development nodemon app.js"
   },
   "keywords": [

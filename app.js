@@ -6,6 +6,18 @@ var app = express();
 var bodyParser = require('body-parser');
 
 
+var config = {
+  projectId: 'tabmailer-174400',
+  keyFilename: '/path/to/keyfile.json'
+};
+
+if (process.env.NODE_ENV === 'production'){
+    var gcloud = require('google-cloud');
+}
+
+
+var datastore = require('@google-cloud/datastore')(config);
+
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
 app.use(function(req, res, next) {
     sync.fiber(next);

@@ -1,35 +1,29 @@
+require('dotenv').config();
+
+
 var express = require('express');
 var cors = require('cors');
-require('dotenv').config();
 var sync = require('synchronize');
 var app = express();
 var bodyParser = require('body-parser');
+var saveLink = require('./route_handlers/savelink.js');
+var getLinksForUser = require('./route_handlers/getlinksforuser.js');
+var createUser = require('./route_handlers/create_user.js');
+var path = require('path');
 
 
-// Imports the Google Cloud client library
-const Datastore = require('@google-cloud/datastore');
-
-// Your Google Cloud Platform project ID
-const projectId = 'tabmailer-174400';
-
-// Instantiates a client
-const datastoreClient = Datastore({
-    projectId: projectId
-});
-
-if (process.env.NODE_ENV === 'development') {
-    var config = {
-        projectId: 'tabmailer-174400',
-        keyFilename: '/keys/tabmailer-946de2b4591a.json'
-    };
-
-}
 
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
 app.use(function(req, res, next) {
     sync.fiber(next);
 });
+
+
+
+app.use('/pages', express.static(__dirname + '/pages'));
+
 app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use(function(req, res, next) {
@@ -38,40 +32,61 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.post('/savelink', function(req, res) {
-    console.log(req.body.tab_url);
-
-
-    var query = datastoreClient.createQuery('tabmailer_user');
-    query.filter('username', 'dan');
-    datastoreClient.runQuery(query, function(err, entities) {
-        var firstEntity = entities[0];
-        console.log(firstEntity);
-
-        firstEntity['article_list'].push(req.body['tab_url']);
-        datastoreClient.update(firstEntity)
-            .then(() => {
-                // Task updated successfully.
-                console.log(firstEntity);
-                res.send(firstEntity);
-            });
-    });
-});
-
-app.get('/savelink', function(req, res) {
-    var query = datastoreClient.createQuery('tabmailer_user');
-    query.filter('username', 'dan');
-    datastoreClient.runQuery(query, function(err, entities) {
-
-        var firstEntityKey = entities[0];
-        console.log(firstEntityKey);
-        res.send(firstEntityKey);
-    });
-});
-
 app.get('/', function(req, res) {
     res.send('get request to homepage');
 });
+
+
+
+// User CRUD routes
+app.get('/signup', function(req, res) {
+    res.sendFile(path.join(__dirname + '/pages/views/signup.html'));
+});
+
+app.post('/createUser', function(req, res) {
+    createUser(req.body.emailaddress, req.body.username, req.body.password, function(value) {
+        // can be false or The Entity
+        res.send(value);
+    });
+});
+// app.get('/createUser', function(req, res) {
+//     res.sendFile(path.join(__dirname + '/pages/views/createUser.html'));
+// });
+
+
+app.get('/activateUser/', function(req, res) {
+    if (!req.params.user) {
+        res.sendStatus(404);
+    } else {
+        user_activator.activateUser(req.params.user, function(username) {
+            res.send("user activated!");
+        });
+    }
+});
+
+
+
+// Link CRUD Routes
+
+app.post('/linksforuser', function(req, res) {
+    saveLink(req.body.auth_key, req.body.tab_url, function(userEntity) {
+        res.sendStatus(200);
+    });
+});
+
+app.get('/linksforuser', function(req, res) {
+
+    // since I don't have auth yet, this val isn't used
+    // we just default to my user
+    var auth_key = 'notyet';
+    getLinksForUser(auth_key, function(userEntity) {
+        res.send(userEntity);
+    });
+});
+
+
+
+
 
 if (process.env.NODE_ENV === 'production') {
     app.listen(process.env.PORT || 9145);

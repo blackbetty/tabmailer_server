@@ -9,7 +9,8 @@ const util = require('util');
 var auth = {
     auth: {
         api_key: process.env.MAILGUNKEY,
-        domain: process.env.MAILGUNDOMAIN //'sandbox3249234.mailgun.org'
+        domain: process.env.MAILGUNDOMAIN,  //'sandbox3249234.mailgun.org'
+        port: 2525
     }
 }
 
@@ -17,7 +18,8 @@ var nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
 var mail_sender = {
     sendEmail: function(emailRecipient, subject, emailBody, callback) {
-    	console.log('-----------EMAIL SENT-----------');
+        console.log('-----------EMAIL SENT-----------');
+        console.log(emailRecipient);
         nodemailerMailgun.sendMail({
             from: 'TABMAILERADMIN@dangolant.rocks',
             to: emailRecipient, // An array if you have multiple recipients.
@@ -27,7 +29,7 @@ var mail_sender = {
             if (err) {
                 console.log('Error: ' + err);
             } else {
-                console.log('Response: ' + info);
+                console.log('Response: ' + util.inspect(info));
             }
         });
     }

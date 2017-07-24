@@ -58,9 +58,9 @@ app.get('/activateUser/', function(req, res) {
     if (!req.params.user) {
         res.sendStatus(404);
     } else {
-        user_activator.activateUser(req.params.user, function(username) {
-            res.send("user activated!");
-        });
+        // user_activator.activateUser(req.params.user, function(username) {
+        //     res.send("user activated!");
+        // });
     }
 });
 

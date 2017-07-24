@@ -1,6 +1,7 @@
 const Datastore = require('@google-cloud/datastore');
 var hash = require('object-hash');
 var user_activator = require('../background_processors/user_activator.js');
+require('dotenv').config();
 
 
 // Refactor this into its own file later
@@ -33,7 +34,6 @@ module.exports = function(emailaddress, username, password, callback) {
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
         if (userEntity) {
-            console.log(userEntity);
             callback(false); // a user for this username already exists
         } else {
             var userKey = {
@@ -53,12 +53,12 @@ module.exports = function(emailaddress, username, password, callback) {
                 key: userKey,
                 data: user
             };
-            console.log(entity);
+
             datastoreClient.insert(entity)
                 .then(() => {
                     // Task inserted successfully
-                    console.log(entity);
-                    user_activator.activateUser(entity);
+
+                    user_activator.sendUserActivationEmail(entity);
                     callback(entity);
                 });
         }

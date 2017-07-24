@@ -17,6 +17,7 @@ var nodemailerMailgun = nodemailer.createTransport(mg(auth));
 
 var mail_sender = {
     sendEmail: function(emailRecipient, subject, emailBody, callback) {
+    	console.log('-----------EMAIL SENT-----------');
         nodemailerMailgun.sendMail({
             from: 'TABMAILERADMIN@dangolant.rocks',
             to: emailRecipient, // An array if you have multiple recipients.

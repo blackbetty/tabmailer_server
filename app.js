@@ -88,7 +88,9 @@ app.get('/linksforuser', function(req, res) {
 
 
 if (process.env.NODE_ENV === 'production') {
-    app.listen(process.env.PORT || 9145);
+    app.listen(process.env.PORT || 9145, function() {
+        console.log(this.address());
+    });
 } else {
     var pem = require('pem');
     var https = require('https');
@@ -97,13 +99,12 @@ if (process.env.NODE_ENV === 'production') {
         if (err) {
             throw err;
         }
-         https.createServer({
+        https.createServer({
             key: keys.serviceKey,
             cert: keys.certificate
-        }, app).listen(process.env.PORT || 9145, function(){
+        }, app).listen(process.env.PORT || 9145, function() {
             console.log(this.address());
         });
         // console.log(https.Server.address);
     });
 }
-

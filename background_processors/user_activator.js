@@ -8,7 +8,7 @@ var user_activator = {
 
 		var hash = entity.data.user_hash;
 		var env = os.hostname();
-		var activation_url= "https://"+env+"/activateUser/user?="+hash;
+		var activation_url= process.env.DOMAIN+"/activateUser/user?="+hash;
 
 		var email_body= "please visit the following link to activate your account: " + activation_url;
 		var email_subject = "TabMailer Activation";

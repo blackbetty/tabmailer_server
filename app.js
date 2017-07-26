@@ -10,7 +10,6 @@ var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
-var fqdn = require('node-fqdn');
 
 
 
@@ -90,7 +89,7 @@ app.get('/linksforuser', function(req, res) {
 
 if (process.env.NODE_ENV === 'production') {
     app.listen(process.env.PORT || 9145, function() {
-        console.log("FQDN:", fqdn());
+        process.env.DOMAIN = /*'https://'+*/process.env.PROJECTID+'.appspot.com';
     });
 } else {
     var pem = require('pem');
@@ -104,8 +103,7 @@ if (process.env.NODE_ENV === 'production') {
             key: keys.serviceKey,
             cert: keys.certificate
         }, app).listen(process.env.PORT || 9145, function() {
-            console.log("FQDN:", fqdn());
+            process.env.DOMAIN = 'https://localhost:'+process.env.PORT;
         });
-        // console.log(https.Server.address);
     });
 }

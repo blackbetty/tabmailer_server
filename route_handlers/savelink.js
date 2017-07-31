@@ -22,24 +22,26 @@ if (process.env.NODE_ENV === 'development') {
 
 
 module.exports = function(userAuthKey, url, callback) {
-    var query = datastoreClient.createQuery('tabmailer_user').limit(1);;
-
+    var query = datastoreClient.createQuery('tabmailer_user').limit(1);
     //fix this later to use authkey
     query.filter('username', 'dan');
 
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
-        userEntity['article_list'].push(url);
+        var article_entity = {
+            article_url: url,
+            datetime_added: Date.now()
+        }
+        userEntity['article_list'].push(article_entity);
         console.log("Pre update " + process.env.DEVMODE);
         datastoreClient.update(userEntity)
             .then(() => {
                 // Task updated successfully.
-                if(process.env.DEVMODE){
-                	console.log(userEntity);
+                if (process.env.DEVMODE) {
+                    console.log(userEntity);
                 }
                 callback(userEntity);
             });
     });
 }
-

@@ -24,11 +24,9 @@ if (process.env.NODE_ENV === 'development') {
 
 var datastore_interface = {
 
-    var fetchUserForPropertyAndValue = function(property, value, callback) {
+    fetchUserForPropertyAndValue: function(property, value, callback) {
 
-        var query = datastoreClient.createQuery('tabmailer_user');
-        //fix this later to use authkey
-
+        var query = datastoreClient.createQuery('tabmailer_user').filter(property, '=', value);
 
         datastoreClient.runQuery(query, function(err, entities) {
             var userEntities = entities;
@@ -38,6 +36,16 @@ var datastore_interface = {
                 callback(userEntities);
             }
         });
+    },
+    setValueForProperty(user, property, value, callback) {
+        user[property] = value;
+        datastoreClient.update(user)
+            .then(() => {
+                if (process.env.DEVMODE) {
+                    console.log(user);
+                }
+                callback(user);
+            });
     }
 }
 

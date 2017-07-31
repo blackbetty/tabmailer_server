@@ -45,6 +45,7 @@ module.exports = function(emailaddress, username, password, callback) {
                 username: username,
                 password: hash(password),
                 article_list: [],
+                date_user_created: Date.now(),
                 activated: false
             };
             user.user_hash = hash(user);

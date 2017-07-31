@@ -10,6 +10,7 @@ var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
+var user_activator = require('./background_processors/user_activator.js');
 
 
 
@@ -53,13 +54,17 @@ app.post('/createUser', function(req, res) {
 // });
 
 
-app.get('/activateUser/', function(req, res) {
-    if (!req.params.user) {
+app.get('/activateUser/:userHash', function(req, res) {
+    if (!req.params.userHash) {
         res.sendStatus(404);
     } else {
-        // user_activator.activateUser(req.params.user, function(username) {
-        //     res.send("user activated!");
-        // });
+        var userHash = req.params.userHash;  // not a user object, just the userHash to be activated
+        user_activator.activateUser(userHash, function(err, userObject) {
+            if (!err) {
+                console.log("No error!!");
+                res.send(userObject);
+            }
+        });
     }
 });
 
@@ -86,10 +91,9 @@ app.get('/linksforuser', function(req, res) {
 
 
 
-
 if (process.env.NODE_ENV === 'production') {
     app.listen(process.env.PORT || 9145, function() {
-        process.env.DOMAIN = /*'https://'+*/process.env.PROJECTID+'.appspot.com';
+        process.env.DOMAIN = /*'https://'+*/ process.env.PROJECTID + '.appspot.com';
     });
 } else {
     var pem = require('pem');
@@ -103,7 +107,7 @@ if (process.env.NODE_ENV === 'production') {
             key: keys.serviceKey,
             cert: keys.certificate
         }, app).listen(process.env.PORT || 9145, function() {
-            process.env.DOMAIN = 'https://localhost:'+process.env.PORT;
+            process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
         });
     });
 }

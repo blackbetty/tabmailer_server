@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'development') {
 // *****************************************************************
 
 
-module.exports = function(emailaddress, username, password, callback) {
+module.exports = function(emailaddress, username, google_user_id, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);;
 
     //fix this later to use authkey
@@ -39,11 +39,11 @@ module.exports = function(emailaddress, username, password, callback) {
             var userKey = {
                 kind: 'tabmailer_user'
             }
-
+            console.log(google_user_id);
             var user = {
                 emailaddress: emailaddress,
+                google_user_id: google_user_id,
                 username: username,
-                password: hash(password),
                 article_list: [],
                 date_user_created: Date.now(),
                 activated: false
@@ -60,6 +60,7 @@ module.exports = function(emailaddress, username, password, callback) {
                     // Task inserted successfully
 
                     user_activator.sendUserActivationEmail(entity);
+                    console.log(entity);
                     callback(entity);
                 });
         }

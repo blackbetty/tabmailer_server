@@ -48,7 +48,14 @@
     <link rel="stylesheet" href="/pages/_styles/signup.css" type="text/css" />
     <link rel="stylesheet" href="https://unpkg.com/tachyons@4.7.0/css/tachyons.min.css" />
     <!-- Load local jQuery if Google CDN is unreachable -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="881057203535-i7f0fqflce385r6u0p41nvseto0k8gbk.apps.googleusercontent.com">
 </head>
+<script>
+function onSignIn(googleUser) {
+    signupScreen.onSignIn(googleUser);
+}
+</script>
 
 <body class="bg-light-red">
     <div id="app-signup">
@@ -56,7 +63,7 @@
             <h1 class="f1 black-80 tc"> Welcome to TabMailer</h1>
             <h2 class="f4 black-40 tc"> The Tab Hoarders Best Friend</h2>
         </div>
-        <div class="mw5 mw7-ns center pa3 ph5-ns" method="get" accept-charset="utf-8">
+        <div class="mw5 mw7-ns center pa3 ph5-ns" method="get" id="sign_up_container" accept-charset="utf-8" v-if="!signUpRequestComplete">
             <fieldset id="sign_up" class="ba b--transparent">
                 <legend class="ph0 mh0 fw6 clip">Sign Up</legend>
                 <div class="mt3">
@@ -66,11 +73,16 @@
                     <input class="mw5 mw7-ns center pa3 b--black f6 f5-l input-reset fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns mb3" placeholder="Your Username" type="username" v-model="username" name="username" id="username">
                 </div>
                 <div class="mt3">
-                    <input class=" mw5 mw7-ns center pa3 b--black f6 f5-l input-reset fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns" placeholder="Your Password" type="password" name="password" v-model="password" id="password">
+                    <div class="g-signin2 center mw7-ns center b--black f6 f5-l input-reset fl black-80 lh-solid w-100 w-75-m w-80-l br2-ns" data-onsuccess="onSignIn"></div>
                 </div>
             </fieldset>
             <div class="mt2 pl3">
                 <input class="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6" type="button" v-on:click="signupButtonSubmit" :disabled=isDisabled value="Sign Up">
+            </div>
+        </div>
+        <div v-else>
+            <div class="mt2 pl3">
+                <p class="b ph3 pv2 input-reset ba b--black bg-transparent tc center grow pointer mw3 mw5-ns f6">{{completionMessage}}</p>
             </div>
         </div>
     </div>

@@ -1,5 +1,7 @@
 require('dotenv').config();
-
+var GoogleAuth = require('google-auth-library');
+var auth = new GoogleAuth;
+var client = new auth.OAuth2(process.env.GAPI_CLIENT_ID, '', '');
 
 var express = require('express');
 var cors = require('cors');
@@ -44,21 +46,38 @@ app.get('/signup', function(req, res) {
 });
 
 app.post('/createUser', function(req, res) {
-    createUser(req.body.emailaddress, req.body.username, req.body.password, function(value) {
-        // can be false or The Entity
-        res.send(value);
-    });
+    if (!req.body.gapi_token) {
+        console.log(req.body)
+        res.status(400).send('No Google Auth Token Received: '+ req.body);
+        return;
+    }
+    client.verifyIdToken(
+        req.body.gapi_token,
+        process.env.GAPI_CLIENT_ID,
+        function(e, login) {
+            if (e) {
+                res.status(500).send('Something broke!: ' + e);
+                return;
+            }
+            var payload = login.getPayload();
+            var userid = payload['sub'];
+
+            // pass in and store the Google User ID
+            createUser(req.body.emailaddress, req.body.username, userid, function(value) {
+                // can be false or The Entity
+                console.log("GOOGLE AUTH userid: "+ userid);
+                res.send(value);
+            });
+        });
 });
-// app.get('/createUser', function(req, res) {
-//     res.sendFile(path.join(__dirname + '/pages/views/createUser.html'));
-// });
+
 
 
 app.get('/activateUser/:userHash', function(req, res) {
     if (!req.params.userHash) {
         res.sendStatus(404);
     } else {
-        var userHash = req.params.userHash;  // not a user object, just the userHash to be activated
+        var userHash = req.params.userHash; // not a user object, just the userHash to be activated
         user_activator.activateUser(userHash, function(err, userObject) {
             if (!err) {
                 console.log("No error!!");

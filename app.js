@@ -1,8 +1,8 @@
 require('dotenv').config();
 var GoogleAuth = require('google-auth-library');
 var auth = new GoogleAuth;
-var client = new auth.OAuth2(process.env.GAPI_CLIENT_ID, '', '');
-
+var gapiClient = new auth.OAuth2(process.env.GAPI_CLIENT_ID, '', '');
+const util = require('util');
 var express = require('express');
 var cors = require('cors');
 var sync = require('synchronize');
@@ -13,6 +13,7 @@ var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
 var user_activator = require('./background_processors/user_activator.js');
+var request = require('request');
 
 
 
@@ -48,10 +49,10 @@ app.get('/signup', function(req, res) {
 app.post('/createUser', function(req, res) {
     if (!req.body.gapi_token) {
         console.log(req.body)
-        res.status(400).send('No Google Auth Token Received: '+ req.body);
+        res.status(400).send('No Google ID Token Received: ' + req.body);
         return;
     }
-    client.verifyIdToken(
+    gapiClient.verifyIdToken(
         req.body.gapi_token,
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
@@ -65,7 +66,7 @@ app.post('/createUser', function(req, res) {
             // pass in and store the Google User ID
             createUser(req.body.emailaddress, req.body.username, userid, function(value) {
                 // can be false or The Entity
-                console.log("GOOGLE AUTH userid: "+ userid);
+                console.log("GOOGLE AUTH userid: " + userid);
                 res.send(value);
             });
         });
@@ -92,8 +93,34 @@ app.get('/activateUser/:userHash', function(req, res) {
 // Link CRUD Routes
 
 app.post('/linksforuser', function(req, res) {
-    saveLink(req.body.auth_key, req.body.tab_url, function(userEntity) {
-        res.sendStatus(200);
+    if (!req.body.google_auth_token) {
+        console.log(req.body)
+        res.status(400).send('No Google Auth Token Received: ' + req.body);
+        return;
+    }
+
+    // Raw call is bad, but I don't know how to do this via the Library and the docs aren't helping
+    var options = {
+        url: 'https://www.googleapis.com/oauth2/v1/userinfo',
+        headers: {
+            'Authorization': 'Bearer ' + req.body.google_auth_token,
+            'Content-Type': 'application/json'
+        }
+    };
+
+
+    request(options, function(error, response, body) {
+
+        body = JSON.parse(body);
+
+        var googleUserID = body.id;
+
+        saveLink(googleUserID, req.body.tab_url, function(userEntity) {
+            // res.sendStatus(200);
+            console.log('----------------' + req.body.tab_url)
+            res.send(req.body.tab_url);
+        });
+
     });
 });
 

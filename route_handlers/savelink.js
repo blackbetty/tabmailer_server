@@ -21,10 +21,15 @@ if (process.env.NODE_ENV === 'development') {
 // *****************************************************************
 
 
-module.exports = function(userAuthKey, url, callback) {
+module.exports = function(googleUserID, url, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
+
+
+
+
+
     //fix this later to use authkey
-    query.filter('username', 'dan');
+    query.filter('google_user_id', googleUserID);
 
 
     datastoreClient.runQuery(query, function(err, entities) {
@@ -39,7 +44,7 @@ module.exports = function(userAuthKey, url, callback) {
             .then(() => {
                 // Task updated successfully.
                 if (process.env.DEVMODE) {
-                    console.log(userEntity);
+                    // console.log(userEntity);
                 }
                 callback(userEntity);
             });

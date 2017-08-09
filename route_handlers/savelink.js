@@ -36,7 +36,8 @@ module.exports = function(googleUserID, url, callback) {
         var userEntity = entities[0];
         var article_entity = {
             article_url: url,
-            datetime_added: Date.now()
+            datetime_added: Date.now()//,
+            // saved_article_id: Math.floor(Math.random() * 10000000000000000);
         }
         userEntity['article_list'].push(article_entity);
         console.log("Pre update " + process.env.DEVMODE);

@@ -13,8 +13,8 @@ var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
 var user_activator = require('./background_processors/user_activator.js');
+var cron_functions = require('./background_processors/cron_functions.js');
 var request = require('request');
-
 
 
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
@@ -23,6 +23,7 @@ app.use(function(req, res, next) {
 });
 
 
+cron_functions.scheduleAllJobs();
 
 app.use('/pages', express.static(__dirname + '/pages'));
 

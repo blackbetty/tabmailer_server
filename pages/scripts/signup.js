@@ -19,7 +19,6 @@ var signupScreen = new Vue({
 
             request.onreadystatechange = function() { //Call a function when the state changes.
                 that.signUpRequestComplete = true;
-                console.log('hit2!');
                 if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
                     // Request finished and returned 200
 

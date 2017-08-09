@@ -24,6 +24,7 @@ var sendSavedArticles = new cron.CronJob('* * * * * *', function() {
                 console.log("Article List: " + util.inspect(user.article_list) + "\n");
                 console.log("Article " + util.inspect(article) + "\n");
                 if (article.datetime_added < (Date.now() - 86400000)) {
+
                     var sendit = Math.floor(Math.random() * 7) + 1;
                     if (sendit === 7) {
 

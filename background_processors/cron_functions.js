@@ -10,7 +10,7 @@ var mail_sender = require('./mail_sender.js');
 // var testJob = new cron.CronJob('* * * * * *', function() {
 //     console.log('You will see this message every second');
 // }, null, true, 'America/Los_Angeles');
-var sendSavedArticles = new cron.CronJob('0 0 0 1/1 * ? *', function() {
+var sendSavedArticles = new cron.CronJob('0 0 * * *', function() {
 
     var proceed = function(users) {
         var usersWithArticles = _.reject(users, function(user) { return (user.article_list.length === 0); });

@@ -10,7 +10,7 @@ var mail_sender = require('./mail_sender.js');
 // var testJob = new cron.CronJob('* * * * * *', function() {
 //     console.log('You will see this message every second');
 // }, null, true, 'America/Los_Angeles');
-var sendSavedArticles = new cron.CronJob('* * * * * *', function() {
+var sendSavedArticles = new cron.CronJob('0 0 0 1/1 * ? *', function() {
 
     var proceed = function(users) {
         var usersWithArticles = _.reject(users, function(user) { return (user.article_list.length === 0); });
@@ -21,10 +21,8 @@ var sendSavedArticles = new cron.CronJob('* * * * * *', function() {
             _.each(user.article_list, function(article) {
 
                 // Article is at least a day old
-                console.log("Article List: " + util.inspect(user.article_list) + "\n");
-                console.log("Article " + util.inspect(article) + "\n");
                 if (article.datetime_added < (Date.now() - 86400000)) {
-
+                    console.log('1');
                     var sendit = Math.floor(Math.random() * 7) + 1;
                     if (sendit === 7) {
 
@@ -43,7 +41,10 @@ var sendSavedArticles = new cron.CronJob('* * * * * *', function() {
             }
             // console.log("Article List AFTER: " + util.inspect(user.article_list) + "\n");
             datastore_interface.setValueForProperty(user, 'article_list', user.article_list, function(updatedUser) {
-                console.log('Updated User: \n' + util.inspect(updatedUser) + '\n');
+                if (process.env.DEVMODE) {
+
+                    console.log('Updated User: \n' + util.inspect(updatedUser) + '\n');
+                }
             });
         });
 

@@ -12,6 +12,7 @@ var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
+var httpsRedirect = require('express-https-redirect');
 var user_activator = require('./background_processors/user_activator.js');
 var cron_functions = require('./background_processors/cron_functions.js');
 var request = require('request');
@@ -22,6 +23,7 @@ app.use(function(req, res, next) {
     sync.fiber(next);
 });
 
+app.use('/', httpsRedirect());
 
 cron_functions.scheduleAllJobs();
 
@@ -140,7 +142,7 @@ app.get('/linksforuser', function(req, res) {
 
 if (process.env.NODE_ENV === 'production') {
     app.listen(process.env.PORT || 9145, function() {
-        process.env.DOMAIN = 'https://'+ process.env.PROJECTID + '.appspot.com';
+        process.env.DOMAIN = /*'https://'+*/ process.env.PROJECTID + '.appspot.com';
     });
 } else {
     var pem = require('pem');

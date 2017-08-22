@@ -8,7 +8,8 @@ var signupScreen = new Vue({
         completionMessage: '',
         gapi_id_token:'',
         gapi_user_given_name:'',
-        gapi_user_email:''
+        gapi_user_email:'',
+        signupButtonBorderColor: 'gray'
     },
     methods: {
         signupButtonSubmit: function() {
@@ -49,8 +50,10 @@ var signupScreen = new Vue({
     computed: {
         isDisabled: function() {
             if (this.email && this.username && this.gapi_id_token && document.getElementById("email-address").validity.valid) {
+                this.signupButtonBorderColor = 'black';
                 return false;
             }
+            this.signupButtonBorderColor = 'gray';
             return true;
         }
     }

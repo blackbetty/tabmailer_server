@@ -64,6 +64,9 @@ function onSignIn(googleUser) {
             <h2 class="f4 black-40 tc"> The Tab Hoarders Best Friend</h2>
         </div>
         <div class="mw5 mw7-ns center pa3 ph5-ns" method="get" id="sign_up_container" accept-charset="utf-8" v-if="!signUpRequestComplete">
+            <h2 class="f6 black-80 tc"> Please fill out the two fields below</h2>
+            <h2 class="f6 black-80 tc"> Then press the Google Sign In Button</h2>
+            <h2 class="f6 black-80 tc"> Then hit "Sign Up" once the button is active</h2>
             <fieldset id="sign_up" class="ba b--transparent">
                 <legend class="ph0 mh0 fw6 clip">Sign Up</legend>
                 <div class="mt3">
@@ -77,7 +80,7 @@ function onSignIn(googleUser) {
                 </div>
             </fieldset>
             <div class="mt2 pl3">
-                <input class="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6" type="button" v-on:click="signupButtonSubmit" :disabled=isDisabled value="Sign Up">
+                <input class="b ph3 pv2 input-reset ba bg-transparent f6" type="button" v-on:click="signupButtonSubmit" v-bind:class="{ 'b--black': !isDisabled, 'b--gray': isDisabled, grow: !isDisabled, pointer: !isDisabled }" :disabled=isDisabled value="Sign Up">
             </div>
         </div>
         <div v-else>

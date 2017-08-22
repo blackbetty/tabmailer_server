@@ -22,11 +22,11 @@ var sendSavedArticles = new cron.CronJob('0 0 * * *', function() {
 
                 // Article is at least a day old
                 if (article.datetime_added < (Date.now() - 86400000)) {
-                    console.log('1');
                     var sendit = Math.floor(Math.random() * 7) + 1;
+                    console.log('For user [' + user.emailaddress + '] sendit var is ' + sendit);
                     if (sendit === 7) {
 
-                        console.log('QUEUEING EMAIL');
+                        console.log('QUEUEING EMAIL FOR USER' + user.emailaddress);
                         var tabmailBody = 'You asked us to save the following link: ' + article.article_url + ' . There it is!';
                         if (process.env.LIVE_EMAIL) {
                             mail_sender.sendEmail(user.emailaddress, 'Your TabMailer Link!', tabmailBody);

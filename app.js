@@ -16,6 +16,37 @@ var httpsRedirect = require('express-https-redirect');
 var user_activator = require('./background_processors/user_activator.js');
 var cron_functions = require('./background_processors/cron_functions.js');
 var request = require('request');
+const fs = require('fs');
+const winston = require('winston');
+const env = process.env.NODE_ENV || 'development';
+
+
+
+const logDir = 'logs';
+// Create the log directory if it does not exist
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir);
+}
+
+const tsFormat = () => (new Date()).toLocaleTimeString();
+const logger = new(winston.Logger)({
+    transports: [
+        // colorize the output to the console
+        new(winston.transports.Console)({
+            timestamp: tsFormat,
+            colorize: true,
+            level: 'debug'
+        }),
+        new(require('winston-daily-rotate-file'))({
+            filename: `${logDir}/-filelog-router.json`,
+            datePattern: 'yyyy-MM-dd',
+            timestamp: tsFormat,
+            prepend: true,
+            level: env === 'development' ? 'silly' : 'info'
+        })
+    ]
+});
+
 
 
 // Use fibers in all routes so we can use sync.await() to make async code easier to work with.
@@ -51,7 +82,9 @@ app.get('/signup', function(req, res) {
 
 app.post('/createUser', function(req, res) {
     if (!req.body.gapi_token) {
-        console.log(req.body)
+        logger.debug('USER CREATION FAILED: NO GOOGLE ID', {
+            request_body: req.body
+        });
         res.status(400).send('No Google ID Token Received: ' + req.body);
         return;
     }
@@ -69,7 +102,9 @@ app.post('/createUser', function(req, res) {
             // pass in and store the Google User ID
             createUser(req.body.emailaddress, req.body.username, userid, function(value) {
                 // can be false or The Entity
-                console.log("GOOGLE AUTH userid: " + userid);
+                logger.info('Google ID', {
+                    authID: userid
+                })
                 res.send(value);
             });
         });
@@ -80,11 +115,14 @@ app.post('/createUser', function(req, res) {
 app.get('/activateUser/:userHash', function(req, res) {
     if (!req.params.userHash) {
         res.sendStatus(404);
+        logger.error('USER ACTIVATION FAILED: NO HASH PROVIDED');
     } else {
         var userHash = req.params.userHash; // not a user object, just the userHash to be activated
         user_activator.activateUser(userHash, function(err, userObject) {
             if (!err) {
-                console.log("No error!!");
+                logger.info('USER ACTIVATED SUCCESSFULLY', {
+                    user: userObject
+                })
                 res.send(userObject);
             }
         });
@@ -97,7 +135,9 @@ app.get('/activateUser/:userHash', function(req, res) {
 
 app.post('/linksforuser', function(req, res) {
     if (!req.body.google_auth_token) {
-        console.log(req.body)
+        logger.debug('USER LINKS POST FAILED: NO AUTH TOKEN', {
+            request_body: req.body
+        })
         res.status(400).send('No Google Auth Token Received: ' + req.body);
         return;
     }
@@ -119,8 +159,9 @@ app.post('/linksforuser', function(req, res) {
         var googleUserID = body.id;
 
         saveLink(googleUserID, req.body.tab_url, function(userEntity) {
-            // res.sendStatus(200);
-            console.log('----------------' + req.body.tab_url)
+            logger.info('USER LINK POST SUCCEEDED', {
+                tab_url: req.body.tab_url
+            });
             res.send(req.body.tab_url);
         });
 
@@ -148,6 +189,7 @@ if (process.env.NODE_ENV === 'production') {
     var pem = require('pem');
     var https = require('https');
     console.log("Server listening on port " + process.env.PORT || 9145);
+    logger.debug('SERVER RESTARTED');
     pem.createCertificate({ days: 1, selfSigned: true }, function(err, keys) {
         if (err) {
             throw err;

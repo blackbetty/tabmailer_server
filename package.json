@@ -7,9 +7,8 @@
   "scripts": {
     "test": "test",
     "start": "node app.js",
-    "startdev": "NODE_ENV=development nodemon app.js",
+    "startdev": "NODE_ENV=development nodemon --ignore 'logs/*' app.js",
     "debug": "NODE_ENV=development node --debug app.js"
-
   },
   "keywords": [
     "tabs",
@@ -38,6 +37,8 @@
     "request": "^2.81.0",
     "sync": "^0.2.5",
     "synchronize": "^2.0.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "winston": "^2.3.1",
+    "winston-daily-rotate-file": "^1.4.6"
   }
 }

@@ -22,9 +22,10 @@ const env = process.env.NODE_ENV || 'development';
 
 
 
-const logDir = 'logs';
+const logDir = '/logs';
 // Create the log directory if it does not exist
 if (!fs.existsSync(logDir)) {
+    console.log(process.cwd());
     console.log("CREATING LOG DIR+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+__+");
     fs.mkdirSync(logDir);
 }

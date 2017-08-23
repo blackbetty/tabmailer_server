@@ -25,6 +25,7 @@ const env = process.env.NODE_ENV || 'development';
 const logDir = 'logs';
 // Create the log directory if it does not exist
 if (!fs.existsSync(logDir)) {
+    console.log("CREATING LOG DIR+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+__+");
     fs.mkdirSync(logDir);
 }
 
@@ -42,6 +43,7 @@ const logger = new(winston.Logger)({
             datePattern: 'yyyy-MM-dd',
             timestamp: tsFormat,
             prepend: true,
+            colorize: true,
             level: env === 'development' ? 'silly' : 'info'
         })
     ]

@@ -7,8 +7,9 @@
   "scripts": {
     "test": "test",
     "start": "node app.js",
-    "startdev": "NODE_ENV=development nodemon --ignore 'logs/*' app.js",
-    "debug": "NODE_ENV=development node --debug app.js"
+    "startdev": "NODE_ENV=development nodemon --ignore 'logs/*' app.js webpack-dev-server --open --hot",
+    "debug": "NODE_ENV=development node --debug app.js",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "keywords": [
     "tabs",
@@ -26,6 +27,7 @@
     "express": "^4.15.3",
     "express-https-redirect": "^1.0.0",
     "google-auth-library": "^0.10.0",
+    "grpc": "^1.6.0",
     "install": "^0.10.1",
     "node-fqdn": "^1.1.1",
     "nodemailer": "^4.0.1",
@@ -39,6 +41,21 @@
     "synchronize": "^2.0.0",
     "underscore": "^1.8.3",
     "winston": "^2.3.1",
-    "winston-daily-rotate-file": "^1.4.6"
+    "winston-daily-rotate-file": "^1.4.6",
+    "vue": "^2.4.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.7",
+    "file-loader": "^1.1.4",
+    "node-sass": "^4.5.3",
+    "sass-loader": "^6.0.6",
+    "vue-loader": "^13.0.5",
+    "vue-template-compiler": "^2.4.4",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
   }
 }

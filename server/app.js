@@ -62,7 +62,7 @@ app.use('/', httpsRedirect());
 
 cron_functions.scheduleAllJobs();
 
-app.use('/pages', express.static(__dirname + '/../pages'));
+app.use('/pages', express.static(__dirname + '/pages'));
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -81,7 +81,7 @@ app.get('/', function(req, res) {
 
 // User CRUD routes
 app.get('/signup', function(req, res) {
-    res.sendFile(path.join(__dirname + '/../pages/views/signup.html'));
+    res.sendFile(path.join(__dirname + '/pages/views/signup.html'));
 });
 
 app.post('/createUser', function(req, res) {

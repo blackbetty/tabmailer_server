@@ -46,7 +46,6 @@
     <!-- <link rel="icon" href="favicon.ico" type="image/x-icon" /> -->
     <!-- <link rel="shortcut icon" href="favicon.ico" type="image/ico" /> -->
     <link rel="stylesheet" href="/pages/_styles/signup.css" type="text/css" />
-    <!-- <link rel="stylesheet" href="https://unpkg.com/tachyons@4.7.0/css/tachyons.min.css" /> -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <!-- Load local jQuery if Google CDN is unreachable -->
     <script src="https://apis.google.com/js/platform.js" id="googleplatscript" async defer></script>
@@ -57,54 +56,8 @@
 function onSignIn(googleUser) {
     signupScreen.onSignIn(googleUser);
 }
-
-
-// document.getElementById('googleplatscript').addEventListener("load", function() {
-//     console.log("WHY DOESNT THIS WORK");
-//     signupScreen.gapiObj = gapi;
-//     gapi.platform.go();
-// });
 </script>
-<!--
-<body class="bg-light-red">
-    <div id="app-signup">
-        <div class="header mw5 mw7-ns center pa3 ph5-ns">
-            <h1 class="f1 black-80 tc"> Welcome to TabMailer</h1>
-            <h2 class="f4 black-40 tc"> The Tab Hoarders Best Friend</h2>
-        </div>
-        <div class="mw5 mw7-ns center pa3 ph5-ns" method="get" id="sign_up_container" accept-charset="utf-8" v-if="!signUpRequestComplete">
-            <h2 class="f6 black-80 tc"> Please fill out the two fields below</h2>
-            <h2 class="f6 black-80 tc"> Then press the Google Sign In Button</h2>
-            <h2 class="f6 black-80 tc"> Then hit "Sign Up" once the button is active</h2>
-            <fieldset id="sign_up" class="ba b--transparent">
-                <legend class="ph0 mh0 fw6 clip">Sign Up</legend>
-                <div class="mt3">
-                    <input class="mw5 mw7-ns center pa3 b--black f6 f5-l input-reset fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns mb3" placeholder="Your Email Address" type="email" v-model="email" name="email-address" id="email-address">
-                </div>
-                <router-link to="/2">NEXT</router-link>
-                <div class="mt3">
-                    <input class="mw5 mw7-ns center pa3 b--black f6 f5-l input-reset fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-80-l br2-ns mb3" placeholder="Your Username" type="username" v-model="username" name="username" id="username">
-                </div>
-                <div class="mt3">
-                    <div class="g-signin2 center mw7-ns center b--black f6 f5-l input-reset fl black-80 lh-solid w-100 w-75-m w-80-l br2-ns" data-onsuccess="onSignIn"></div>
-                </div>
-                <router-view></router-view>
-            </fieldset>
-            <div class="mt2 pl3">
-                <input class="b ph3 pv2 input-reset ba bg-transparent f6" type="button" v-on:click="signupButtonSubmit" v-bind:class="{ 'b--black': !isDisabled, 'b--gray': isDisabled, grow: !isDisabled, pointer: !isDisabled }" :disabled=isDisabled value="Sign Up">
-            </div>
-        </div>
-        <div v-else>
-            <div class="mt2 pl3">
-                <p class="b ph3 pv2 input-reset ba b--black bg-transparent tc center grow pointer mw3 mw5-ns f6">{{completionMessage}}</p>
-            </div>
-        </div>
-    </div>
-    <script type="text/javascript" src="../pages/scripts/vue.js"></script>
-    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
-    <script type="text/javascript" src="/pages/scripts/signup.js"></script>
-</body>
- -->
+
 
 <body>
     <div id="app-bg">
@@ -122,7 +75,7 @@ function onSignIn(googleUser) {
                         </div>
                         <div class="col">
                             <fieldset id="sign_up" class="form-group">
-                                <transition>
+                                <transition name="slide-fade">
                                     <router-view v-on:email-changed="emailChanged" v-on:username-changed="usernameChanged"></router-view>
                                 </transition>
                             </fieldset>

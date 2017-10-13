@@ -24,10 +24,6 @@
 
 module.exports = {
     props: {
-        gapiObj: {
-            type: String,
-            default: 'what is going on'
-        }
     },
     computed: {
         isDisabled: function() {

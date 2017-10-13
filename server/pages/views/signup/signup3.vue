@@ -2,6 +2,8 @@
     <div class="signup step3">
         <div v-if="!completionMessage">
             <div class="form-group">
+                <p style="color: rgba(0, 0, 0, 0.4)">Aaaaaand finally, all we need is the email at which you would like to receive your saved tabs when they are ready!</p>
+                <br>
                 <label for="email-address">Email Address:</label>
                 <input class="form-control border border-primary rounded" placeholder="Your Email Address" type="email" @input="emailChanged" name="email-address" id="email-address">
             </div>
@@ -16,7 +18,10 @@
                 {{completionMessage}}
             </div>
             <div class="completionSuccess" v-if="completionSuccess">
-                <button class="btn btn-primary btn-block">Account Settings</button>
+                <a href="/settings" class="btn btn-primary btn-block">
+                    Account Settings
+                </a>
+
             </div>
         </div>
     </div>
@@ -33,13 +38,12 @@ module.exports = {
                 document.getElementById("email-address") &&
                 document.getElementById("email-address").value
             ) {
-                console.log("HELLOOOOOW");
+                console.log("HELLOOOOOSSSSS");
                 return false;
             }
 
             if (document.getElementsByClassName("rlink")[0]) {
                 document.getElementsByClassName("rlink")[0].style.cursor = "pointer";
-                console.log("GOODBYEWWWW");
                 return true;
             }
         }
@@ -61,7 +65,7 @@ module.exports = {
                 } else if (request.readyState == XMLHttpRequest.DONE && request.status != 200) {
                     // Request finished and return a non-200
                     that.completionMessage = 'There was an issue signing up, please try again later.';
-                    that.completionSuccess = false;
+                    that.completionSuccess = true;
                 }
             }
 

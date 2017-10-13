@@ -24,9 +24,9 @@ const env = process.env.NODE_ENV || 'development';
 
 const logDir = '/logs';
 // Create the log directory if it does not exist
-console.log("CWD ------------------------------"+process.cwd());
+console.log("CWD ------------------------------" + process.cwd());
 if (!fs.existsSync(logDir)) {
-    console.log("CWD +++++++++++++++++++++"+process.cwd());
+    console.log("CWD +++++++++++++++++++++" + process.cwd());
     console.log("CREATING LOG DIR+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+__+");
     fs.mkdirSync(logDir);
 }
@@ -74,14 +74,14 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res) {
-    res.send('get request to homepage');
+    res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
 
 
 // User CRUD routes
 app.get('/signup', function(req, res) {
-    res.sendFile(path.join(__dirname + '/pages/views/signup.html'));
+    res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
 app.post('/createUser', function(req, res) {
@@ -118,8 +118,9 @@ app.post('/createUser', function(req, res) {
 
 app.get('/activateUser/:userHash', function(req, res) {
     if (!req.params.userHash) {
+        // if we don't get a user hash, the page doesn't exist :)
         res.sendStatus(404);
-        logger.error('USER ACTIVATION FAILED: NO HASH PROVIDED');
+        logger.warn('USER ACTIVATION FAILED: NO HASH PROVIDED');
     } else {
         var userHash = req.params.userHash; // not a user object, just the userHash to be activated
         user_activator.activateUser(userHash, function(err, userObject) {
@@ -127,7 +128,17 @@ app.get('/activateUser/:userHash', function(req, res) {
                 logger.info('USER ACTIVATED SUCCESSFULLY', {
                     user: userObject
                 })
-                res.send(userObject);
+                res.cookie('tabmailer_data', JSON.stringify(userObject));
+                res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
+                // res.end();
+            } else {
+                // if the user activation failed,
+                // for example if the hash provided was invalid,
+                // we just don't return a cookie, which the UI takes as meaning the activation failed.
+                logger.info('USER ACTIVATION FAILED FOR USERHASH ' + userHash, {
+                    error: err
+                })
+                res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
             }
         });
     }

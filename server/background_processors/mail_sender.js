@@ -29,6 +29,7 @@ var mail_sender = {
             if (err) {
                 console.log('Error: ' + err);
             } else {
+                console.log('Response Object: ' + info);
                 console.log('Response: ' + util.inspect(info));
             }
         });

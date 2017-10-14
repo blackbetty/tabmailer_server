@@ -114,7 +114,9 @@ app.post('/createUser', function(req, res) {
         });
 });
 
-
+app.get('/dashboard', function(req, res) {
+    res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
+});
 
 app.get('/activateUser/:userHash', function(req, res) {
     if (!req.params.userHash) {

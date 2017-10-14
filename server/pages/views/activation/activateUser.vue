@@ -6,7 +6,7 @@
                 <br>
                 <p>You're ready to start savin' some tabbies! Feel free to check out your account settings at that there link below!</p>
             </div>
-            <a href="/settings" class="btn btn-primary btn-block" role="button" aria-disabled="true">Account Settings</a>
+            <a href="/dashboard" class="btn btn-primary btn-block" role="button" aria-disabled="true">Account Settings</a>
         </div>
         <div v-else>
             <div class="alert alert-danger">

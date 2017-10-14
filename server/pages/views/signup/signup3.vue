@@ -18,7 +18,7 @@
                 {{completionMessage}}
             </div>
             <div class="completionSuccess" v-if="completionSuccess">
-                <a href="/settings" class="btn btn-primary btn-block">
+                <a href="/dashboard" class="btn btn-primary btn-block">
                     Account Settings
                 </a>
 

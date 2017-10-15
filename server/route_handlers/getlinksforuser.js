@@ -22,11 +22,12 @@ if (process.env.NODE_ENV === 'development') {
 
 
 
-module.exports = function(userAuthKey, callback) {
+module.exports = function(googleUserID, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
     // switch this for authKey later
-    query.filter('username', 'dan');
+    query.filter('google_user_id', googleUserID);
+
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];

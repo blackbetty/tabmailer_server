@@ -38,7 +38,6 @@ module.exports = {
                 document.getElementById("email-address") &&
                 document.getElementById("email-address").value
             ) {
-                console.log("HELLOOOOOSSSSS");
                 return false;
             }
 
@@ -78,7 +77,6 @@ module.exports = {
             }));
         },
         emailChanged: function(e) {
-            console.log("EMAIL CHANGED");
             this.$emit('email-changed', e.target.value);
         }
     },

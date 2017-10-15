@@ -33,7 +33,6 @@ module.exports = {
                 document.getElementById("username") &&
                 document.getElementById("username").value
             ) {
-                console.log("HELLOOOOOW");
                 return false;
             }
 

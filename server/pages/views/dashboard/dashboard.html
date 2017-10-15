@@ -8,17 +8,30 @@
     <link rel="stylesheet" href="/pages/_styles/dashboard.css" type="text/css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <script src="https://use.fontawesome.com/334a1884e2.js"></script>
+    <!-- Load local jQuery if Google CDN is unreachable -->
+    <script src="https://apis.google.com/js/platform.js" id="googleplatscript" onload="loadGapi()" async defer></script>
+    <meta name="google-signin-client_id" content="881057203535-i7f0fqflce385r6u0p41nvseto0k8gbk.apps.googleusercontent.com">
+    <script src="https://use.fontawesome.com/334a1884e2.js"></script>
 </head>
 
 <body>
     <div id="app-dashboard">
         <div class="container-fluid dashboard-container">
-            <div class="row">
-                <div class="col">
-                    <user-settings></user-settings>
+            <div v-if="!credentialError">
+                <div class="row">
+                    <div class="col">
+                        <user-settings :show-settings="showSettings"></user-settings>
+                    </div>
+                    <div class="col">
+                        <user-saved-tabs v-bind:tabs="$data.tabs" :show-tab-heap="showTabHeap"></user-saved-tabs>
+                    </div>
                 </div>
-                <div class="col">
-                    <user-saved-tabs></user-saved-tabs>
+            </div>
+            <div v-else>
+                <div class="row">
+                    <div class="col flexbox">
+                        There was a credential error
+                    </div>
                 </div>
             </div>
         </div>
@@ -27,3 +40,5 @@
 </body>
 
 </html>
+<script type="text/javascript">
+</script>

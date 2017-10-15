@@ -150,6 +150,14 @@ app.get('/activateUser/:userHash', function(req, res) {
 
 // Link CRUD Routes
 
+
+
+/*
+ * Saves a link for the given user
+ *
+ *
+ */
+
 app.post('/linksforuser', function(req, res) {
     if (!req.body.google_auth_token) {
         logger.debug('USER LINKS POST FAILED: NO AUTH TOKEN', {
@@ -167,7 +175,7 @@ app.post('/linksforuser', function(req, res) {
             'Content-Type': 'application/json'
         }
     };
-
+    // console.log(util.inspect(options));
 
     request(options, function(error, response, body) {
 
@@ -185,17 +193,84 @@ app.post('/linksforuser', function(req, res) {
     });
 });
 
+
+
+/*
+ * Gets links/tabs for the given user
+ *
+ *
+ */
+
+
 app.get('/linksforuser', function(req, res) {
+
+    logger.debug('HIT GET LINKS FOR USER ROUTE');
+    if (!req.query.google_auth_token) {
+
+        logger.debug('USER LINKS GET FAILED: NO AUTH TOKEN', {
+            'request-body': util.inspect(req.body),
+            'request-query': util.inspect(req.query)
+        })
+        res.status(400).send('No Google Auth Token Received');
+        return;
+    }
+
+    gapiClient.verifyIdToken(
+        req.query.google_auth_token,
+        process.env.GAPI_CLIENT_ID,
+        function(e, login) {
+            if (e) {
+                console.log(login);
+                console.log("----------------ISSA TAB COLLECTION FETCH REQUEST ERROR Y'ALLLLLLLLLL");
+                console.log(e)
+                res.status(400).send(e);
+            }
+            var payload = login.getPayload();
+
+
+            if (payload.errors) {
+                logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT', {
+                    'response-body': util.inspect(payload),
+                    'response-errors': util.inspect(payload.errors)
+                })
+                res.status(400).send(payload.errors);
+            }
+
+            var googleUserID = payload['sub'];
+
+            getLinksForUser(googleUserID, function(userEntity) {
+                console.log('user fetched');
+                console.log(userEntity);
+                res.send(userEntity);
+            });
+        });
+
+});
+
+
+// Settings CRUD Routes
+
+
+/*
+ *Fetches a user's settings object
+ *In progress
+ */
+
+app.get('/settings', function(req, res) {
 
     // since I don't have auth yet, this val isn't used
     // we just default to my user
     var auth_key = 'notyet';
-    getLinksForUser(auth_key, function(userEntity) {
-        res.send(userEntity);
-    });
+    console.log('HIT SETTINGS FOR USER ROUTE');
+    // getLinksForUser(auth_key, function(userEntity) {
+    //     console.log('user fetched');
+    //     res.send(userEntity);
+    // });
+    res.sendStatus(200);
 });
 
 
+// General stuff
 
 
 if (process.env.NODE_ENV === 'production') {

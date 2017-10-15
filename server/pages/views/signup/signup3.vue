@@ -10,8 +10,9 @@
             <button class="btn btn-success btn-block" type="button" v-on:click="signupButtonSubmit" :disabled="isDisabled"> Click Here To Complete Sign Up!
             </button>
             <router-link class="btn btn-danger btn-block" to="/2">
-                <span class="glyphicon glyphicon-arrow-left"></span>
-                < BACK </router-link>
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                BACK
+            </router-link>
         </div>
         <div v-else>
             <div class="completionContainer alert" v-bind:class="{ 'alert-success': completionSuccess, 'alert-danger': !completionSuccess }" role="alert">
@@ -21,7 +22,6 @@
                 <a href="/dashboard" class="btn btn-primary btn-block">
                     Account Settings
                 </a>
-
             </div>
         </div>
     </div>
@@ -78,7 +78,7 @@ module.exports = {
             }));
         },
         emailChanged: function(e) {
-        	console.log("EMAIL CHANGED");
+            console.log("EMAIL CHANGED");
             this.$emit('email-changed', e.target.value);
         }
     },

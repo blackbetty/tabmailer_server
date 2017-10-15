@@ -1,18 +1,92 @@
 <template>
-    <p>goodbye</p>
+    <div>
+        <div class="dashboard-component-container border-secondary rounded">
+            <div class="dashboard-component-header settings-header">
+                <h2 class="display-5">Settings</h2>
+                <hr>
+            </div>
+            <div class="dashboard-component-body settings-body">
+                <div class="form-group">
+                    <label for="targetEmailSetting">Email address</label>
+                    <input type="email" class="form-control" id="targetEmailSetting" aria-describedby="emailHelp" placeholder="Enter new email">
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Save And Send Confirmation</button>
+                    <br>
+                    <br>
+                    <div class="alert alert-info" role="alert">
+                        <strong>Heads up!</strong> Due to security concerns, you must press the above button and confirm any changes to your email settings. All other settings auto-save.
+                    </div>
+                    <hr>
+                    <br>
+                    <label for="email-dropdown-container">How frequently do you want TabMailer to check your account?</label>
+                    <div class="dropdown-container" id="email-dropdown-container">
+                        <button @click="dropdownMenuShow = !dropdownMenuShow">
+                            {{ dropdownSelected }}
+                        </button>
+                        <i class="fa fa-caret-down" aria-hidden="true"></i>
+                        <div class="dd" v-if="dropdownMenuShow">
+                            <div @click="setDropdownSelected('Daily')" class="disabled">
+                                <span>Daily</span>
+                            </div>
+                            <div @click="setDropdownSelected('Weekly')" class="disabled">
+                                <span>Weekly</span>
+                            </div>
+                            <div @click="setDropdownSelected('Monthly')" class="disabled">
+                                <span>Monthly</span>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <label for="tab-closure-container">Close tab on saving</label>
+                    <div id="tab-closure-container" class="container-fluid">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="tabClosureRadios" id="tabClosureRadios1" value="true" checked> Yes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="tabClosureRadios" id="tabClosureRadios2" value="false"> No
+                            </label>
+                        </div>
+                    </div>
+                    <br>
+                    <label for="email-format-container">Email format:</label>
+                    <div id="email-format-container" class="container-fluid">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios1" value="individual" checked> Individual Links
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios2" value="digest"> Digest Mode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 <script>
 module.exports = {
     data: function() {
         return {
+            dropdownMenuShow: false,
+            dropdownSelected: 'Daily'
         }
     },
     methods: {
+        setDropdownSelected: function(val) {
+            this.dropdownSelected = val;
+            this.dropdownMenuShow = false;
+        }
     },
     mounted: function() {
 
     },
-    computed: {
-    }
+    computed: {}
 }
 </script>

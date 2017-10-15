@@ -13,8 +13,9 @@
                     NEXT
                 </router-link>
                 <router-link class="btn btn-danger btn-block" to="/1">
-                    <span class="glyphicon glyphicon-arrow-left"></span>
-                    < BACK </router-link>
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                    BACK
+                </router-link>
             </div>
         </div>
     </div>

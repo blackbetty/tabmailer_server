@@ -7,7 +7,13 @@
             </div>
             <div v-if="showTabHeap">
                 <div class="dashboard-component-body tab-heap-body">
-                    {{ tabObjectsArray }}
+                    <div class="tab-container rounded container-fluid" v-for="tabObject in tabObjectsArray">
+                        <h4 class="display-6">
+                        <span>Title:</span> {{ tabObject.article_title ? tabObject.article_title : 'Page title unavailable... ' }}
+                        </h4> Link:
+                        <a :href="tabObject.article_url"> {{ tabObject.article_url }} </a>
+                        <p>Added at: {{ generateDateTime(tabObject.datetime_added) }}</p>
+                    </div>
                 </div>
             </div>
             <div class="flexbox" v-else>
@@ -19,6 +25,8 @@
     </div>
 </template>
 <script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment-with-locales.min.js"></script>
 module.exports = {
     props: ['showTabHeap'],
     created: function() {
@@ -37,6 +45,11 @@ module.exports = {
             this.tabObjectsArray = tabs;
             console.log(this.tabObjectsArray);
             callback();
+        },
+        generateDateTime(timeInt) {
+            var t = new Date(timeInt);
+            var formattedTime = t.format("dd/mm/yyyy hh:MM:ss");
+            return formattedTime;
         }
     },
     mounted: function() {},

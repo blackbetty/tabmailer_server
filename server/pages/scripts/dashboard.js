@@ -6,27 +6,18 @@ const FETCH_USER_SETTINGS_URL = '/settings';
 var loadGapi = function() {
     gapi.load('client:auth2', {
         callback: function() {
-            // Handle gapi.client initialization.
-            // initGapiClient();
             gapi.auth2.init().then(function() {
                 gAuthInstance = gapi.auth2.getAuthInstance();
-
 
                 if (gAuthInstance.isSignedIn.get()) {
                     console.log('this line got hit');
                     var googleUser = gAuthInstance.currentUser.get();
                     dashboardVueInstance.onSignIn(googleUser);
-                    // dashboardVueInstance.showSettings = true;
-                    // dashboardVueInstance.showTabHeap = true;
                 } else {
 
                     gAuthInstance.signIn().then(function(googleUser) {
                         console.log(googleUser);
                         dashboardVueInstance.onSignIn(googleUser);
-                        // dashboardVueInstance.showSettings = true;
-                        // dashboardVueInstance.showTabHeap = true;
-                        // after this we fetch use the authenticated fetchUserObject route, which if it returns true,
-                        // we set the following to true
 
                     });
                 }
@@ -47,15 +38,6 @@ var loadGapi = function() {
 
 // event bus instance
 const EventBus = new Vue();
-
-// Object.defineProperties(Vue.prototype, {
-//     $bus: {
-//         get: function() {
-//             return EventBus
-//         }
-//     }
-// })
-
 
 // This flow's parent component
 var dashboardVueInstance = new Vue({
@@ -85,6 +67,7 @@ var dashboardVueInstance = new Vue({
                     });
                 } else {
                     console.log('TABS reponse false!');
+
                     // credentialErrorFillerVar Eventually this will have to be an actual functionality
                     var credentialErrorFillerVar = false;
                     if (credentialErrorFillerVar) {

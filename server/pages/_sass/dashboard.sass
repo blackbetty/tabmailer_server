@@ -1,3 +1,9 @@
+$dd-height: 30px;
+// $dd-width: 100%;
+$dd-width: 200px;
+$dd-border-color: #0069d9;
+$dd-fill-color: #ffffff;
+$card-fill-color: white;
 
 
 #app-dashboard
@@ -12,20 +18,29 @@
 		.dashboard-component-container
 			background-color: white;
 			padding: 20px;
-			box-shadow: 10px 10px 5px rgba(0,0,0,0.4);
+			box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
 			color: rgba(0,0,0,0.8);
 			// max-height: 700px;
 			// overflow: auto;
 			margin-bottom: 20px;
 		.dashboard-component-body
 			// overflow: auto;
+		.tab-heap-body
+			.tab-container
+				background-color: $card-fill-color;
+				padding: 20px 20px 0px 20px;
+				box-shadow: 5px 5px 5px rgba(0,0,0,0.08);
+				color: rgba(0,0,0,0.8);
+				border: 1px solid $dd-border-color;
+				margin-bottom: 20px;
+				h4
+					color: $dd-border-color;
+					span
+						color: grey;
+				p
+					margin-top: 20px;
 
 
-$dd-height: 30px;
-// $dd-width: 100%;
-$dd-width: 200px;
-$dd-border-color: #0069d9;
-$dd-fill-color: #ffffff;
 
 .dropdown-container
 	position: relative;

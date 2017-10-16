@@ -21,21 +21,18 @@ if (process.env.NODE_ENV === 'development') {
 // *****************************************************************
 
 
-module.exports = function(googleUserID, url, callback) {
+module.exports = function(googleUserID, tab_url, tab_title, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
-
-
-
-    //fix this later to use authkey
     query.filter('google_user_id', googleUserID);
 
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
         var article_entity = {
-            article_url: url,
+            article_url: tab_url,
+            article_title: tab_title,
             datetime_added: Date.now() //,
             // saved_article_id: Math.floor(Math.random() * 10000000000000000);
         }

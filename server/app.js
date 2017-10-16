@@ -183,7 +183,7 @@ app.post('/linksforuser', function(req, res) {
 
         var googleUserID = body.id;
 
-        saveLink(googleUserID, req.body.tab_url, function(userEntity) {
+        saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function(userEntity) {
             logger.info('USER LINK POST SUCCEEDED', {
                 tab_url: req.body.tab_url
             });

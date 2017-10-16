@@ -76,21 +76,21 @@ var dashboardVueInstance = new Vue({
                     console.log(res);
                 }
             })
-            // this.sendRequestWithGoogleIDToken('GET', FETCH_USER_SETTINGS_URL, id_token, function(success, res) {
-            //     console.info('SETTINGS reponse received!');
-            //     if (success) {
-            //         console.info('SETTINGS reponse true!');
-            //         dashboardVueInstance.showSettings = true;
-            //     } else {
-            //         console.info('SETTINGS reponse false!');
-            //         // credentialErrorFillerVar Eventually this will have to be an actual functionality
-            //         var credentialErrorFillerVar = false;
-            //         if (credentialErrorFillerVar) {
+            this.sendRequestWithGoogleIDToken('GET', FETCH_USER_SETTINGS_URL, id_token, function(success, res) {
+                console.info('SETTINGS reponse received!');
+                if (success) {
+                    console.info('SETTINGS reponse true!');
+                    dashboardVueInstance.showSettings = true;
+                } else {
+                    console.info('SETTINGS reponse false!');
+                    // credentialErrorFillerVar Eventually this will have to be an actual functionality
+                    var credentialErrorFillerVar = false;
+                    if (credentialErrorFillerVar) {
 
-            //             dashboardVueInstance.credentialError = true;
-            //         }
-            //     }
-            // })
+                        dashboardVueInstance.credentialError = true;
+                    }
+                }
+            })
         },
         sendRequestWithGoogleIDToken: function(method, url, google_id_token, callback) {
             var xhr = new XMLHttpRequest();

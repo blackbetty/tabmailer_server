@@ -243,8 +243,8 @@ app.get('/linksforuser', function(req, res) {
                 console.log(userEntity);
                 res.send(userEntity);
             });
-        });
-
+        }
+    );
 });
 
 
@@ -258,14 +258,71 @@ app.get('/linksforuser', function(req, res) {
 
 app.get('/settings', function(req, res) {
 
-    // since I don't have auth yet, this val isn't used
-    // we just default to my user
-    var auth_key = 'notyet';
     console.log('HIT SETTINGS FOR USER ROUTE');
-    // getLinksForUser(auth_key, function(userEntity) {
-    //     console.log('user fetched');
-    //     res.send(userEntity);
-    // });
+
+    logger.debug('HIT GET LINKS FOR USER ROUTE');
+    if (!req.query.google_auth_token) {
+
+        logger.debug('USER SETTINGS GET FAILED: NO AUTH TOKEN', {
+            'request-body': util.inspect(req.body),
+            'request-query': util.inspect(req.query)
+        })
+        res.status(400).send('No Google Auth Token Received');
+        return;
+    }
+
+    gapiClient.verifyIdToken(
+        req.query.google_auth_token,
+        process.env.GAPI_CLIENT_ID,
+        function(e, login) {
+            if (e) {
+                console.log(login);
+                console.log("----------------SETTINGS FETCH REQUEST ERROR ALYARMMMM");
+                console.log(e)
+                res.status(400).send(e);
+            }
+            var payload = login.getPayload();
+
+
+            if (payload.errors) {
+                logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT', {
+                    'response-body': util.inspect(payload),
+                    'response-errors': util.inspect(payload.errors)
+                })
+                res.status(400).send(payload.errors);
+            }
+
+            var googleUserID = payload['sub'];
+
+            getSettingsForUser(googleUserID, function(userEntity) {
+                console.log('user fetched');
+                console.log(userEntity);
+                res.send(userEntity);
+            });
+        }
+    );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     res.sendStatus(200);
 });
 

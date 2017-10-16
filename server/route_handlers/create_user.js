@@ -45,6 +45,11 @@ module.exports = function(emailaddress, username, google_user_id, callback) {
                 google_user_id: google_user_id,
                 username: username,
                 article_list: [],
+                settings: {
+                    frequency: 'DAILY',
+                    close_tab: true,
+                    email_format: 'individual'
+                },
                 date_user_created: Date.now(),
                 activated: false
             };

@@ -31,7 +31,7 @@ module.exports = {
     props: ['showTabHeap'],
     created: function() {
         EventBus.$on('tabsLoadedEvent', (tabs, cb) => {
-            console.log('tabsLoadedEvent triggered and responded to by child!');
+            // console.log('tabsLoadedEvent triggered and responded to by child!');
             this.setTabData(tabs, cb);
         });
     },
@@ -43,7 +43,6 @@ module.exports = {
     methods: {
         setTabData: function(tabs, callback) {
             this.tabObjectsArray = tabs;
-            console.log(this.tabObjectsArray);
             callback();
         },
         generateDateTime(timeInt) {

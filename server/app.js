@@ -10,6 +10,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
+var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
 var httpsRedirect = require('express-https-redirect');
@@ -258,7 +259,7 @@ app.get('/linksforuser', function(req, res) {
 
 app.get('/settings', function(req, res) {
 
-    console.log('HIT SETTINGS FOR USER ROUTE');
+    logger.debug('HIT SETTINGS FOR USER ROUTE');
 
     logger.debug('HIT GET LINKS FOR USER ROUTE');
     if (!req.query.google_auth_token) {
@@ -297,33 +298,26 @@ app.get('/settings', function(req, res) {
             getSettingsForUser(googleUserID, function(userEntity) {
                 console.log('user fetched');
                 console.log(userEntity);
-                res.send(userEntity);
+
+                // because I didn't include a settings object to start now we have to control for it somehow
+                // they'll be created by the UI every time the settings are updated, so if they're empty we
+                // just create a default one
+                if (!userEntity) {
+                    res.status(404).send('No user exists for that ID');
+                } else if (!userEntity['settings']) {
+                    logger.debug('Settings object didn\'t exist for user, returning empty obj JSON');
+                    res.status(200).send('{}');
+                } else if (Object.keys(userEntity['settings']).length === 0 && userEntity['settings'].constructor === Object) {
+                    logger.debug('Settings object for user was empty, returning empty obj JSON');
+                    res.status(200).send('{}');
+                } else {
+                    res.status(200).send(userEntity['settings']);
+                }
+
             });
         }
     );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    res.sendStatus(200);
 });
 
 

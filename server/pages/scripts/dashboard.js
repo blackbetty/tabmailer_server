@@ -10,13 +10,11 @@ var loadGapi = function() {
                 gAuthInstance = gapi.auth2.getAuthInstance();
 
                 if (gAuthInstance.isSignedIn.get()) {
-                    console.log('this line got hit');
                     var googleUser = gAuthInstance.currentUser.get();
                     dashboardVueInstance.onSignIn(googleUser);
                 } else {
 
                     gAuthInstance.signIn().then(function(googleUser) {
-                        console.log(googleUser);
                         dashboardVueInstance.onSignIn(googleUser);
 
                     });
@@ -58,31 +56,31 @@ var dashboardVueInstance = new Vue({
             var id_token = googleUser.getAuthResponse().id_token;
             //this call always hits production data (for now)
             this.sendRequestWithGoogleIDToken('GET', FETCH_USER_TABS_URL, id_token, function(success, res) {
-                console.log('TABS reponse received!');
                 if (success) {
-                    console.log('TABS reponse true!');
                     EventBus.$emit('tabsLoadedEvent', JSON.parse(res).article_list, function() {
-                        console.log('tabheapshown');
+
                         dashboardVueInstance.showTabHeap = true;
                     });
                 } else {
-                    console.log('TABS reponse false!');
 
                     // credentialErrorFillerVar Eventually this will have to be an actual functionality
                     var credentialErrorFillerVar = false;
                     if (credentialErrorFillerVar) {
                         dashboardVueInstance.credentialError = true;
                     }
-                    console.log(res);
+
                 }
             })
             this.sendRequestWithGoogleIDToken('GET', FETCH_USER_SETTINGS_URL, id_token, function(success, res) {
-                console.info('SETTINGS reponse received!');
+
                 if (success) {
-                    console.info('SETTINGS reponse true!');
-                    dashboardVueInstance.showSettings = true;
+
+                    EventBus.$emit('settingsLoadedEvent', JSON.parse(res), function() {
+
+                        dashboardVueInstance.showSettings = true;
+                    });
                 } else {
-                    console.info('SETTINGS reponse false!');
+
                     // credentialErrorFillerVar Eventually this will have to be an actual functionality
                     var credentialErrorFillerVar = false;
                     if (credentialErrorFillerVar) {
@@ -97,13 +95,13 @@ var dashboardVueInstance = new Vue({
             var req_body = {};
             if (method === "GET") {
                 var urlWithParams = url + "?google_auth_token=" + google_id_token;
-                // console.log(urlWithParams);
+
                 xhr.open(method, urlWithParams, true);
 
             } else {
-                console.log(google_id_token);
+
                 req_body['google_auth_token'] = google_id_token;
-                // console.log(req_body);
+
                 xhr.open(method, url, true);
 
             }
@@ -118,7 +116,7 @@ var dashboardVueInstance = new Vue({
                 } else if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
                     callback(true, xhr.response);
                 } else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
-                    console.log(xhr.response);
+
                     callback(false, xhr.reponse);
                 }
             }

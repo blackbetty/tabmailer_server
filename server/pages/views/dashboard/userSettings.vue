@@ -2,14 +2,14 @@
     <div>
         <div class="dashboard-component-container border-secondary rounded">
             <div class="dashboard-component-header settings-header">
-                <h2 class="display-5">Settings</h2>
+                <h2 class="display-5" style="display: inline">Settings <small style="color: lightgrey">(WIP + Disabled)</small> </h2>
                 <hr>
             </div>
             <div v-if="showSettings">
-                <div class="dashboard-component-body settings-body">
+                <div class="dashboard-component-body settings-body disabledDiv">
                     <div class="form-group">
                         <label for="targetEmailSetting">Email address</label>
-                        <input type="email" class="form-control" id="targetEmailSetting" aria-describedby="emailHelp" placeholder="Enter new email">
+                        <input v-model="userEmail" type="email" class="form-control" id="targetEmailSetting" aria-describedby="emailHelp" placeholder="Enter new email">
                         <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                         <br>
                         <button type="submit" class="btn btn-primary">Save And Send Confirmation</button>
@@ -80,16 +80,39 @@
 <script>
 module.exports = {
     props: ['showSettings'],
+    created: function() {
+        EventBus.$on('settingsLoadedEvent', (settings, callback) => {
+            // console.log('settingsLoadedEvent triggered and responded to by child!');
+            this.setSettingsData(settings, callback);
+        });
+    },
     data: function() {
         return {
             dropdownMenuShow: false,
-            dropdownSelected: 'Daily'
+            dropdownSelected: 'Daily',
+            userEmail: '',
+            closeTabSetting: true,
+            emailFormatSetting: 'individual',
+            emailFrequencySetting: 'DAILY'
         }
     },
     methods: {
         setDropdownSelected: function(val) {
             this.dropdownSelected = val;
             this.dropdownMenuShow = false;
+        },
+        setSettingsData: function(settingsObj, callback) {
+
+            // If it's empty, we just leave the data at the defaults
+            if (Object.keys(settingsObj).length === 0 &&
+                settingsObj.constructor === Object) {
+                // leave default
+            } else {
+                this.closeTabSetting = settingsObj.close_tab;
+                this.emailFormatSetting = settingsObj.email_format;
+                this.emailFrequencySetting = settingsObj.frequency;
+            }
+            callback();
         }
     },
     mounted: function() {
@@ -97,7 +120,6 @@ module.exports = {
     },
     computed: {},
     updated: function() {
-        console.log('SETTINGS SHOULD SHOW: ' + this.showSettings);
     }
 }
 </script>

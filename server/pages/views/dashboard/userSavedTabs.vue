@@ -2,17 +2,17 @@
     <div>
         <div class="dashboard-component-container border-secondary rounded">
             <div class="dashboard-component-header">
-                <h2 class="display-5">Your Tab Heap</h2>
+                <h2 class="display-5">Your Tab Collection</h2>
                 <hr>
             </div>
             <div v-if="showTabHeap">
                 <div class="dashboard-component-body tab-heap-body">
                     <div class="tab-container rounded container-fluid" v-for="tabObject in tabObjectsArray">
                         <h4 class="display-6">
-                        <span>Title:</span> {{ tabObject.article_title ? tabObject.article_title : 'Page title unavailable... ' }}
-                        </h4> Link:
+                        {{ tabObject.article_title ? tabObject.article_title : 'Page title unavailable... ' }}
+                        </h4>
                         <a :href="tabObject.article_url"> {{ tabObject.article_url }} </a>
-                        <p>Added at: {{ generateDateTime(tabObject.datetime_added) }}</p>
+                        <p class="addedTime">Added on {{ generateDateTime(tabObject.datetime_added) }}</p>
                     </div>
                 </div>
             </div>
@@ -26,7 +26,7 @@
 </template>
 <script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment-with-locales.min.js"></script>
+
 module.exports = {
     props: ['showTabHeap'],
     created: function() {
@@ -47,8 +47,8 @@ module.exports = {
             callback();
         },
         generateDateTime(timeInt) {
-            var t = new Date(timeInt);
-            var formattedTime = t.format("dd/mm/yyyy hh:MM:ss");
+            var formattedTime = moment(timeInt).format("MMMM Do, YYYY [at] hh:mm a") //parse integer
+
             return formattedTime;
         }
     },

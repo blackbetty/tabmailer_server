@@ -4,7 +4,7 @@ var datastore_interface = require('../utilities/datastore_interface');
 const util = require('util');
 const _ = require('underscore');
 var mail_sender = require('./mail_sender.js');
-
+var moment = require('moment');
 
 
 // var testJob = new cron.CronJob('* * * * * *', function() {
@@ -29,23 +29,9 @@ var sendSavedArticles = new cron.CronJob('0 0 * * *', function() {
                         console.log('QUEUEING EMAIL FOR USER' + user.emailaddress);
                         var tabmailBody = 'You asked us to save the following link: ' + article.article_url + ' . There it is!';
                         if (process.env.LIVE_EMAIL) {
-                            // hack, fix later
-                            var today = new Date();
-                            var dd = today.getDate();
-                            var mm = today.getMonth() + 1; //January is 0!
-                            var yyyy = today.getFullYear();
+                            var today = moment().format("dddd, MMMM Do, YYYY");
 
-                            if (dd < 10) {
-                                dd = '0' + dd
-                            }
-
-                            if (mm < 10) {
-                                mm = '0' + mm
-                            }
-                            // \endhack
-
-                            today = mm + '/' + dd + '/' + yyyy;
-                            mail_sender.sendEmail(user.emailaddress, 'Your TabMailer Link For: '+ today, tabmailBody);
+                            mail_sender.sendEmail(user.emailaddress, 'Your TabMailer Link For '+ today, tabmailBody);
                         }
 
                         indicesToDrop.push(user.article_list.indexOf(article));

@@ -41,7 +41,7 @@ var sendSavedArticles = new cron.CronJob('0 0 * * *', function() {
             for (i = 0; i < indicesToDrop.length; i++) {
                 user.article_list.splice(indicesToDrop[i], 1);
             }
-            // console.log("Article List AFTER: " + util.inspect(user.article_list) + "\n");
+
             datastore_interface.setValueForProperty(user, 'article_list', user.article_list, function(updatedUser) {
                 if (process.env.DEVMODE) {
 

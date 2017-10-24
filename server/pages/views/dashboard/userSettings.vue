@@ -8,18 +8,6 @@
             <div v-if="showSettings">
                 <div class="dashboard-component-body settings-body disabledDiv">
                     <div class="form-group">
-                        <label for="targetEmailSetting">Email address</label>
-                        <input v-model="userEmail" type="email" class="form-control" id="targetEmailSetting" aria-describedby="emailHelp" placeholder="Enter new email">
-                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                        <br>
-                        <button type="submit" class="btn btn-primary">Save And Send Confirmation</button>
-                        <br>
-                        <br>
-                        <div class="alert alert-info" role="alert">
-                            <strong>Heads up!</strong> Due to security concerns, you must press the above button and confirm any changes to your email settings. All other settings auto-save.
-                        </div>
-                        <hr>
-                        <br>
                         <label for="email-dropdown-container">How frequently do you want TabMailer to check your account?</label>
                         <div class="dropdown-container" id="email-dropdown-container">
                             <button @click="dropdownMenuShow = !dropdownMenuShow">
@@ -66,6 +54,19 @@
                                 </label>
                             </div>
                         </div>
+                        <br>
+                        <hr>
+                        <br>
+                        <label for="targetEmailSetting">Email address</label>
+                        <input v-model="userEmail" type="email" class="form-control" id="targetEmailSetting" aria-describedby="emailHelp" placeholder="Enter new email">
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                        <br>
+                        <div class="alert alert-info" v-if="userEmail.trim()!=''" role="alert">
+                            <strong>Heads up!</strong> Due to security concerns, you must press the above button and confirm any changes to your email settings. All other settings auto-save.
+                        </div>
+                        <button :disabled="!emailButtonEnabled" type="submit" class="btn btn-primary">Save And Send Confirmation</button>
+                        <br>
+                        <br>
                     </div>
                 </div>
             </div>
@@ -93,13 +94,18 @@ module.exports = {
             userEmail: '',
             closeTabSetting: true,
             emailFormatSetting: 'individual',
-            emailFrequencySetting: 'DAILY'
+            emailFrequencySetting: 'DAILY',
+            emailValid: false
         }
     },
     methods: {
         setDropdownSelected: function(val) {
             this.dropdownSelected = val;
             this.dropdownMenuShow = false;
+        },
+        is_email: function(email) {
+            var emailReg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            return emailReg.test(email);
         },
         setSettingsData: function(settingsObj, callback) {
 
@@ -118,8 +124,14 @@ module.exports = {
     mounted: function() {
 
     },
-    computed: {},
-    updated: function() {
-    }
+    computed: {
+        emailButtonEnabled: function() {
+            if (this.is_email(this.userEmail.trim())) {
+                return true;
+            }
+            return false;
+        }
+    },
+    updated: function() {}
 }
 </script>

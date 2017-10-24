@@ -11,6 +11,7 @@ var bodyParser = require('body-parser');
 var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
+var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
 var httpsRedirect = require('express-https-redirect');
@@ -188,7 +189,13 @@ app.post('/linksforuser', function(req, res) {
             logger.info('USER LINK POST SUCCEEDED', {
                 tab_url: req.body.tab_url
             });
-            res.send(req.body.tab_url);
+
+            if (userEntity.settingsChanged == true) {
+                // if its true send an object that contains a url and the settings object
+            } else {
+                res.send(req.body.tab_url);
+            }
+
         });
 
     });
@@ -310,6 +317,85 @@ app.get('/settings', function(req, res) {
                 } else if (Object.keys(userEntity['settings']).length === 0 && userEntity['settings'].constructor === Object) {
                     logger.debug('Settings object for user was empty, returning empty obj JSON');
                     res.status(200).send('{}');
+                } else {
+                    res.status(200).send(userEntity['settings']);
+                }
+
+            });
+        }
+    );
+
+});
+
+app.post('/settings', function(req, res) {
+
+    logger.debug('HIT SETTINGS POST ROUTE');
+
+    var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
+        logger.debug(loggerError, {
+            'request-body': util.inspect(errorBody)
+        })
+        res.status(400).send(userFacingError);
+        return;
+    }
+
+    logger.debug('HIT POST LINKS FOR USER ROUTE');
+    if (!req.body.google_auth_token) {
+        handleSettingsPostError(
+            'USER SETTINGS POST FAILED: No Auth Token',
+            req.body,
+            'No Google Auth Token Received'
+        );
+        return;
+    }
+
+    if (!req.body.newSettings) {
+        handleSettingsPostError(
+            'USER SETTINGS POST FAILED: No new settings specified',
+            req.body,
+            'No settings object received'
+        );
+        return;
+    }
+
+    gapiClient.verifyIdToken(
+        req.body.google_auth_token,
+        process.env.GAPI_CLIENT_ID,
+        function(e, login) {
+
+            // how do I handle this more gracefully?
+            if (e || payload.errors) {
+                if (e && !payload.errors) {
+                    logger.error(login);
+                    logger.error("----------------SETTINGS POST REQUEST ERROR");
+                    logger.error(e)
+                    res.status(400).send(e);
+                } else if (payload.errors && !e) {
+                    logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN SETTINGS POST', {
+                        'response-body': util.inspect(payload),
+                        'response-errors': util.inspect(payload.errors)
+                    })
+                    res.status(400).send(payload.errors);
+                } else {
+                    logger.debug('Compound error in settings post auth verification', {
+                        'response-body': util.inspect(payload),
+                        'response-errors': util.inspect(e)
+                    })
+                    res.status(400).send(payload.errors);
+                }
+            }
+
+            var payload = login.getPayload();
+
+            var googleUserID = payload['sub'];
+
+            updateSettingsForUser(googleUserID, req.body.newSettings, function(userEntity) {
+
+                // because I didn't include a settings object to start now we have to control for it somehow
+                // they'll be created by the UI every time the settings are updated, so if they're empty we
+                // just create a default one
+                if (!userEntity) {
+                    res.status(404).send('No user exists for that ID');
                 } else {
                     res.status(200).send(userEntity['settings']);
                 }

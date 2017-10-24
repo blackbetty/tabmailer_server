@@ -20,10 +20,10 @@
         <div class="container-fluid dashboard-container">
             <div v-if="!credentialError">
                 <div class="row">
-                    <div class="col">
+                    <div class="col column-thing">
                         <user-settings :show-settings="showSettings"></user-settings>
                     </div>
-                    <div class="col">
+                    <div class="col column-thing">
                         <user-saved-tabs v-bind:tabs="$data.tabs" :show-tab-heap="showTabHeap"></user-saved-tabs>
                     </div>
                 </div>

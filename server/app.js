@@ -339,7 +339,6 @@ app.post('/settings', function(req, res) {
         return;
     }
 
-    logger.debug('HIT POST LINKS FOR USER ROUTE');
     if (!req.body.google_auth_token) {
         handleSettingsPostError(
             'USER SETTINGS POST FAILED: No Auth Token',
@@ -349,7 +348,7 @@ app.post('/settings', function(req, res) {
         return;
     }
 
-    if (!req.body.newSettings) {
+    if (!req.body.newKey) {
         handleSettingsPostError(
             'USER SETTINGS POST FAILED: No new settings specified',
             req.body,
@@ -362,7 +361,7 @@ app.post('/settings', function(req, res) {
         req.body.google_auth_token,
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
-
+            var payload = login.getPayload();
             // how do I handle this more gracefully?
             if (e || payload.errors) {
                 if (e && !payload.errors) {
@@ -389,7 +388,7 @@ app.post('/settings', function(req, res) {
 
             var googleUserID = payload['sub'];
 
-            updateSettingsForUser(googleUserID, req.body.newSettings, function(userEntity) {
+            updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function(userEntity) {
 
                 // because I didn't include a settings object to start now we have to control for it somehow
                 // they'll be created by the UI every time the settings are updated, so if they're empty we

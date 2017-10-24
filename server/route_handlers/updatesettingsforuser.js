@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 // *****************************************************************
 
 
-module.exports = function(googleUserID, newSettings, callback) {
+module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
@@ -30,16 +30,14 @@ module.exports = function(googleUserID, newSettings, callback) {
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
-        var article_entity = {
-            article_url: tab_url,
-            article_title: tab_title,
-            datetime_added: Date.now() //,
-            // saved_article_id: Math.floor(Math.random() * 10000000000000000);
-        }
 
 
         // this line is what gets updated
-        userEntity['article_list'].push(article_entity);
+        if(!userEntity['settings']){
+            userEntity['settings'] = {};
+        }
+
+        userEntity['settings'][newSettingKey] = newSettings;
 
 
 

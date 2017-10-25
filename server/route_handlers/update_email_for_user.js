@@ -36,10 +36,9 @@ module.exports = function(googleUserID, newEmail, callback) {
         userEntity['emailaddress'] = newEmail;
         console.log(userEntity.emailaddress);
         userEntity['activated'] = false;
-
+        userEntity.user_hash = hash(userEntity);
         datastoreClient.update(userEntity)
             .then(() => {
-                console.log('userEntity1');
 
 
 
@@ -48,7 +47,6 @@ module.exports = function(googleUserID, newEmail, callback) {
                     kind: 'tabmailer_user'
                 }
 
-                userEntity.user_hash = hash(userEntity);
                 const activationEntity = {
                     key: userKey,
                     data: userEntity

@@ -152,7 +152,7 @@ module.exports = {
             // which on a GET gets ignored anyway
             xhr.send(JSON.stringify(req_body));
         },
-        postSettingsChange: function(settingName, settingValue) {
+        postSettingsChange: function(settingName, settingValue, callback) {
             var scopedPost = id_token => {
                 this.sendRequestWithGoogleIDToken('POST',
                     POST_USER_SETTINGS_URL,
@@ -161,9 +161,9 @@ module.exports = {
                     settingValue,
                     function(success, res) {
                         if (success) {
-                            console.log("POSTED");
+                            callback(res);
                         } else {
-                            console.log("SOME DAMN ERROR");
+                            callback(res);
                         }
                     }
                 );
@@ -181,7 +181,9 @@ module.exports = {
         },
         handleTabSettingChanges: function(setting, previousSetting) {
 
-            this.postSettingsChange('close_tab', setting);
+            this.postSettingsChange('close_tab', setting, function(response){
+                console.log(response);
+            });
         },
         setSettingsData: function(settingsObj, callback) {
 

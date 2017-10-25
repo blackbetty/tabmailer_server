@@ -11,6 +11,7 @@ var bodyParser = require('body-parser');
 var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
+var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
@@ -192,8 +193,13 @@ app.post('/linksforuser', function(req, res) {
 
             if (userEntity.settingsChanged == true) {
                 // if its true send an object that contains a url and the settings object
+                resetSettingsChangedAttrib(userEntity.google_user_id);
+                res.send({
+                    saved_url: req.body.tab_url,
+                    newSettings: userEntity.settings
+                });
             } else {
-                res.send(req.body.tab_url);
+                res.send({ saved_url: req.body.tab_url });
             }
 
         });

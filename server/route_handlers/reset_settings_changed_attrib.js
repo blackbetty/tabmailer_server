@@ -18,10 +18,11 @@ if (process.env.NODE_ENV === 'development') {
     };
 }
 
+
 // *****************************************************************
 
 
-module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
+module.exports = function(googleUserID, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
@@ -32,13 +33,7 @@ module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
         var userEntity = entities[0];
 
 
-        // Some user objects don't have settings because I didn't account for them at first
-        if(!userEntity['settings']){
-            userEntity['settings'] = {};
-        }
-
-        userEntity['settings'][newSettingKey] = newSettings;
-        userEntity['settingsChanged'] = true;
+        userEntity['settingsChanged'] = false;
 
 
 
@@ -46,9 +41,12 @@ module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
             .then(() => {
                 // Task updated successfully.
                 if (process.env.DEVMODE) {
-                    console.log(userEntity);
+                    console.log("Settings Changed Reset For: " + userEntity);
                 }
-                callback(userEntity);
+                if(callback){
+                    callback(userEntity);
+                }
+
             });
     });
 }

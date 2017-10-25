@@ -70,7 +70,7 @@ var dashboardVueInstance = new Vue({
                     }
 
                 }
-            })
+            });
             this.sendRequestWithGoogleIDToken('GET', FETCH_USER_SETTINGS_URL, id_token, function(success, res) {
 
                 if (success) {

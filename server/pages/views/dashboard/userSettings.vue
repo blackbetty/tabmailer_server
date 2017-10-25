@@ -84,7 +84,7 @@
                         <div class="alert alert-info" v-if="userEmail.trim()!=''" role="alert">
                             <strong>Heads up!</strong> Due to security concerns, you must press the above button and confirm any changes to your email settings. All other settings auto-save.
                         </div>
-                        <button :disabled="!emailButtonEnabled" type="submit" class="btn btn-primary">Save And Send Confirmation</button>
+                        <button v-on:click="handleEmailSettingChanges" :disabled="!emailButtonEnabled" type="submit" class="btn btn-primary">Save And Send Confirmation</button>
                         <br>
                         <br>
                     </div>
@@ -100,6 +100,7 @@
 </template>
 <script>
 const POST_USER_SETTINGS_URL = '/settings';
+const POST_USER_EMAIL_URL = '/email';
 module.exports = {
     props: ['showSettings'],
     created: function() {
@@ -188,11 +189,53 @@ module.exports = {
                 });
             }
         },
+        postEmailChange: function(emailValue, callback) {
+            var scopedPost = id_token => {
+                this.sendRequestWithGoogleIDToken('POST',
+                    POST_USER_EMAIL_URL,
+                    id_token,
+                    'emailaddress',
+                    emailValue,
+                    function(success, res) {
+                        callback(success, res);
+                    }
+                );
+            }
+            if (gAuthInstance.isSignedIn.get()) {
+                console.log('hit Gauth Instance ');
+                var googleUser = gAuthInstance.currentUser.get();
+                //just so I don't have two massive blocks that do the same thing
+                scopedPost(googleUser.getAuthResponse().id_token);
+            } else {
+                console.log('hit Gauth Instance ');
+                gAuthInstance.signIn().then(function(googleUser) {
+                    scopedPost(googleUser.getAuthResponse().id_token);
+                });
+            }
+        },
         handleTabSettingChanges: function(setting, previousSetting) {
 
             this.postSettingsChange('close_tab', setting, (success, response) => {
                 if (success) {
-                    console.log("hit stuccess");
+
+                    this.settingsUpdateSucceeded = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateSucceeded = false;
+                    }, 2000);
+                } else {
+                    this.settingsUpdateFailed = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateFailed = false;
+                    }, 2000);
+                }
+            });
+        },
+        handleEmailSettingChanges: function() {
+
+            this.postEmailChange(this.userEmail, (success, response) => {
+                if (success) {
                     this.settingsUpdateSucceeded = true;
 
                     setTimeout(() => {

@@ -12,6 +12,7 @@ var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
 var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
+var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 var path = require('path');
@@ -405,6 +406,82 @@ app.post('/settings', function(req, res) {
                     res.status(200).send(userEntity['settings']);
                 }
 
+            });
+        }
+    );
+
+});
+
+
+app.post('/email', function(req, res) {
+
+    logger.debug('HIT EMAIL UPDATE ROUTE');
+
+    var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
+        var errorPrefix = 'USER EMAIL UPDATE FAILED: '
+        logger.debug(errorPrefix + loggerError, {
+            'request-body': util.inspect(errorBody)
+        })
+        res.status(400).send(userFacingError);
+        return;
+    }
+
+    if (!req.body.google_auth_token) {
+        handleSettingsPostError(
+            'No Auth Token',
+            req.body,
+            'No Google Auth Token Received'
+        );
+        return;
+    }
+
+    if (!req.body.emailaddress) {
+        handleSettingsPostError(
+            'No new email specified',
+            req.body,
+            'No email address received'
+        );
+        return;
+    }
+
+    gapiClient.verifyIdToken(
+        req.body.google_auth_token,
+        process.env.GAPI_CLIENT_ID,
+        function(e, login) {
+            var payload = login.getPayload();
+            // how do I handle this more gracefully?
+            if (e || payload.errors) {
+                if (e && !payload.errors) {
+                    logger.error(login);
+                    logger.error("----------------EMAIL UPDATE REQUEST ERROR");
+                    logger.error(e)
+                    res.status(400).send(e);
+                } else if (payload.errors && !e) {
+                    logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN EMAIL UPDATE POST', {
+                        'response-body': util.inspect(payload),
+                        'response-errors': util.inspect(payload.errors)
+                    })
+                    res.status(400).send(payload.errors);
+                } else {
+                    logger.debug('Compound error in email update auth verification', {
+                        'response-body': util.inspect(payload),
+                        'response-errors': util.inspect(e)
+                    })
+                    res.status(400).send(payload.errors);
+                }
+            }
+
+            var payload = login.getPayload();
+
+            var googleUserID = payload['sub'];
+
+            updateEmailForUser(googleUserID, req.body.emailaddress, function(userEntity) {
+                if (!userEntity) {
+                    res.status(404).send('No user exists for that ID or an unknown error occurred');
+                }
+                else {
+                    res.status(200).send(userEntity);
+                }
             });
         }
     );

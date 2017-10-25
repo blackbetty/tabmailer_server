@@ -52,7 +52,11 @@ $card-fill-color: white;
 			padding: 10px;
 			color: rgba(0,0,0,0.4) !important;
 			display: none;
-
+	.settingsChangedAlert
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		z-index: 10;
 
 .dropdown-container
 	position: relative;
@@ -199,3 +203,22 @@ $card-fill-color: white;
   100%
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
+
+
+
+
+// Transition
+.expand-transition
+	transition: all .3s ease;
+	height: 30px;
+	padding: 10px;
+	background-color: #eee;
+	overflow: hidden;
+
+/* .expand-enter defines the starting state for entering */
+/* .expand-leave defines the ending state for leaving */
+.expand-enter, .expand-leave
+	height: 0;
+	padding: 0 10px;
+	opacity: 0;
+

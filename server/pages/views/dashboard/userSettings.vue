@@ -1,5 +1,19 @@
 <template>
     <div>
+        <transition name="expand">
+            <div class="settingsChangedAlert alert alert-success alert-dismissible fade show" v-if="settingsUpdateSucceeded" role="alert">
+                <button type="button" class="close" v-on:click="settingsUpdateSucceeded=false" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Settings Updated Successfully!</strong>
+            </div>
+        </transition>
+        <div class="settingsChangedAlert alert alert-danger alert-dismissible fade show" v-if="settingsUpdateFailed" role="alert">
+            <button type="button" class="close" v-on:click="settingsUpdateFailed=false" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Something went wrong updating your settings...</strong> please try again later
+        </div>
         <div class="dashboard-component-container border-secondary rounded">
             <div class="dashboard-component-header settings-header">
                 <h2 class="display-5" style="display: inline">Settings <small style="color: lightgrey">(WIP + Disabled)</small> </h2>
@@ -101,7 +115,9 @@ module.exports = {
             closeTabSetting: true,
             emailFormatSetting: 'individual',
             emailFrequencySetting: 'DAILY',
-            emailValid: false
+            emailValid: false,
+            settingsUpdateSucceeded: false,
+            settingsUpdateFailed: false
         }
     },
     methods: {
@@ -117,8 +133,6 @@ module.exports = {
         sendRequestWithGoogleIDToken: function(method, url, google_id_token, postKey, postValue, callback) {
             var xhr = new XMLHttpRequest();
             var req_body = {};
-            console.log(postKey);
-            console.log(postValue);
             if (method === "GET") {
                 var urlWithParams = url + "?google_auth_token=" + google_id_token;
 
@@ -160,15 +174,10 @@ module.exports = {
                     settingName,
                     settingValue,
                     function(success, res) {
-                        if (success) {
-                            callback(res);
-                        } else {
-                            callback(res);
-                        }
+                        callback(success, res);
                     }
                 );
             }
-            console.log(gAuthInstance);
             if (gAuthInstance.isSignedIn.get()) {
                 var googleUser = gAuthInstance.currentUser.get();
                 //just so I don't have two massive blocks that do the same thing
@@ -181,8 +190,21 @@ module.exports = {
         },
         handleTabSettingChanges: function(setting, previousSetting) {
 
-            this.postSettingsChange('close_tab', setting, function(response){
-                console.log(response);
+            this.postSettingsChange('close_tab', setting, (success, response) => {
+                if (success) {
+                    console.log("hit stuccess");
+                    this.settingsUpdateSucceeded = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateSucceeded = false;
+                    }, 2000);
+                } else {
+                    this.settingsUpdateFailed = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateFailed = false;
+                    }, 2000);
+                }
             });
         },
         setSettingsData: function(settingsObj, callback) {

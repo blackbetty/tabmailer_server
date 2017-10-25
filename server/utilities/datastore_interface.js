@@ -56,9 +56,6 @@ var datastore_interface = {
         user[property] = value;
         datastoreClient.update(user)
             .then(() => {
-                if (process.env.DEVMODE) {
-                    console.log(user);
-                }
                 callback(user);
             });
     }

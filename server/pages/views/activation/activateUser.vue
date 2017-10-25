@@ -45,15 +45,11 @@ module.exports = {
             var dataCookie = this.getCookie('tabmailer_data');
             this.deleteCookie('tabmailer_data');
 
-            console.log(dataCookie);
             if (dataCookie) {
-                console.log(dataCookie);
                 var data = this.parseObjectFromCookie(dataCookie);
-                console.log('this shouldn\'t print');
                 return true;
             } else {
                 // define later
-                console.log('this should print');
                 return false;
             }
         }

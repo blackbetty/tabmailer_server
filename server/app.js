@@ -42,7 +42,7 @@ const logger = new(winston.Logger)({
         new(winston.transports.Console)({
             timestamp: tsFormat,
             colorize: true,
-            level: 'debug'
+            level: 'error'
         }),
         new(require('winston-daily-rotate-file'))({
             filename: `${logDir}/-filelog-router.json`,
@@ -134,7 +134,7 @@ app.get('/activateUser/:userHash', function(req, res) {
                 logger.info('USER ACTIVATED SUCCESSFULLY', {
                     user: userObject
                 })
-                res.cookie('tabmailer_data', JSON.stringify(userObject));
+                res.cookie('tabmailer_data', JSON.stringify(userObject.user_hash));
                 res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
                 // res.end();
             } else {

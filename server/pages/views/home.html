@@ -72,9 +72,12 @@ function onSignIn(googleUser) {
                     <div class="row">
                         <div class="col">
                             <h2 class="display-5"> What is LinkMeLater?</h2>
-                            <p><strong>Tab hoarding</strong>, much like regular hoarding, is born out of a fear of getting rid of something that you may need at some point. As you sit there contemplating how your tab bar got so crowded that you don't even see the "close" icons anymore, you brush off the thought of paring down on your precious tabs. After all, you may eventually, one day, when you need it most, regret closing that 50 page introduction to machine learning that you kept open for 3 1/2 months. You sit there pondering what to do about your tab conundrum, when unexpectedly (except to anyone who had been monitoring your RAM usage), your computer completely evaporates. If only you hadn't hoarded all those tabs!</p>
-                            <p><strong>LinkMeLater</strong> is the result of one man's quest to rid the world of tab hoarding.  This simple Chrome extension closes your tab for you and saves it, emailing it to you at a later, random date, so that can peruse it at your leisure.</p>
-                            <a href="https://chrome.google.com/webstore/detail/tabmailer/hjckfmabbnhjkfejdmiecefhkbekkefe"> Download it here!</a>
+                            <p v-if="1 == 0"><strong>Tab hoarding</strong>, much like regular hoarding, is born out of a fear of getting rid of something that you may need at some point. As you sit there contemplating how your tab bar got so crowded that you don't even see the "close" icons anymore, you brush off the thought of paring down on your precious tabs. After all, you may eventually, one day, when you need it most, regret closing that 50 page introduction to machine learning that you kept open for 3 1/2 months. You sit there pondering what to do about your tab conundrum, when unexpectedly (except to anyone who had been monitoring your RAM usage), your computer completely evaporates. If only you hadn't hoarded all those tabs!</p>
+                            <p><strong>LinkMeLater</strong> is the result of one man's quest to rid the world of <strong>tab hoarding</strong>.  This simple Chrome extension closes a tab for you and saves it, emailing it to you at a random date in the near future, so that can peruse it at your leisure.</p>
+
+
+                            <span>To get <strong>LinkMeLater</strong>, </span><a href="https://chrome.google.com/webstore/detail/tabmailer/hjckfmabbnhjkfejdmiecefhkbekkefe">download it here!</a>
+                            <span> Or, if you already have the extension and an account, <a href="/dashboard">check out your dashboard!</a></span>
                         </div>
                         <div class="col">
                             <fieldset id="sign_up" class="form-group">

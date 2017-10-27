@@ -1,5 +1,5 @@
 const Datastore = require('@google-cloud/datastore');
-
+var logger = require('../utilities/logger.js');
 
 // Refactor this into its own file later
 // *****************************************************************
@@ -31,9 +31,7 @@ module.exports = function(googleUserID, callback) {
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
-        if (process.env.DEVMODE === 'true') {
-            console.log(userEntity);
-        }
+        logger.debug(JSON.stringify(userEntity));
         callback(userEntity);
     });
 }

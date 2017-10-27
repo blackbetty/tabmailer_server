@@ -1,4 +1,5 @@
 const Datastore = require('@google-cloud/datastore');
+var logger = require('../utilities/logger.js');
 
 
 // Refactor this into its own file later
@@ -33,16 +34,15 @@ module.exports = function(googleUserID, tab_url, tab_title, callback) {
         var article_entity = {
             article_url: tab_url,
             article_title: tab_title,
-            datetime_added: Date.now() //,
-            // saved_article_id: Math.floor(Math.random() * 10000000000000000);
+            datetime_added: Date.now()
         }
         userEntity['article_list'].push(article_entity);
         datastoreClient.update(userEntity)
             .then(() => {
-                // Task updated successfully.
-                if (process.env.DEVMODE) {
-                    console.log(userEntity);
-                }
+
+                logger.debug(`Link: "${tab_title}"\nsaved for user: "${userEntity.username}"`);
+                logger.silly(userEntity);
+
                 callback(userEntity);
             });
     });

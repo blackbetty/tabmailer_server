@@ -20,40 +20,12 @@ var httpsRedirect = require('express-https-redirect');
 var user_activator = require('./background_processors/user_activator.js');
 var cron_functions = require('./background_processors/cron_functions.js');
 var request = require('request');
-const fs = require('fs');
-const winston = require('winston');
 const env = process.env.NODE_ENV || 'development';
+const logger = require('./utilities/logger.js');
 
 
 
-const logDir = '/logs';
-// Create the log directory if it does not exist
-console.log("CWD ------------------------------" + process.cwd());
-if (!fs.existsSync(logDir)) {
-    console.log("CWD +++++++++++++++++++++" + process.cwd());
-    console.log("CREATING LOG DIR+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+__+");
-    fs.mkdirSync(logDir);
-}
 
-const tsFormat = () => (new Date()).toLocaleTimeString();
-const logger = new(winston.Logger)({
-    transports: [
-        // colorize the output to the console
-        new(winston.transports.Console)({
-            timestamp: tsFormat,
-            colorize: true,
-            level: 'error'
-        }),
-        new(require('winston-daily-rotate-file'))({
-            filename: `${logDir}/-filelog-router.json`,
-            datePattern: 'yyyy-MM-dd',
-            timestamp: tsFormat,
-            prepend: true,
-            colorize: true,
-            level: env === 'development' ? 'silly' : 'info'
-        })
-    ]
-});
 
 
 
@@ -78,6 +50,7 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function(req, res) {
+    logger.info("GET received... \tHomepage ");
     res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
@@ -85,12 +58,15 @@ app.get('/', function(req, res) {
 
 // User CRUD routes
 app.get('/signup', function(req, res) {
+    logger.info("GET received... \tSignup ");
     res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
 app.post('/createUser', function(req, res) {
+
+    logger.info("POST received... \tCreateUser");
     if (!req.body.gapi_token) {
-        logger.debug('USER CREATION FAILED: NO GOOGLE ID', {
+        logger.warn('USER CREATION FAILED: NO GOOGLE ID', {
             request_body: req.body
         });
         res.status(400).send('No Google ID Token Received: ' + req.body);
@@ -110,7 +86,7 @@ app.post('/createUser', function(req, res) {
             // pass in and store the Google User ID
             createUser(req.body.emailaddress, req.body.username, userid, function(value) {
                 // can be false or The Entity
-                logger.info('Google ID', {
+                logger.debug('Google ID', {
                     authID: userid
                 })
                 res.send(value);
@@ -119,10 +95,13 @@ app.post('/createUser', function(req, res) {
 });
 
 app.get('/dashboard', function(req, res) {
+    logger.info("GET received... \tDashboard ");
     res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
 
 app.get('/activateUser/:userHash', function(req, res) {
+
+    logger.info("GET received... \tActivateUser ");
     if (!req.params.userHash) {
         // if we don't get a user hash, the page doesn't exist :)
         res.sendStatus(404);
@@ -164,7 +143,7 @@ app.get('/activateUser/:userHash', function(req, res) {
 
 app.post('/linksforuser', function(req, res) {
     if (!req.body.google_auth_token) {
-        logger.debug('USER LINKS POST FAILED: NO AUTH TOKEN', {
+        logger.warn('USER LINKS POST FAILED: NO AUTH TOKEN', {
             request_body: req.body
         })
         res.status(400).send('No Google Auth Token Received: ' + req.body);
@@ -179,7 +158,6 @@ app.post('/linksforuser', function(req, res) {
             'Content-Type': 'application/json'
         }
     };
-    // console.log(util.inspect(options));
 
     request(options, function(error, response, body) {
 
@@ -188,7 +166,7 @@ app.post('/linksforuser', function(req, res) {
         var googleUserID = body.id;
 
         saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function(userEntity) {
-            logger.info('USER LINK POST SUCCEEDED', {
+            logger.silly('User link post succeeded calling callback', {
                 tab_url: req.body.tab_url
             });
 
@@ -219,10 +197,10 @@ app.post('/linksforuser', function(req, res) {
 
 app.get('/linksforuser', function(req, res) {
 
-    logger.debug('HIT GET LINKS FOR USER ROUTE');
+    logger.info('GET received... \tLinksForUser');
     if (!req.query.google_auth_token) {
 
-        logger.debug('USER LINKS GET FAILED: NO AUTH TOKEN', {
+        logger.warn('USER LINKS GET FAILED: NO AUTH TOKEN', {
             'request-body': util.inspect(req.body),
             'request-query': util.inspect(req.query)
         })
@@ -235,9 +213,8 @@ app.get('/linksforuser', function(req, res) {
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
             if (e) {
-                console.log(login);
-                console.log("----------------ISSA TAB COLLECTION FETCH REQUEST ERROR Y'ALLLLLLLLLL");
-                console.log(e)
+                logger.warn("Link Collection Fetch Request Error: " + e);
+                logger.silly(login);
                 res.status(400).send(e);
             }
             var payload = login.getPayload();
@@ -254,8 +231,8 @@ app.get('/linksforuser', function(req, res) {
             var googleUserID = payload['sub'];
 
             getLinksForUser(googleUserID, function(userEntity) {
-                console.log('user fetched');
-                console.log(userEntity);
+                logger.debug("User fetch completed for user: " + userEntity.username);
+                logger.silly(userEntity);
                 res.send(userEntity);
             });
         }
@@ -273,11 +250,11 @@ app.get('/linksforuser', function(req, res) {
 
 app.get('/settings', function(req, res) {
 
-    logger.debug('HIT GET SETTINGS FOR USER ROUTE');
+    logger.info('GET received... \tSettings ');
 
     if (!req.query.google_auth_token) {
 
-        logger.debug('USER SETTINGS GET FAILED: NO AUTH TOKEN', {
+        logger.warn('USER SETTINGS GET FAILED: NO AUTH TOKEN', {
             'request-body': util.inspect(req.body),
             'request-query': util.inspect(req.query)
         })
@@ -290,16 +267,15 @@ app.get('/settings', function(req, res) {
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
             if (e) {
-                console.log(login);
-                console.log("----------------SETTINGS FETCH REQUEST ERROR ALYARMMMM");
-                console.log(e)
+                logger.warn("Settings Fetch Request Error: " + e);
+                logger.silly(login);
                 res.status(400).send(e);
             }
             var payload = login.getPayload();
 
 
             if (payload.errors) {
-                logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT', {
+                logger.warn('GOOGLE USER ID REQ RESPONSE BODY ERROR PRESENT', {
                     'response-body': util.inspect(payload),
                     'response-errors': util.inspect(payload.errors)
                 })
@@ -309,8 +285,8 @@ app.get('/settings', function(req, res) {
             var googleUserID = payload['sub'];
 
             getSettingsForUser(googleUserID, function(userEntity) {
-                console.log('user fetched');
-                console.log(userEntity);
+                logger.debug("User fetched for user settings request");
+                logger.silly(userEntity);
 
                 // because I didn't include a settings object to start now we have to control for it somehow
                 // they'll be created by the UI every time the settings are updated, so if they're empty we
@@ -335,10 +311,10 @@ app.get('/settings', function(req, res) {
 
 app.post('/settings', function(req, res) {
 
-    logger.debug('HIT SETTINGS POST ROUTE');
+    logger.debug('POST received... \tSettings');
 
     var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
-        logger.debug(loggerError, {
+        logger.warning(loggerError, {
             'request-body': util.inspect(errorBody)
         })
         res.status(400).send(userFacingError);
@@ -371,9 +347,9 @@ app.post('/settings', function(req, res) {
             // how do I handle this more gracefully?
             if (e || payload.errors) {
                 if (e && !payload.errors) {
-                    logger.error(login);
-                    logger.error("----------------SETTINGS POST REQUEST ERROR");
-                    logger.error(e)
+                    logger.warning(login);
+                    logger.warning("----------------SETTINGS POST REQUEST ERROR");
+                    logger.warning(e)
                     res.status(400).send(e);
                 } else if (payload.errors && !e) {
                     logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN SETTINGS POST', {
@@ -414,7 +390,7 @@ app.post('/settings', function(req, res) {
 
 app.post('/email', function(req, res) {
 
-    logger.debug('HIT EMAIL UPDATE ROUTE');
+    logger.info('POST received... \tEmail');
 
     var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
         var errorPrefix = 'USER EMAIL UPDATE FAILED: '
@@ -451,9 +427,8 @@ app.post('/email', function(req, res) {
             // how do I handle this more gracefully?
             if (e || payload.errors) {
                 if (e && !payload.errors) {
-                    logger.error(login);
-                    logger.error("----------------EMAIL UPDATE REQUEST ERROR");
-                    logger.error(e)
+                    logger.warn("Email Update Request Error: " + e);
+                    logger.silly(login);
                     res.status(400).send(e);
                 } else if (payload.errors && !e) {
                     logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN EMAIL UPDATE POST', {
@@ -477,8 +452,7 @@ app.post('/email', function(req, res) {
             updateEmailForUser(googleUserID, req.body.emailaddress, function(userEntity) {
                 if (!userEntity) {
                     res.status(404).send('No user exists for that ID or an unknown error occurred');
-                }
-                else {
+                } else {
                     res.status(200).send(userEntity);
                 }
             });
@@ -498,8 +472,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
     var pem = require('pem');
     var https = require('https');
-    console.log("Server listening on port " + process.env.PORT || 9145);
-    logger.debug('SERVER RESTARTED');
+    logger.info("Server listening on port " + process.env.PORT || 9145);
     pem.createCertificate({ days: 1, selfSigned: true }, function(err, keys) {
         if (err) {
             throw err;

@@ -1,5 +1,6 @@
 const Datastore = require('@google-cloud/datastore');
 var hash = require('object-hash');
+var logger = require('./logger.js');
 
 
 // Refactor this into its own file later

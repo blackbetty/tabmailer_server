@@ -1,7 +1,7 @@
 const Datastore = require('@google-cloud/datastore');
 const user_activator = require('../background_processors/user_activator.js');
 var hash = require('object-hash');
-
+var logger = require('../utilities/logger.js');
 
 // Refactor this into its own file later
 // *****************************************************************
@@ -34,12 +34,11 @@ module.exports = function(googleUserID, newEmail, callback) {
         var userEntity = entities[0];
 
         userEntity['emailaddress'] = newEmail;
-        console.log(userEntity.emailaddress);
         userEntity['activated'] = false;
         userEntity.user_hash = hash(userEntity);
         datastoreClient.update(userEntity)
             .then(() => {
-
+                logger.debug(`Email updated for user "${userEntity.username}" to: ${userEntity.emailaddress}`);
 
 
                 // some stupid bullshit for the method signature
@@ -56,10 +55,9 @@ module.exports = function(googleUserID, newEmail, callback) {
 
 
                 user_activator.sendUserActivationEmail(activationEntity);
-                console.log('userEntity2');
                 callback(userEntity);
             }).catch(function(reason) {
-                console.log("Promise Rejected because: " + reason);
+                logger.warn("Promise Rejected: " + reason);
             });
     });
 }

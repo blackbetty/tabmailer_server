@@ -2,7 +2,7 @@ const Datastore = require('@google-cloud/datastore');
 var hash = require('object-hash');
 var user_activator = require('../background_processors/user_activator.js');
 require('dotenv').config();
-
+const logger = require('../utilities/logger.js');
 
 // Refactor this into its own file later
 // *****************************************************************
@@ -39,7 +39,7 @@ module.exports = function(emailaddress, username, google_user_id, callback) {
             var userKey = {
                 kind: 'tabmailer_user'
             }
-            console.log(google_user_id);
+            logger.silly(google_user_id);
             var user = {
                 emailaddress: emailaddress,
                 google_user_id: google_user_id,
@@ -66,7 +66,7 @@ module.exports = function(emailaddress, username, google_user_id, callback) {
                     // Task inserted successfully
 
                     user_activator.sendUserActivationEmail(entity);
-                    console.log(entity);
+                    logger.silly(entity);
                     callback(entity);
                 });
         }

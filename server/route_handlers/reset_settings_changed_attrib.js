@@ -1,4 +1,6 @@
 const Datastore = require('@google-cloud/datastore');
+var logger = require('../utilities/logger.js');
+
 
 
 // Refactor this into its own file later
@@ -40,10 +42,10 @@ module.exports = function(googleUserID, callback) {
         datastoreClient.update(userEntity)
             .then(() => {
                 // Task updated successfully.
-                if (process.env.DEVMODE) {
-                    console.log("Settings Changed Reset For: " + userEntity);
-                }
-                if(callback){
+
+                logger.debug(`settingsChanged Reset For:\t${userEntity.username}`);
+
+                if (callback) {
                     callback(userEntity);
                 }
 

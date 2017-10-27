@@ -1,10 +1,12 @@
 const Datastore = require('@google-cloud/datastore');
+var logger = require('../utilities/logger.js');
 
 
 // Refactor this into its own file later
 // *****************************************************************
 
 const projectId = 'tabmailer-174400';
+var logger = require('../utilities/logger.js');
 
 // Instantiates a client
 const datastoreClient = Datastore({
@@ -45,9 +47,7 @@ module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
         datastoreClient.update(userEntity)
             .then(() => {
                 // Task updated successfully.
-                if (process.env.DEVMODE) {
-                    console.log(userEntity);
-                }
+                logger.debug(`Settings updated for:\t${userEntity.username}`);
                 callback(userEntity);
             });
     });

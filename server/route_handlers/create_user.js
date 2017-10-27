@@ -50,6 +50,7 @@ module.exports = function(emailaddress, username, google_user_id, callback) {
                     close_tab: true,
                     email_format: 'individual'
                 },
+                settingsChanged: true,
                 date_user_created: Date.now(),
                 activated: false
             };

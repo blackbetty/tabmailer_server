@@ -273,9 +273,8 @@ app.get('/linksforuser', function(req, res) {
 
 app.get('/settings', function(req, res) {
 
-    logger.debug('HIT SETTINGS FOR USER ROUTE');
+    logger.debug('HIT GET SETTINGS FOR USER ROUTE');
 
-    logger.debug('HIT GET LINKS FOR USER ROUTE');
     if (!req.query.google_auth_token) {
 
         logger.debug('USER SETTINGS GET FAILED: NO AUTH TOKEN', {

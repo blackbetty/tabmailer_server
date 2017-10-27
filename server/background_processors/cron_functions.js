@@ -7,9 +7,6 @@ var mail_sender = require('./mail_sender.js');
 var moment = require('moment');
 
 
-// var testJob = new cron.CronJob('* * * * * *', function() {
-//     console.log('You will see this message every second');
-// }, null, true, 'America/Los_Angeles');
 var sendSavedArticles = new cron.CronJob('0 0 * * *', function() {
 
     var proceed = function(users) {

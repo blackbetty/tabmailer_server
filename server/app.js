@@ -22,7 +22,8 @@ var cron_functions = require('./background_processors/cron_functions.js');
 var request = require('request');
 const env = process.env.NODE_ENV || 'development';
 const logger = require('./utilities/logger.js');
-
+const Celebrate = require('celebrate');
+const { Joi } = Celebrate;
 
 
 
@@ -39,6 +40,8 @@ app.use('/', httpsRedirect());
 cron_functions.scheduleAllJobs();
 
 app.use('/pages', express.static(__dirname + '/pages'));
+app.use(Celebrate.errors());
+
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -49,19 +52,25 @@ app.use(function(req, res, next) {
     next();
 });
 
+
+// Page routes
 app.get('/', function(req, res) {
     logger.info("GET received... \tHomepage ");
     res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-
-
-// User CRUD routes
 app.get('/signup', function(req, res) {
     logger.info("GET received... \tSignup ");
     res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
+app.get('/dashboard', function(req, res) {
+    logger.info("GET received... \tDashboard ");
+    res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
+});
+
+
+// User CRUD routes
 app.post('/createUser', function(req, res) {
 
     logger.info("POST received... \tCreateUser");
@@ -92,11 +101,6 @@ app.post('/createUser', function(req, res) {
                 res.send(value);
             });
         });
-});
-
-app.get('/dashboard', function(req, res) {
-    logger.info("GET received... \tDashboard ");
-    res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
 
 app.get('/activateUser/:userHash', function(req, res) {
@@ -194,20 +198,9 @@ app.post('/linksforuser', function(req, res) {
  *
  */
 
-
-app.get('/linksforuser', function(req, res) {
-
-    logger.info('GET received... \tLinksForUser');
-    if (!req.query.google_auth_token) {
-
-        logger.warn('USER LINKS GET FAILED: NO AUTH TOKEN', {
-            'request-body': util.inspect(req.body),
-            'request-query': util.inspect(req.query)
-        })
-        res.status(400).send('No Google Auth Token Received');
-        return;
-    }
-
+app.get('/linksforuser', Celebrate({
+    query: { google_auth_token: Joi.string().required() }
+}), (req, res) => {
     gapiClient.verifyIdToken(
         req.query.google_auth_token,
         process.env.GAPI_CLIENT_ID,
@@ -240,14 +233,13 @@ app.get('/linksforuser', function(req, res) {
 });
 
 
+
+
+
 // Settings CRUD Routes
 
 
-/*
- *Fetches a user's settings object
- *In progress
- */
-
+// Read
 app.get('/settings', function(req, res) {
 
     logger.info('GET received... \tSettings ');

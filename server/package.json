@@ -21,6 +21,7 @@
   "dependencies": {
     "@google-cloud/datastore": "^1.0.7",
     "body-parser": "^1.17.2",
+    "celebrate": "^5.0.1",
     "cors": "^2.8.4",
     "cron": "^1.2.1",
     "dotenv": "^4.0.0",

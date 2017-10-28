@@ -198,36 +198,50 @@ app.post('/linksforuser', function(req, res) {
  *
  */
 
+function logValidationPromiseRejection(causeString, reason, errorObject, fullObject) {
+    logger.warn(causeString + reason);
+    logger.debug(causeString + errorObject);
+    logger.silly(causeString + fullObject);
+}
 app.get('/linksforuser', Celebrate({
     query: { google_auth_token: Joi.string().required() }
 }), (req, res) => {
+
     gapiClient.verifyIdToken(
         req.query.google_auth_token,
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
-            if (e) {
-                logger.warn("Link Collection Fetch Request Error: " + e);
-                logger.silly(login);
-                res.status(400).send(e);
-            }
-            var payload = login.getPayload();
 
+            const value = { e: e, login: login };
+            const schema = { e: Joi.any().valid(null), login: Joi.object() };
 
-            if (payload.errors) {
-                logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT', {
-                    'response-body': util.inspect(payload),
-                    'response-errors': util.inspect(payload.errors)
+            Joi.validate(value, schema)
+
+            .then((success) => {
+
+                var payload = login.getPayload();
+                Joi.validate({ payload_errors: payload.errors }, { payload_errors: Joi.any().valid(null) })
+
+                .then((success) => {
+                    var googleUserID = payload['sub'];
+
+                    getLinksForUser(googleUserID, function(userEntity) {
+                        logger.debug("User fetch completed for user: " + userEntity.username);
+                        logger.silly(userEntity);
+                        res.send(userEntity);
+                    });
                 })
-                res.status(400).send(payload.errors);
-            }
+                .catch((reason) => {
+                    logValidationPromiseRejection("Google UserID Response Body Error Present: ",reason,payload.errors,payload);
+                    res.status(400).send(payload.errors);
+                });
 
-            var googleUserID = payload['sub'];
-
-            getLinksForUser(googleUserID, function(userEntity) {
-                logger.debug("User fetch completed for user: " + userEntity.username);
-                logger.silly(userEntity);
-                res.send(userEntity);
+            })
+            .catch((reason) => {
+                logValidationPromiseRejection("Link Collection Fetch Request Error: ", reason, e, login);
+                res.status(400).send(e);
             });
+
         }
     );
 });

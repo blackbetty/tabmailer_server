@@ -26,6 +26,9 @@ const Celebrate = require('celebrate');
 const { Joi } = Celebrate;
 
 
+// API Request Schemas
+const SCHEMA_POST_LINKS = require('./request_schemas/link_collection_routes/links_POST_schema.js');
+
 
 
 
@@ -145,8 +148,8 @@ app.get('/activateUser/:userHash', function(req, res) {
  *
  */
 
-app.post('/linksforuser', function(req, res) {
-    if (!req.body.google_auth_token) {
+app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => {
+    if (!req.body.google_access_token) {
         logger.warn('USER LINKS POST FAILED: NO AUTH TOKEN', {
             request_body: req.body
         })
@@ -158,7 +161,7 @@ app.post('/linksforuser', function(req, res) {
     var options = {
         url: 'https://www.googleapis.com/oauth2/v1/userinfo',
         headers: {
-            'Authorization': 'Bearer ' + req.body.google_auth_token,
+            'Authorization': 'Bearer ' + req.body.google_access_token,
             'Content-Type': 'application/json'
         }
     };
@@ -166,7 +169,7 @@ app.post('/linksforuser', function(req, res) {
     request(options, function(error, response, body) {
 
         body = JSON.parse(body);
-
+        logger.info(body);
         var googleUserID = body.id;
 
         saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function(userEntity) {
@@ -198,17 +201,12 @@ app.post('/linksforuser', function(req, res) {
  *
  */
 
-function logValidationPromiseRejection(causeString, reason, errorObject, fullObject) {
-    logger.warn(causeString + reason);
-    logger.debug(causeString + errorObject);
-    logger.silly(causeString + fullObject);
-}
 app.get('/linksforuser', Celebrate({
-    query: { google_auth_token: Joi.string().required() }
+    query: { google_id_token: Joi.string().required() }
 }), (req, res) => {
 
     gapiClient.verifyIdToken(
-        req.query.google_auth_token,
+        req.query.google_id_token,
         process.env.GAPI_CLIENT_ID,
         function(e, login) {
 
@@ -217,33 +215,40 @@ app.get('/linksforuser', Celebrate({
 
             Joi.validate(value, schema)
 
-            .then((success) => {
-
-                var payload = login.getPayload();
-                Joi.validate({ payload_errors: payload.errors }, { payload_errors: Joi.any().valid(null) })
-
                 .then((success) => {
-                    var googleUserID = payload['sub'];
 
-                    getLinksForUser(googleUserID, function(userEntity) {
-                        logger.debug("User fetch completed for user: " + userEntity.username);
-                        logger.silly(userEntity);
-                        res.send(userEntity);
-                    });
+                    var payload = login.getPayload();
+                    Joi.validate({ payload_errors: payload.errors }, { payload_errors: Joi.any().valid(null) })
+
+                        .then((success) => {
+                            executeGetForID(payload['sub'])
+                        })
+                        .catch((reason) => {
+                            logValidationPromiseRejection("Google UserID Response Body Error Present: ", reason, payload.errors, payload);
+                            res.status(400).send(payload.errors);
+                        });
+
                 })
                 .catch((reason) => {
-                    logValidationPromiseRejection("Google UserID Response Body Error Present: ",reason,payload.errors,payload);
-                    res.status(400).send(payload.errors);
+                    logValidationPromiseRejection("Link Collection Fetch Request Error: ", reason, e, login);
+                    res.status(400).send(e);
                 });
-
-            })
-            .catch((reason) => {
-                logValidationPromiseRejection("Link Collection Fetch Request Error: ", reason, e, login);
-                res.status(400).send(e);
-            });
-
         }
     );
+
+    function executeGetForID(userID) {
+        getLinksForUser(userID, function(userEntity) {
+            logger.debug("User fetch completed for user: " + userEntity.username);
+            logger.silly(userEntity);
+            res.send(userEntity);
+        });
+    }
+
+    function logValidationPromiseRejection(causeString, reason, errorObject, fullObject) {
+        logger.warn(causeString + reason);
+        logger.debug(causeString + errorObject);
+        logger.silly(causeString + fullObject);
+    }
 });
 
 

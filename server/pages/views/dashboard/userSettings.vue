@@ -135,7 +135,7 @@ module.exports = {
             var xhr = new XMLHttpRequest();
             var req_body = {};
             if (method === "GET") {
-                var urlWithParams = url + "?google_auth_token=" + google_id_token;
+                var urlWithParams = url + "?google_id_token=" + google_id_token;
 
                 xhr.open(method, urlWithParams, true);
 

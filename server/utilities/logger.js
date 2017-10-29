@@ -23,15 +23,15 @@ const logger = new(winston.Logger)({
             timestamp: tsFormat,
             colorize: true,
             level: process.env.LOG_LEVEL
-        }),
-        new(require('winston-daily-rotate-file'))({
-            filename: './'+logDir+'/-filelog-router.log',
-            datePattern: 'yyyy-MM-dd',
-            timestamp: tsFormat,
-            prepend: true,
-            colorize: true,
-            level: env == 'development' ? 'silly' : 'info'
-        })
+         })//,
+        // new(require('winston-daily-rotate-file'))({ breaks in production so removing it for now
+        //     filename: './'+logDir+'/-filelog-router.log',
+        //     datePattern: 'yyyy-MM-dd',
+        //     timestamp: tsFormat,
+        //     prepend: true,
+        //     colorize: true,
+        //     level: env == 'development' ? 'silly' : 'info'
+        // })
     ]
 });
 

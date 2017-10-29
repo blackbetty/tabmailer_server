@@ -94,13 +94,13 @@ var dashboardVueInstance = new Vue({
             var xhr = new XMLHttpRequest();
             var req_body = {};
             if (method === "GET") {
-                var urlWithParams = url + "?google_auth_token=" + google_id_token;
+                var urlWithParams = url + "?google_id_token=" + google_id_token;
 
                 xhr.open(method, urlWithParams, true);
 
             } else {
 
-                req_body['google_auth_token'] = google_id_token;
+                req_body['google_id_token'] = google_id_token;
 
                 xhr.open(method, url, true);
 

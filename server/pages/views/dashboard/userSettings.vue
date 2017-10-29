@@ -141,7 +141,7 @@ module.exports = {
 
             } else {
 
-                req_body['google_auth_token'] = google_id_token;
+                req_body['google_id_token'] = google_id_token;
                 req_body[postKey] = postValue;
                 req_body['newKey'] = postKey;
                 xhr.open(method, url, true);

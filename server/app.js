@@ -1,7 +1,7 @@
 require('dotenv').config();
 var GoogleAuth = require('google-auth-library');
 var auth = new GoogleAuth;
-var gapiClient = new auth.OAuth2(process.env.GAPI_CLIENT_ID, '', '');
+var gapiClient = new auth.OAuth2(process.env.GAPI_CLIENTID, '', '');
 const util = require('util');
 var express = require('express');
 var cors = require('cors');
@@ -31,12 +31,18 @@ var cron_functions = require('./background_processors/cron_functions.js');
 
 // Utilities
 const logger = require('./utilities/logger.js');
-    // Router Utilities
+// Router Utilities
 const getGoogleIDForAccessToken = require('./utilities/router_utilities/get_google_id_for_access_token.js');
 const getGoogleIDForIDToken = require('./utilities/router_utilities/get_google_uID_for_id_token.js');
 
 // API Request Schemas
 const SCHEMA_POST_LINKS = require('./request_schemas/link_collection_routes/links_POST_schema.js');
+const SCHEMA_GET_LINKS = require('./request_schemas/link_collection_routes/links_GET_schema.js');
+const SCHEMA_POST_CREATEUSER = require('./request_schemas/user_routes/user_creation_POST_schema.js');
+const SCHEMA_GET_ACTIVATEUSER = require('./request_schemas/user_routes/user_activation_GET_schema.js');
+const SCHEMA_GET_SETTINGS = require('./request_schemas/settings_routes/settings_GET_schema.js');
+const SCHEMA_POST_SETTINGS = require('./request_schemas/settings_routes/settings_POST_schema.js');
+const SCHEMA_POST_EMAIL = require('./request_schemas/settings_routes/email_POST_schema.js');
 
 
 
@@ -52,7 +58,7 @@ app.use('/', httpsRedirect());
 cron_functions.scheduleAllJobs();
 
 app.use('/pages', express.static(__dirname + '/pages'));
-app.use(Celebrate.errors());
+
 
 
 app.use(bodyParser.json()); // for parsing application/json
@@ -83,66 +89,56 @@ app.get('/dashboard', function(req, res) {
 
 
 // User CRUD routes
-app.post('/createUser', function(req, res) {
-
+app.post('/createUser', Celebrate({ body: SCHEMA_POST_CREATEUSER }), function(req, res) {
     logger.info("POST received... \tCreateUser");
-    if (!req.body.gapi_token) {
-        logger.warn('USER CREATION FAILED: NO GOOGLE ID', {
-            request_body: req.body
+    getGoogleIDForIDToken(req.body.google_id_token)
+        .then((google_uID) => {
+            completeGet(google_uID);
+        })
+        .catch((e) => {
+            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
         });
-        res.status(400).send('No Google ID Token Received: ' + req.body);
-        return;
-    }
-    gapiClient.verifyIdToken(
-        req.body.gapi_token,
-        process.env.GAPI_CLIENT_ID,
-        function(e, login) {
-            if (e) {
-                res.status(500).send('Something broke!: ' + e);
-                return;
-            }
-            var payload = login.getPayload();
-            var userid = payload['sub'];
 
-            // pass in and store the Google User ID
-            createUser(req.body.emailaddress, req.body.username, userid, function(value) {
-                // can be false or The Entity
-                logger.debug('Google ID', {
-                    authID: userid
-                })
-                res.send(value);
-            });
+    var errorResponse = function(error, message) {
+        logger.error(message, error);
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
+    }
+
+    var completeGet = function(google_uID) {
+        createUser(req.body.emailaddress, req.body.username, google_uID, function(value) {
+            // can be false or The Entity
+            logger.debug('Google ID', {
+                authID: google_uID
+            })
+            res.send(value);
         });
+    }
 });
 
-app.get('/activateUser/:userHash', function(req, res) {
+app.get('/activateUser/:userHash', Celebrate({ params: SCHEMA_GET_ACTIVATEUSER }), (req, res) => {
 
-    logger.info("GET received... \tActivateUser ");
-    if (!req.params.userHash) {
-        // if we don't get a user hash, the page doesn't exist :)
-        res.sendStatus(404);
-        logger.warn('USER ACTIVATION FAILED: NO HASH PROVIDED');
-    } else {
-        var userHash = req.params.userHash; // not a user object, just the userHash to be activated
-        user_activator.activateUser(userHash, function(err, userObject) {
-            if (!err) {
-                logger.info('USER ACTIVATED SUCCESSFULLY', {
-                    user: userObject
-                })
-                res.cookie('tabmailer_data', JSON.stringify(userObject.user_hash));
-                res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
-                // res.end();
-            } else {
-                // if the user activation failed,
-                // for example if the hash provided was invalid,
-                // we just don't return a cookie, which the UI takes as meaning the activation failed.
-                logger.info('USER ACTIVATION FAILED FOR USERHASH ' + userHash, {
-                    error: err
-                })
-                res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
-            }
-        });
-    }
+    logger.info("GET received... \tActivateUser");
+
+    var userHash = req.params.userHash; // not a user object, just the userHash to be activated
+    user_activator.activateUser(userHash, function(err, userObject) {
+        if (!err) {
+            logger.info('USER ACTIVATED SUCCESSFULLY', {
+                user: userObject
+            })
+            res.cookie('tabmailer_data', JSON.stringify(userObject.user_hash));
+            res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
+            // res.end();
+        } else {
+            // if the user activation failed,
+            // for example if the hash provided was invalid,
+            // we just don't return a cookie, which the UI takes as meaning the activation failed.
+            logger.info('USER ACTIVATION FAILED FOR USERHASH ' + userHash, {
+                error: err
+            })
+            res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
+        }
+    });
+
 });
 
 
@@ -158,23 +154,25 @@ app.get('/activateUser/:userHash', function(req, res) {
  */
 
 app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => {
-    // fuck you google and your stupid auth system in chrome extension
-    logger.silly('Any errors here are Google and their OAuth implentation for CRX\'s fault');
+    logger.info("POST received... \tCreateUser");
     if (req.body.google_access_token) {
+        // fuck you Google and your stupid auth system in chrome extensions
+        logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. AccessToken.');
         getGoogleIDForAccessToken()
-        .then((uID) =>{
-            executeLinkCollectionUpdate(uID);
-        })
-        .catch((e)=>{
-            errorResponse(e, "Failed to fetch googleUserID for the given access_token: ");
-        })
+            .then((uID) => {
+                executeLinkCollectionUpdate(uID);
+            })
+            .catch((e) => {
+                errorResponse(e, "Failed to fetch googleUserID for the given access_token: ");
+            })
     } else {
+        logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. IDToken.');
         getGoogleIDForIDToken(req.body.google_id_token)
-        .then((uID)=>{
-            executeLinkCollectionUpdate(uID);
-        }).catch((e)=>{
-            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
-        })
+            .then((uID) => {
+                executeLinkCollectionUpdate(uID);
+            }).catch((e) => {
+                errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+            })
     }
 
     var executeLinkCollectionUpdate = function(googleUserID) {
@@ -196,8 +194,8 @@ app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => 
 
         });
     }
-    var errorResponse = function(error, message){
-        logger.warn (message, { error_body: error } );
+    var errorResponse = function(error, message) {
+        logger.warn(message, { error_body: error });
         res.status(500).send(`Internal Error:\n\t${message} ${error}`);
     }
 });
@@ -210,280 +208,151 @@ app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => 
  *
  */
 
-app.get('/linksforuser', Celebrate({
-    query: { google_id_token: Joi.string().required() }
-}), (req, res) => {
+app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
+    logger.info("GET received... \tLinksForUser");
+    getGoogleIDForIDToken(req.query.google_id_token)
+        .then((google_uID) => {
+            completeGet(google_uID);
+        })
+        .catch((e) => {
+            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+        });
 
-    gapiClient.verifyIdToken(
-        req.query.google_id_token,
-        process.env.GAPI_CLIENT_ID,
-        function(e, login) {
+    var errorResponse = function(error, message) {
+        logger.warn(message, error);
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
+    }
 
-            const value = { e: e, login: login };
-            const schema = { e: Joi.any().valid(null), login: Joi.object() };
 
-            Joi.validate(value, schema)
-
-                .then((success) => {
-
-                    var payload = login.getPayload();
-                    Joi.validate({ payload_errors: payload.errors }, { payload_errors: Joi.any().valid(null) })
-
-                        .then((success) => {
-                            executeGetForID(payload['sub'])
-                        })
-                        .catch((reason) => {
-                            logValidationPromiseRejection("Google UserID Response Body Error Present: ", reason, payload.errors, payload);
-                            res.status(400).send(payload.errors);
-                        });
-
-                })
-                .catch((reason) => {
-                    logValidationPromiseRejection("Link Collection Fetch Request Error: ", reason, e, login);
-                    res.status(400).send(e);
-                });
-        }
-    );
-
-    function executeGetForID(userID) {
-        getLinksForUser(userID, function(userEntity) {
+    var completeGet = function(gID) {
+        getLinksForUser(gID, function(userEntity) {
             logger.debug("User fetch completed for user: " + userEntity.username);
             logger.silly(userEntity);
             res.send(userEntity);
         });
     }
-
-    function logValidationPromiseRejection(causeString, reason, errorObject, fullObject) {
-        logger.warn(causeString + reason);
-        logger.debug(causeString + errorObject);
-        logger.silly(causeString + fullObject);
-    }
 });
-
-
-
 
 
 // Settings CRUD Routes
 
 
 // Read
-app.get('/settings', function(req, res) {
+app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
 
     logger.info('GET received... \tSettings ');
-
-    if (!req.query.google_auth_token) {
-
-        logger.warn('USER SETTINGS GET FAILED: NO AUTH TOKEN', {
-            'request-body': util.inspect(req.body),
-            'request-query': util.inspect(req.query)
+    getGoogleIDForIDToken(req.query.google_id_token)
+        .then((google_uID) => {
+            completeGet(google_uID);
         })
-        res.status(400).send('No Google Auth Token Received');
-        return;
+        .catch((e) => {
+            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+        });
+
+    var errorResponse = function(error, message) {
+        logger.warn(message, error);
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
     }
+    var completeGet = function(gID) {
+        getSettingsForUser(gID, function(userEntity) {
+            logger.debug("User fetched for user settings request");
+            logger.silly(userEntity);
 
-    gapiClient.verifyIdToken(
-        req.query.google_auth_token,
-        process.env.GAPI_CLIENT_ID,
-        function(e, login) {
-            if (e) {
-                logger.warn("Settings Fetch Request Error: " + e);
-                logger.silly(login);
-                res.status(400).send(e);
+            // because I didn't include a settings object to start now we have to control for it somehow
+            // they'll be created by the UI every time the settings are updated, so if they're empty we
+            // just create a default one
+            if (!userEntity) {
+                res.status(404).send('No user exists for that ID');
+            } else if (!userEntity['settings']) {
+                logger.debug('Settings object didn\'t exist for user, returning empty obj JSON');
+                res.status(200).send('{}');
+            } else if (Object.keys(userEntity['settings']).length === 0 && userEntity['settings'].constructor === Object) {
+                logger.debug('Settings object for user was empty, returning empty obj JSON');
+                res.status(200).send('{}');
+            } else {
+                res.status(200).send(userEntity['settings']);
             }
-            var payload = login.getPayload();
 
-
-            if (payload.errors) {
-                logger.warn('GOOGLE USER ID REQ RESPONSE BODY ERROR PRESENT', {
-                    'response-body': util.inspect(payload),
-                    'response-errors': util.inspect(payload.errors)
-                })
-                res.status(400).send(payload.errors);
-            }
-
-            var googleUserID = payload['sub'];
-
-            getSettingsForUser(googleUserID, function(userEntity) {
-                logger.debug("User fetched for user settings request");
-                logger.silly(userEntity);
-
-                // because I didn't include a settings object to start now we have to control for it somehow
-                // they'll be created by the UI every time the settings are updated, so if they're empty we
-                // just create a default one
-                if (!userEntity) {
-                    res.status(404).send('No user exists for that ID');
-                } else if (!userEntity['settings']) {
-                    logger.debug('Settings object didn\'t exist for user, returning empty obj JSON');
-                    res.status(200).send('{}');
-                } else if (Object.keys(userEntity['settings']).length === 0 && userEntity['settings'].constructor === Object) {
-                    logger.debug('Settings object for user was empty, returning empty obj JSON');
-                    res.status(200).send('{}');
-                } else {
-                    res.status(200).send(userEntity['settings']);
-                }
-
-            });
-        }
-    );
-
+        });
+    }
 });
 
-app.post('/settings', function(req, res) {
+app.post('/settings', Celebrate({ body: SCHEMA_POST_SETTINGS }), (req, res) => {
 
     logger.debug('POST received... \tSettings');
 
-    var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
-        logger.warning(loggerError, {
-            'request-body': util.inspect(errorBody)
+
+    getGoogleIDForIDToken(req.body.google_id_token)
+        .then((google_uID) => {
+            completeSet(google_uID);
         })
-        res.status(400).send(userFacingError);
-        return;
+        .catch((e) => {
+            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+        });
+
+    var errorResponse = function(error, message) {
+        logger.warn(message, error);
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
     }
 
-    if (!req.body.google_auth_token) {
-        handleSettingsPostError(
-            'USER SETTINGS POST FAILED: No Auth Token',
-            req.body,
-            'No Google Auth Token Received'
-        );
-        return;
-    }
 
-    if (!req.body.newKey) {
-        handleSettingsPostError(
-            'USER SETTINGS POST FAILED: No new settings specified',
-            req.body,
-            'No settings object received'
-        );
-        return;
-    }
-
-    gapiClient.verifyIdToken(
-        req.body.google_auth_token,
-        process.env.GAPI_CLIENT_ID,
-        function(e, login) {
-            var payload = login.getPayload();
-            // how do I handle this more gracefully?
-            if (e || payload.errors) {
-                if (e && !payload.errors) {
-                    logger.warning(login);
-                    logger.warning("----------------SETTINGS POST REQUEST ERROR");
-                    logger.warning(e)
-                    res.status(400).send(e);
-                } else if (payload.errors && !e) {
-                    logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN SETTINGS POST', {
-                        'response-body': util.inspect(payload),
-                        'response-errors': util.inspect(payload.errors)
-                    })
-                    res.status(400).send(payload.errors);
-                } else {
-                    logger.debug('Compound error in settings post auth verification', {
-                        'response-body': util.inspect(payload),
-                        'response-errors': util.inspect(e)
-                    })
-                    res.status(400).send(payload.errors);
-                }
+    var completeSet = function(googleUserID) {
+        updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function(userEntity) {
+            logger.debug("User fetched for user settings POST request");
+            logger.silly(userEntity);
+            // because I didn't include a settings object to start now we have to control for it somehow
+            // they'll be created by the UI every time the settings are updated, so if they're empty we
+            // just create a default one
+            if (!userEntity) {
+                res.status(404).send('No user exists for that ID');
+            } else {
+                res.status(200).send(userEntity['settings']);
             }
 
-            var payload = login.getPayload();
-
-            var googleUserID = payload['sub'];
-
-            updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function(userEntity) {
-
-                // because I didn't include a settings object to start now we have to control for it somehow
-                // they'll be created by the UI every time the settings are updated, so if they're empty we
-                // just create a default one
-                if (!userEntity) {
-                    res.status(404).send('No user exists for that ID');
-                } else {
-                    res.status(200).send(userEntity['settings']);
-                }
-
-            });
-        }
-    );
-
+        });
+    }
 });
 
 
-app.post('/email', function(req, res) {
+
+app.post('/email', Celebrate({ body: SCHEMA_POST_EMAIL }), (req, res) => {
 
     logger.info('POST received... \tEmail');
 
-    var handleSettingsPostError = function(loggerError, errorBody, userFacingError) {
-        var errorPrefix = 'USER EMAIL UPDATE FAILED: '
-        logger.debug(errorPrefix + loggerError, {
-            'request-body': util.inspect(errorBody)
-        })
-        res.status(400).send(userFacingError);
-        return;
+
+    getGoogleIDForIDToken(req.body.google_id_token)
+    .then((google_uID) => {
+        completeSet(google_uID);
+    })
+    .catch((e) => {
+        errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+    });
+
+
+    var errorResponse = function(error, message) {
+        logger.warn(message, error);
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
     }
 
-    if (!req.body.google_auth_token) {
-        handleSettingsPostError(
-            'No Auth Token',
-            req.body,
-            'No Google Auth Token Received'
-        );
-        return;
-    }
 
-    if (!req.body.emailaddress) {
-        handleSettingsPostError(
-            'No new email specified',
-            req.body,
-            'No email address received'
-        );
-        return;
-    }
-
-    gapiClient.verifyIdToken(
-        req.body.google_auth_token,
-        process.env.GAPI_CLIENT_ID,
-        function(e, login) {
-            var payload = login.getPayload();
-            // how do I handle this more gracefully?
-            if (e || payload.errors) {
-                if (e && !payload.errors) {
-                    logger.warn("Email Update Request Error: " + e);
-                    logger.silly(login);
-                    res.status(400).send(e);
-                } else if (payload.errors && !e) {
-                    logger.debug('GOOGLE USER ID RESPONSE BODY ERROR PRESENT IN EMAIL UPDATE POST', {
-                        'response-body': util.inspect(payload),
-                        'response-errors': util.inspect(payload.errors)
-                    })
-                    res.status(400).send(payload.errors);
-                } else {
-                    logger.debug('Compound error in email update auth verification', {
-                        'response-body': util.inspect(payload),
-                        'response-errors': util.inspect(e)
-                    })
-                    res.status(400).send(payload.errors);
-                }
+    var completeSet = function(googleUserID) {
+        updateEmailForUser(googleUserID, req.body.emailaddress, function(userEntity) {
+            if (!userEntity) {
+                res.status(404).send('No user exists for that ID or an unknown error occurred');
+            } else {
+                res.status(200).send(userEntity);
             }
-
-            var payload = login.getPayload();
-
-            var googleUserID = payload['sub'];
-
-            updateEmailForUser(googleUserID, req.body.emailaddress, function(userEntity) {
-                if (!userEntity) {
-                    res.status(404).send('No user exists for that ID or an unknown error occurred');
-                } else {
-                    res.status(200).send(userEntity);
-                }
-            });
-        }
-    );
-
+        });
+    }
 });
+
+
+
 
 
 // General stuff
 
+app.use(Celebrate.errors());
 
 if (process.env.NODE_ENV === 'production') {
     app.listen(process.env.PORT || 9145, function() {

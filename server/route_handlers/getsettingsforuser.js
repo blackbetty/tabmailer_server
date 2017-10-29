@@ -31,7 +31,7 @@ module.exports = function(googleUserID, callback) {
 
     datastoreClient.runQuery(query, function(err, entities) {
         var userEntity = entities[0];
-        logger.debug(JSON.stringify(userEntity));
+        logger.silly("Settings user object: "+JSON.stringify(userEntity));
         callback(userEntity);
     });
 }

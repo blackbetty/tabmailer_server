@@ -70,7 +70,7 @@ module.exports = {
 
             request.send(JSON.stringify({
                 gapi_given_name: this.$parent.gapi_user_given_name,
-                gapi_token: this.$parent.gapi_id_token,
+                google_id_token: this.$parent.gapi_id_token,
                 gapi_user_email: this.$parent.gapi_user_email,
                 username: this.$parent.username,
                 emailaddress: this.$parent.email

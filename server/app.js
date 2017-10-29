@@ -8,6 +8,15 @@ var cors = require('cors');
 var sync = require('synchronize');
 var app = express();
 var bodyParser = require('body-parser');
+var path = require('path');
+var httpsRedirect = require('express-https-redirect');
+const env = process.env.NODE_ENV || 'development';
+const Celebrate = require('celebrate');
+const { Joi } = Celebrate;
+
+
+
+// Route Handlers
 var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
@@ -15,16 +24,16 @@ var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_change
 var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
-var path = require('path');
-var httpsRedirect = require('express-https-redirect');
+
+// Background Processors
 var user_activator = require('./background_processors/user_activator.js');
 var cron_functions = require('./background_processors/cron_functions.js');
-var request = require('request');
-const env = process.env.NODE_ENV || 'development';
-const logger = require('./utilities/logger.js');
-const Celebrate = require('celebrate');
-const { Joi } = Celebrate;
 
+// Utilities
+const logger = require('./utilities/logger.js');
+    // Router Utilities
+const getGoogleIDForAccessToken = require('./utilities/router_utilities/get_google_id_for_access_token.js');
+const getGoogleIDForIDToken = require('./utilities/router_utilities/get_google_uID_for_id_token.js');
 
 // API Request Schemas
 const SCHEMA_POST_LINKS = require('./request_schemas/link_collection_routes/links_POST_schema.js');
@@ -149,29 +158,26 @@ app.get('/activateUser/:userHash', function(req, res) {
  */
 
 app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => {
-    if (!req.body.google_access_token) {
-        logger.warn('USER LINKS POST FAILED: NO AUTH TOKEN', {
-            request_body: req.body
+    // fuck you google and your stupid auth system in chrome extension
+    logger.silly('Any errors here are Google and their OAuth implentation for CRX\'s fault');
+    if (req.body.google_access_token) {
+        getGoogleIDForAccessToken()
+        .then((uID) =>{
+            executeLinkCollectionUpdate(uID);
         })
-        res.status(400).send('No Google Auth Token Received: ' + req.body);
-        return;
+        .catch((e)=>{
+            errorResponse(e, "Failed to fetch googleUserID for the given access_token: ");
+        })
+    } else {
+        getGoogleIDForIDToken(req.body.google_id_token)
+        .then((uID)=>{
+            executeLinkCollectionUpdate(uID);
+        }).catch((e)=>{
+            errorResponse(e, "Failed to fetch googleUserID for the given id_token: ");
+        })
     }
 
-    // Raw call is bad, but I don't know how to do this via the Library and the docs aren't helping
-    var options = {
-        url: 'https://www.googleapis.com/oauth2/v1/userinfo',
-        headers: {
-            'Authorization': 'Bearer ' + req.body.google_access_token,
-            'Content-Type': 'application/json'
-        }
-    };
-
-    request(options, function(error, response, body) {
-
-        body = JSON.parse(body);
-        logger.info(body);
-        var googleUserID = body.id;
-
+    var executeLinkCollectionUpdate = function(googleUserID) {
         saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function(userEntity) {
             logger.silly('User link post succeeded calling callback', {
                 tab_url: req.body.tab_url
@@ -189,8 +195,11 @@ app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => 
             }
 
         });
-
-    });
+    }
+    var errorResponse = function(error, message){
+        logger.warn (message, { error_body: error } );
+        res.status(500).send(`Internal Error:\n\t${message} ${error}`);
+    }
 });
 
 

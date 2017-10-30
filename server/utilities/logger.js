@@ -22,6 +22,7 @@ const logger = new(winston.Logger)({
         new(winston.transports.Console)({
             timestamp: tsFormat,
             colorize: true,
+            prettyPrint: true,
             level: process.env.LOG_LEVEL
          })//,
         // new(require('winston-daily-rotate-file'))({ breaks in production so removing it for now

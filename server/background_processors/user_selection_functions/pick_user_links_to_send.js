@@ -56,7 +56,7 @@ function createDailyRandomLinkCollectionObjectCollection(users) {
             // Article is at least a day old
             if (article.datetime_added < (Date.now() - 86400000)) {
                 var sendDecision = Math.floor(Math.random() * sendProbability) + 1;
-                logger.debug(`For user "${user.username}" sendDecision var is ${sendDecision} and sendProbability is ${sendProbability}`);
+                logger.silly(`For user "${user.username}" sendDecision var is ${sendDecision} and sendProbability is ${sendProbability}`);
                 if (sendDecision === sendProbability) {
 
                     var articleObject = {

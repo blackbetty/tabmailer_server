@@ -6,6 +6,7 @@ var datastoreInterface = require('../../utilities/datastore_interface.js');
 var moment = require('moment');
 const EMAIL_MODE_INDIVIDUAL = 'individual';
 const EMAIL_MODE_DIGEST = 'digest';
+const util = require('util');
 var today = moment().format("dddd, MMMM Do, YYYY");
 const getTodaysUserLinkCollectionObjectsArray = require('../user_selection_functions/pick_user_links_to_send.js');
 const emailBodyGenerator = require('../../utilities/email_utilities/email_body_generator.js');
@@ -25,18 +26,20 @@ const INDIVIDUAL_SUBJECT = 'Your LinkMeLater Link For ' + today;
 // I hate myself as I am writing this
 async function removeSentArticles(userLinkCollectionObjectsArray) {
 
-	function updateArticleList(user) {
+	function updateArticleList(userObject) {
+		// need to do this because the fetch returns an array
+		// since the SELECT is technically not unique
+		userObject = userObject[0];
 		// replace this with a WHERE/FILTER at some point
 		_.each(userLinkCollectionObjectsArray, function(userLCO) {
-			if (userLCO.targetEmail == user.emailaddress) {
+			if (userLCO.targetEmail == userObject.emailaddress) {
 				_.each(userLCO.linkCollection, function(linkObject) {
 					//user.article_list = dropOneMaxArticleFromListByUrlAndTitle(user.article_list, linkObject.link_url, linkObject.link_title);
 				});
 			}
 		});
-
-		datastoreInterface.setValueForProperty(user, 'article_list', user.article_list, function(user){
-			logger.info(`Updated user "${user.username}" link collection to remove sent links`);
+		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function(user) {
+			logger.info(`Updated user "${userObject.username}" link collection to remove sent links`);
 		})
 	}
 
@@ -49,16 +52,25 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 }
 async function sendUserLinksJob() {
 	var userLinkCollectionObjectsArray = await getTodaysUserLinkCollectionObjectsArray();
-	var finalRecipientContentDataObject = emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
+	var finalRecipientContentDataObject = await emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
+	// console.log("Final Recipient Object: " + util.inspect(finalRecipientContentDataObject));
 	_.each(finalRecipientContentDataObject, function(user) {
 		var subject = user.emailMode == EMAIL_MODE_INDIVIDUAL ? INDIVIDUAL_SUBJECT : DIGEST_SUBJECT;
-		_.each(user.emailBodyCollection, function(emailBody) {
-			mail_sender.sendEmail(user.targetEmail, subject, emailBody);
-		});
+		if (user.emailBodyCollection.length != 0) {
+			_.each(user.emailBodyCollection, function(emailBody) {
+				mailSender.sendEmail(user.targetEmail, subject, emailBody);
+			});
+		}
 	});
 
-	removeSentArticles(userLinkCollectionObjectsArray);
+	// this needs to be fixed at some point
+	if(process.env.LIVE_EMAIL == true){
+		removeSentArticles(userLinkCollectionObjectsArray);
+	} else {
+		logger.info(`FAKE removed sent links`);
+	}
+
 }
 
-
+sendUserLinksJob();
 module.exports = new cron.CronJob('0 0 * * *', sendUserLinksJob, null, true, 'America/Los_Angeles');

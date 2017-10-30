@@ -15,27 +15,30 @@ const SCHEMA_userObjectArray = Joi.array().items(
 );
 
 var returnLCOArrayWithEmailBodies = function(userObjectArray) {
-
-
-	function returnUsersWithBodies(users) {
-		_.each(users, function(user) {
+	return new Promise((resolve, reject) => {
+		function returnUsersWithBodies(users) {
+			_.each(users, function(user) {
 				user.emailBodyCollection = []
 				if (user.emailMode == EMAIL_MODE_DIGEST) {
 					user.emailBodyCollection.push(generateDigestBody(user.linkCollection));
-				} else if(user.emailMode == EMAIL_MODE_INDIVIDUAL){
-					user.emailBodyCollection.concat(generateIndividualBodies(user.linkCollection));
+				} else if (user.emailMode == EMAIL_MODE_INDIVIDUAL) {
+					user.emailBodyCollection = generateIndividualBodies(user.linkCollection);
 				}
-			}
-		);
-		return users;
-	}
+			});
+			resolve(users);
+		}
 
-	Joi.validate(userObjectArray, SCHEMA_userObjectArray)
-		.then(users => returnUsersWithBodies(users))
-		.catch((reason) => {
-			logger.error("userObjectArray schema was invalid as passed to returnLCOArrayWithEmailBodies: ", { error: reason });
-			return [];
-		});
+		Joi.validate(userObjectArray, SCHEMA_userObjectArray)
+			.then(users => returnUsersWithBodies(users))
+			.catch((reason) => {
+				logger.error("userObjectArray schema was invalid as passed to returnLCOArrayWithEmailBodies: ", { error: reason });
+				reject([]);
+			});
+
+
+
+	});
+
 }
 
 

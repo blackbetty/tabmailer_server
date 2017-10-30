@@ -6,7 +6,7 @@ var dropOneMaxArticleEntryForUrlAndTitle = function(article_list, url, title) {
 		article_url: url,
 		article_title: title
 	});
-	console.log(article_list);
+	// console.log(article_list);
 	return article_list;
 }
 

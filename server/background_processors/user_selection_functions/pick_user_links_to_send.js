@@ -1,3 +1,4 @@
+require('dotenv').config();
 var datastore_interface = require('../../utilities/datastore_interface.js');
 const util = require('util');
 const _ = require('lodash');
@@ -52,6 +53,10 @@ function createDailyRandomLinkCollectionObjectCollection(users) {
             emailMode: user.settings.email_format
         }
         var sendProbability = user.settings.send_probability ? user.settings.send_probability : 7
+
+        // if we're running in test mode might as well give us a 1/2 probability
+        // need to fix this to be more deterministic later
+        sendProbability = (process.env.LIVE_EMAIL != 'true') ? 1 : sendProbability;
         _.each(user.article_list, function(article) {
             // Article is at least a day old
             if (article.datetime_added < (Date.now() - 86400000)) {

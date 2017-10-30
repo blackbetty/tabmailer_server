@@ -63,7 +63,7 @@ async function sendUserLinksJob() {
 	// console.log("Final Recipient Object: " + util.inspect(finalRecipientContentDataObject));
 	_.each(finalRecipientContentDataObject, function(user) {
 		var subject = user.emailMode == EMAIL_MODE_INDIVIDUAL ? INDIVIDUAL_SUBJECT : DIGEST_SUBJECT;
-		if (user.emailBodyCollection.length != 0) {
+		if (user.emailBodyCollection.length != 0 && user.linkCollection.length !=0) {
 			_.each(user.emailBodyCollection, function(emailBody) {
 				mailSender.sendEmail(user.targetEmail, subject, emailBody);
 			});

@@ -20,9 +20,12 @@ var returnLCOArrayWithEmailBodies = function(userObjectArray) {
 		function returnUsersWithBodies(userObjectArray) {
 			_.each(userObjectArray, function(user) {
 				user.emailBodyCollection = [];
-				logger.debug(util.inspect(user.emailBodyCollection)+'\n----------------------\n');
+
 				if (user.emailMode == EMAIL_MODE_DIGEST) {
-					user.emailBodyCollection.push(generateDigestBody(user.linkCollection));
+					var digestBody = generateDigestBody(user.linkCollection);
+					if (digestBody != null){
+						user.emailBodyCollection.push(digestBody);
+					}
 				} else if (user.emailMode == EMAIL_MODE_INDIVIDUAL) {
 					user.emailBodyCollection = generateIndividualBodies(user.linkCollection);
 				}

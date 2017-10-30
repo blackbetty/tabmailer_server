@@ -38,7 +38,7 @@ const generate_digest_body = function(linkObjectArray) {
 	};
 
 	_.each(linkObjectArray, function(linkObject) {
-		emailBody.action.push(generate_list_element(linkObject));
+		emailBody.body.action.push(generate_list_element(linkObject));
 	});
 
 	var emailBodyGenerated = mailGenerator.generate(emailBody);

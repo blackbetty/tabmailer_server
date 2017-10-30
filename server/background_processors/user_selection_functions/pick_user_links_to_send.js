@@ -26,7 +26,7 @@ function filterUsersForDeliveryPreferenceMatch(users) {
     return allValidRecipients;
 }
 async function getActiveUsers() {
-    console.log('active users fetch hit');
+    logger.debug('Fetching active users initiated...');
     try {
         var activeUsers = await datastore_interface.fetchAllActivatedUsers();
     } catch (error) {

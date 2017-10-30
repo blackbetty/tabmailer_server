@@ -1,5 +1,6 @@
 var cron = require('cron');
 const _ = require('lodash');
+require('dotenv').config();
 const logger = require('../../utilities/logger.js');
 const mailSender = require('../mail_sender.js');
 var datastoreInterface = require('../../utilities/datastore_interface.js');
@@ -34,7 +35,7 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 		_.each(userLinkCollectionObjectsArray, function(userLCO) {
 			if (userLCO.targetEmail == userObject.emailaddress) {
 				_.each(userLCO.linkCollection, function(linkObject) {
-					//user.article_list = dropOneMaxArticleFromListByUrlAndTitle(user.article_list, linkObject.link_url, linkObject.link_title);
+					userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, linkObject.link_url, linkObject.link_title);
 				});
 			}
 		});
@@ -52,7 +53,13 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 }
 async function sendUserLinksJob() {
 	var userLinkCollectionObjectsArray = await getTodaysUserLinkCollectionObjectsArray();
-	var finalRecipientContentDataObject = await emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
+	try {
+		var finalRecipientContentDataObject = await emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
+	} catch (error) {
+		logger.error("Generating email bodies failed for some reason:\n\t \t  " + error);
+		return;
+	}
+
 	// console.log("Final Recipient Object: " + util.inspect(finalRecipientContentDataObject));
 	_.each(finalRecipientContentDataObject, function(user) {
 		var subject = user.emailMode == EMAIL_MODE_INDIVIDUAL ? INDIVIDUAL_SUBJECT : DIGEST_SUBJECT;
@@ -64,7 +71,7 @@ async function sendUserLinksJob() {
 	});
 
 	// this needs to be fixed at some point
-	if(process.env.LIVE_EMAIL == true){
+	if (process.env.LIVE_EMAIL == 'true') {
 		removeSentArticles(userLinkCollectionObjectsArray);
 	} else {
 		logger.info(`FAKE removed sent links`);
@@ -72,5 +79,4 @@ async function sendUserLinksJob() {
 
 }
 
-sendUserLinksJob();
 module.exports = new cron.CronJob('0 0 * * *', sendUserLinksJob, null, true, 'America/Los_Angeles');

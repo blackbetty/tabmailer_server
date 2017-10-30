@@ -1,3 +1,4 @@
+require('dotenv').config();
 'use strict';
 const nodemailer = require('nodemailer');
 const os = require('os');
@@ -5,6 +6,7 @@ require('dotenv').config();
 var mg = require('nodemailer-mailgun-transport');
 const util = require('util');
 const logger = require('../utilities/logger.js');
+
 
 
 // This is your API key that you retrieve from www.mailgun.com/cp (free up to 10K monthly emails)
@@ -43,7 +45,8 @@ var liveSend = function(emailRecipient, subject, emailBody, callback) {
 var mail_sender = {
 
     sendEmail: function(emailRecipient, subject, emailBody, callback) {
-        if (process.env.LIVE_EMAIL == true) {
+        if (process.env.LIVE_EMAIL == 'true') {
+
             liveSend(emailRecipient, subject, emailBody, callback);
         } else {
             testSend(emailRecipient, subject, emailBody, callback);

@@ -5,6 +5,7 @@ const generateDigestBody = require('./generate_digest_body.js');
 const generateIndividualBodies = require('./generate_individual_bodies.js');
 const EMAIL_MODE_INDIVIDUAL = 'individual';
 const EMAIL_MODE_DIGEST = 'digest';
+const util = require('util');
 const SCHEMA_LABEL = 'the collection of users and the links they should receive today';
 const SCHEMA_userObjectArray = Joi.array().items(
 	Joi.object().required().label(SCHEMA_LABEL).keys({
@@ -16,23 +17,25 @@ const SCHEMA_userObjectArray = Joi.array().items(
 
 var returnLCOArrayWithEmailBodies = function(userObjectArray) {
 	return new Promise((resolve, reject) => {
-		function returnUsersWithBodies(users) {
-			_.each(users, function(user) {
-				user.emailBodyCollection = []
+		function returnUsersWithBodies(userObjectArray) {
+			_.each(userObjectArray, function(user) {
+				user.emailBodyCollection = [];
+				logger.debug(util.inspect(user.emailBodyCollection)+'\n----------------------\n');
 				if (user.emailMode == EMAIL_MODE_DIGEST) {
 					user.emailBodyCollection.push(generateDigestBody(user.linkCollection));
 				} else if (user.emailMode == EMAIL_MODE_INDIVIDUAL) {
 					user.emailBodyCollection = generateIndividualBodies(user.linkCollection);
 				}
 			});
-			resolve(users);
+			resolve(userObjectArray);
 		}
 
 		Joi.validate(userObjectArray, SCHEMA_userObjectArray)
 			.then(users => returnUsersWithBodies(users))
 			.catch((reason) => {
-				logger.error("userObjectArray schema was invalid as passed to returnLCOArrayWithEmailBodies: ", { error: reason });
-				reject([]);
+				logger.silly(`-----------userObjectArray INVALID SCHEMA----------:\n\t\t ${util.inspect(userObjectArray)}\n\t\t -----------END INVALID SCHEMA----------`);
+				logger.error("an error occurred generating email bodies in returnLCOArrayWithEmailBodies: ", { error: reason });
+				reject(reason);
 			});
 
 

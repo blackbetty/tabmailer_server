@@ -40,17 +40,21 @@ var datastore_interface = {
     },
     fetchAllActivatedUsers: function(callback) {
 
-        var query = datastoreClient.createQuery('tabmailer_user')
-        query = query.filter('activated', true);
+        return new Promise((resolve, reject) => {
+            var query = datastoreClient.createQuery('tabmailer_user');
+            query = query.filter('activated', true);
 
-        datastoreClient.runQuery(query, function(err, entities) {
-            var userEntities = entities;
+            datastoreClient.runQuery(query, function(err, entities) {
+                var userEntities = entities;
 
-            if (!userEntities) {
-                callback(false); // no user found
-            } else {
-                callback(userEntities);
-            }
+                if (err) {
+                    reject(err); // no user found
+                } else if (!userEntities) {
+                    reject();
+                } else {
+                    resolve(userEntities);
+                }
+            });
         });
     },
     setValueForProperty(user, property, value, callback) {

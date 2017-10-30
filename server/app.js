@@ -5,7 +5,7 @@ var gapiClient = new auth.OAuth2(process.env.GAPI_CLIENTID, '', '');
 const util = require('util');
 var express = require('express');
 var cors = require('cors');
-var sync = require('synchronize');
+// var sync = require('synchronize');
 var app = express();
 var bodyParser = require('body-parser');
 var path = require('path');
@@ -50,9 +50,9 @@ const SCHEMA_POST_EMAIL = require('./request_schemas/settings_routes/email_POST_
  *
  */
 
-app.use(function(req, res, next) {
-	sync.fiber(next);
-});
+// app.use(function(req, res, next) {
+// 	sync.fiber(next);
+// });
 
 app.use('/', httpsRedirect());
 

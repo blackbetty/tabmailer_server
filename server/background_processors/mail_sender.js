@@ -24,7 +24,7 @@ var mail_sender = {
             from: 'TABMAILERADMIN@dangolant.rocks',
             to: emailRecipient, // An array if you have multiple recipients.
             subject: subject,
-            text: emailBody,
+            html: emailBody,
         }, function(err, info) {
             if (err) {
                 console.log('Error: ' + err);

@@ -10,7 +10,7 @@ var mailGenerator = new Mailgen({
 		// Appears in header & footer of e-mails
 		name: 'LinkMeLater',
 		link: 'tabmailer-174400.appspot.com',
-		logo: 'https://tabmailer-174400.appspot.com/pages/images/favicon.ico'
+		logo: 'https://tabmailer-174400.appspot.com/pages/images/icon.png'
 	}
 });
 

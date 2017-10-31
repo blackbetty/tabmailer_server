@@ -7,7 +7,7 @@
   "scripts": {
     "test": "test",
     "start": "node app.js",
-    "startdev": "NODE_ENV=development nodemon --ignore 'logs/*' --ignore 'pages/*' app.js",
+    "startdev": "export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon --ignore 'logs/*' --ignore 'pages/*' app.js",
     "debug": "NODE_ENV=development node --debug app.js",
     "build": "cross-env NODE_ENV=development webpack-dev-server --open --hot"
   },

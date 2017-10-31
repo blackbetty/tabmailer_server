@@ -3,7 +3,7 @@ require('dotenv').config();
 const os = require('os');
 var datastore_interface = require('../utilities/datastore_interface');
 const util = require('util');
-
+var logger = require('../utilities/logger');
 var user_activator = {
 
     sendUserActivationEmail: function(entity) {
@@ -14,7 +14,7 @@ var user_activator = {
 
         var email_body = "please visit the following link to activate your account: " + activation_url;
         var email_subject = "TabMailer Activation";
-
+        logger.info('Sending user activation email to: '+entity.username);
         mail_sender.sendEmail(entity.data.emailaddress, email_subject, email_body);
     },
 

@@ -16,6 +16,9 @@
     "email",
     "hoarding"
   ],
+  "engines": {
+    "node": "8.8.1"
+  },
   "author": "Dan Golant",
   "license": "ISC",
   "dependencies": {

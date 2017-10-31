@@ -7,16 +7,21 @@
             </div>
             <div v-if="showTabHeap">
                 <div class="dashboard-component-body tab-heap-body">
-                    <paginate-links for="tabObjectsArray" :limit="12" :show-step-links="true"></paginate-links>
-                    <paginate name="tabObjectsArray" :list="tabObjectsArray" class="paginate-list" tab="div">
-                        <div class="tab-container rounded container-fluid" v-for="tabObject in paginated('tabObjectsArray')">
-                            <h4 class="display-6">
+                    <div v-if="tabObjectsArray.length > 0">
+                        <paginate-links for="tabObjectsArray" :limit="12" :show-step-links="true"></paginate-links>
+                        <paginate name="tabObjectsArray" :list="tabObjectsArray" class="paginate-list" tab="div">
+                            <div class="tab-container rounded container-fluid" v-for="tabObject in paginated('tabObjectsArray')">
+                                <h4 class="display-6">
                         {{ tabObject.article_title ? tabObject.article_title : 'Page title unavailable... ' }}
                         </h4>
-                            <a :href="tabObject.article_url"> {{ tabObject.article_url }} </a>
-                            <p class="addedTime">Added on {{ generateDateTime(tabObject.datetime_added) }}</p>
-                        </div>
-                    </paginate>
+                                <a :href="tabObject.article_url"> {{ tabObject.article_url }} </a>
+                                <p class="addedTime">Added on {{ generateDateTime(tabObject.datetime_added) }}</p>
+                            </div>
+                        </paginate>
+                    </div>
+                    <div v-else>
+                            <h4 class="display-6">Looks like you haven't saved any tabs yet!</h4>
+                    </div>
                 </div>
             </div>
             <div class="flexbox" v-else>

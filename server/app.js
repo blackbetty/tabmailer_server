@@ -207,7 +207,7 @@ app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => 
 	if (req.body.google_access_token) {
 		// fuck you Google and your stupid auth system in chrome extensions
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. AccessToken.');
-		getGoogleIDForAccessToken()
+		getGoogleIDForAccessToken(req.body.google_access_token)
 			.then((uID) => { executeLinkCollectionUpdate(uID) })
 			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ') });
 	} else {

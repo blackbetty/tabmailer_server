@@ -58,18 +58,17 @@
                             </div>
                         </div>
                         <br>
-                        <div class="disabledDiv">
-                            <p>Coming soon....</p>
+                        <div>
                             <label for="email-format-container">Email format:</label>
                             <div id="email-format-container" class="container-fluid">
                                 <div class="form-check">
                                     <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios1" value="individual" checked> Individual Links
+                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios1" value="individual" v-model="emailFormatSetting" checked> Individual Links
                                     </label>
                                 </div>
                                 <div class="form-check">
                                     <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios2" value="digest"> Digest Mode
+                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios2" value="digest" v-model="emailFormatSetting"> Digest Mode
                                     </label>
                                 </div>
                             </div>
@@ -232,6 +231,24 @@ module.exports = {
                 }
             });
         },
+        handleEmailFormatChanges: function(setting, previousSetting){
+            this.postSettingsChange('email_format', setting, (success, response) => {
+                if (success) {
+
+                    this.settingsUpdateSucceeded = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateSucceeded = false;
+                    }, 2000);
+                } else {
+                    this.settingsUpdateFailed = true;
+
+                    setTimeout(() => {
+                        this.settingsUpdateFailed = false;
+                    }, 2000);
+                }
+            });
+        },
         handleEmailSettingChanges: function() {
 
             this.postEmailChange(this.userEmail, (success, response) => {
@@ -253,17 +270,17 @@ module.exports = {
         setSettingsData: function(settingsObj, callback) {
 
             // If it's empty, we just leave the data at the defaults
-            if (Object.keys(settingsObj).length === 0 &&
-                settingsObj.constructor === Object) {
+            if (Object.keys(settingsObj).length === 0 && settingsObj.constructor === Object) {
                 // leave default
                 this.unwatchSettings = this.$watch('closeTabSetting', this.handleTabSettingChanges);
+                this.unwatchSettings = this.$watch('emailFormatSetting', this.handleEmailFormatChanges);
             } else {
                 this.closeTabSetting = settingsObj.close_tab;
                 this.emailFormatSetting = settingsObj.email_format;
                 this.emailFrequencySetting = settingsObj.frequency;
                 this.unwatchSettings = this.$watch('closeTabSetting', this.handleTabSettingChanges);
+                this.unwatchSettings = this.$watch('emailFormatSetting', this.handleEmailFormatChanges);
                 // Will add these back in once they do something
-                // this.$watch('emailFormatSetting', this.handleSettingsChanges);
                 // this.$watch('emailFrequencySetting', this.handleSettingsChanges);
             }
             callback();

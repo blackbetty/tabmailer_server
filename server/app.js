@@ -37,11 +37,13 @@ const getGoogleIDForIDToken = require('./utilities/router_utilities/get_google_u
 // API Request Schemas
 const SCHEMA_POST_LINKS = require('./request_schemas/link_collection_routes/links_POST_schema.js');
 const SCHEMA_GET_LINKS = require('./request_schemas/link_collection_routes/links_GET_schema.js');
+const SCHEMA_RES_LINKS = require('./request_schemas/link_collection_routes/links_RESPONSE_schema.js');
 const SCHEMA_POST_CREATEUSER = require('./request_schemas/user_routes/user_creation_POST_schema.js');
 const SCHEMA_GET_ACTIVATEUSER = require('./request_schemas/user_routes/user_activation_GET_schema.js');
 const SCHEMA_GET_SETTINGS = require('./request_schemas/settings_routes/settings_GET_schema.js');
 const SCHEMA_POST_SETTINGS = require('./request_schemas/settings_routes/settings_POST_schema.js');
 const SCHEMA_POST_EMAIL = require('./request_schemas/settings_routes/email_POST_schema.js');
+
 
 
 /*
@@ -229,9 +231,12 @@ app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
 
 	function completeGet(gID) {
 		getLinksForUser(gID, function(userEntity) {
-			logger.debug('User fetch completed for user: ' + userEntity.username);
-			logger.silly(userEntity);
-			res.send(userEntity);
+			Joi.validate(userEntity, SCHEMA_RES_LINKS).then((userEntity)=>{
+
+				logger.debug('User fetch completed for user: ' + userEntity.username);
+				logger.silly(userEntity);
+				res.send(userEntity);
+			}).catch((reason)=>res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
 		});
 	}
 

@@ -231,12 +231,12 @@ app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
 
 	function completeGet(gID) {
 		getLinksForUser(gID, function(userEntity) {
-			Joi.validate(userEntity, SCHEMA_RES_LINKS).then((userEntity)=>{
+			Joi.validate(userEntity, SCHEMA_RES_LINKS).then((userEntity) => {
 
 				logger.debug('User fetch completed for user: ' + userEntity.username);
 				logger.silly(userEntity);
 				res.send(userEntity);
-			}).catch((reason)=>res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
+			}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
 		});
 	}
 
@@ -284,9 +284,22 @@ app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
 	}
 
 
-	getGoogleIDForIDToken(req.query.google_id_token)
-		.then((google_uID) => { completeGet(google_uID) })
-		.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+	if (req.query.google_access_token) {
+		// fuck you Google and your stupid auth system in chrome extensions
+		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings AccessToken.');
+		getGoogleIDForAccessToken(req.query.google_access_token)
+			.then((uID) => { completeGet(uID) })
+			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ') });
+	} else {
+		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings IDToken.');
+		getGoogleIDForIDToken(req.query.google_id_token)
+			.then((uID) => { completeGet(uID) })
+			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+	}
+
+	// getGoogleIDForIDToken(req.query.google_id_token)
+	// 	.then((google_uID) => { completeGet(google_uID) })
+	// 	.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
 });
 
 app.post('/settings', Celebrate({ body: SCHEMA_POST_SETTINGS }), (req, res) => {

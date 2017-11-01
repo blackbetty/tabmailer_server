@@ -30,22 +30,26 @@ module.exports = function(googleUserID, tab_url, tab_title, callback) {
     query.filter('google_user_id', googleUserID);
 
 
-    datastoreClient.runQuery(query, function(err, entities) {
-        var userEntity = entities[0];
-        var article_entity = {
-            article_url: tab_url,
-            article_title: tab_title,
-            datetime_added: Date.now()
+    datastoreClient.runQuery(query, (err, entities) => {
+        try {
+            var userEntity = entities[0];
+            var article_entity = {
+                article_url: tab_url,
+                article_title: tab_title,
+                datetime_added: Date.now()
+            }
+
+            userEntity['article_list'].push(article_entity);
+            datastoreClient.update(userEntity)
+                .then(() => {
+
+                    logger.debug(`Link: "${tab_title}"\nsaved for user: "${userEntity.username}"`);
+                    logger.silly(userEntity);
+
+                    callback(userEntity);
+                }).catch((reason) => logger.warn(`Error, updating link object failed: ${reason}`));
+        } catch(error){
+            logger.error(`An error occurred saving link data for the user with googleUserID [${googleUserID}], reason:\n\n${error}`)
         }
-
-        userEntity['article_list'].push(article_entity);
-        datastoreClient.update(userEntity)
-            .then(() => {
-
-                logger.debug(`Link: "${tab_title}"\nsaved for user: "${userEntity.username}"`);
-                logger.silly(userEntity);
-
-                callback(userEntity);
-            }).catch((reason) => logger.warn(`Error, saving link failed: ${reason}`));
     });
 }

@@ -12,7 +12,9 @@ var path = require('path');
 var httpsRedirect = require('express-https-redirect');
 const env = process.env.NODE_ENV || 'development';
 const Celebrate = require('celebrate');
-const { Joi } = Celebrate;
+const {
+	Joi
+} = Celebrate;
 
 
 // Route Handlers
@@ -65,30 +67,35 @@ app.use('/pages', express.static(__dirname + '/pages'));
 
 
 app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
 
 if (process.env.NODE_ENV === 'production') {
-	app.listen(process.env.PORT || 9145, function() {
+	app.listen(process.env.PORT || 9145, function () {
 		process.env.DOMAIN = /*'https://'+*/ process.env.PROJECTID + '.appspot.com';
 	});
 } else {
 	var pem = require('pem');
 	var https = require('https');
 	logger.info("Server listening on port " + process.env.PORT || 9145);
-	pem.createCertificate({ days: 1, selfSigned: true }, function(err, keys) {
+	pem.createCertificate({
+		days: 1,
+		selfSigned: true
+	}, function (err, keys) {
 		if (err) {
 			throw err;
 		}
 		https.createServer({
 			key: keys.serviceKey,
 			cert: keys.certificate
-		}, app).listen(process.env.PORT || 9145, function() {
+		}, app).listen(process.env.PORT || 9145, function () {
 			process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
 		});
 	});
@@ -107,17 +114,17 @@ if (process.env.NODE_ENV === 'production') {
  *
  */
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
 	logger.info("GET received... \tHomepage ");
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/signup', function(req, res) {
+app.get('/signup', function (req, res) {
 	logger.info("GET received... \tSignup ");
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/dashboard', function(req, res) {
+app.get('/dashboard', function (req, res) {
 	logger.info("GET received... \tDashboard ");
 	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
@@ -129,7 +136,9 @@ app.get('/dashboard', function(req, res) {
  *
  */
 
-app.post('/createUser', Celebrate({ body: SCHEMA_POST_CREATEUSER }), function(req, res) {
+app.post('/createUser', Celebrate({
+	body: SCHEMA_POST_CREATEUSER
+}), function (req, res) {
 	logger.info("POST received... \tCreateUser");
 
 	function errorResponse(error, message) {
@@ -138,26 +147,36 @@ app.post('/createUser', Celebrate({ body: SCHEMA_POST_CREATEUSER }), function(re
 	}
 
 	function completeGet(google_uID) {
-		createUser(req.body.emailaddress, req.body.username, google_uID, function(value) {
+		createUser(req.body.emailaddress, req.body.username, google_uID, function (value) {
 			// can be false or The Entity
-			logger.debug('Google ID', { authID: google_uID });
+			logger.debug('Google ID', {
+				authID: google_uID
+			});
 			res.send(value);
 		});
 	}
 
 	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => { completeGet(google_uID) })
-		.catch((e) => { errorResponse(e, "Failed to fetch googleUserID for the given id_token: ") });
+		.then((google_uID) => {
+			completeGet(google_uID)
+		})
+		.catch((e) => {
+			errorResponse(e, "Failed to fetch googleUserID for the given id_token: ")
+		});
 });
 
-app.get('/activateUser/:userHash', Celebrate({ params: SCHEMA_GET_ACTIVATEUSER }), (req, res) => {
+app.get('/activateUser/:userHash', Celebrate({
+	params: SCHEMA_GET_ACTIVATEUSER
+}), (req, res) => {
 
 	logger.info('GET received... \tActivateUser');
 
 	var userHash = req.params.userHash; // not a user object, just the userHash to be activated
-	user_activator.activateUser(userHash, function(err, userObject) {
+	user_activator.activateUser(userHash, function (err, userObject) {
 		if (!err) {
-			logger.info('USER ACTIVATED SUCCESSFULLY', { user: userObject });
+			logger.info('USER ACTIVATED SUCCESSFULLY', {
+				user: userObject
+			});
 			res.cookie('tabmailer_data', JSON.stringify(userObject.user_hash));
 			res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
 			// res.end();
@@ -180,29 +199,48 @@ app.get('/activateUser/:userHash', Celebrate({ params: SCHEMA_GET_ACTIVATEUSER }
  *
  */
 
-app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => {
+app.post('/linksforuser', Celebrate({
+	body: SCHEMA_POST_LINKS
+}), (req, res) => {
 	logger.info('POST received... \tCreateUser');
 
 	function executeLinkCollectionUpdate(googleUserID) {
-		saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function(userEntity) {
-			logger.silly('User link post succeeded calling callback', { tab_url: req.body.tab_url });
+		saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {
+			if (!err) {
+				if (userEntity.settingsChanged == true) {
+					// if its true send an object that contains a url and the settings object
+					resetSettingsChangedAttrib(userEntity.google_user_id);
+					res.send({
+						saved_url: req.body.tab_url,
+						newSettings: userEntity.settings
+					});
+				} else {
+					res.send({
+						saved_url: req.body.tab_url
+					});
+				}
 
-			if (userEntity.settingsChanged == true) {
-				// if its true send an object that contains a url and the settings object
-				resetSettingsChangedAttrib(userEntity.google_user_id);
-				res.send({
-					saved_url: req.body.tab_url,
-					newSettings: userEntity.settings
-				});
 			} else {
-				res.send({ saved_url: req.body.tab_url });
+				userErrorResponse(err);
 			}
+			logger.silly('User link post succeeded calling callback', {
+				tab_url: req.body.tab_url
+			});
+
+
 
 		});
 	}
 
-	function errorResponse(error, message) {
-		logger.warn(message, { error_body: error });
+	function userErrorResponse(error) {
+		logger.error('User Link Post Error: ' + error.name);
+		res.status(400).send(error);
+	}
+
+	function internalErrorResponse(error, message) {
+		logger.warn(message, {
+			error_body: error
+		});
 		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
 	}
 
@@ -210,18 +248,28 @@ app.post('/linksforuser', Celebrate({ body: SCHEMA_POST_LINKS }), (req, res) => 
 		// fuck you Google and your stupid auth system in chrome extensions
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. AccessToken.');
 		getGoogleIDForAccessToken(req.body.google_access_token)
-			.then((uID) => { executeLinkCollectionUpdate(uID) })
-			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ') });
+			.then((uID) => {
+				executeLinkCollectionUpdate(uID)
+			})
+			.catch((e) => {
+				internalErrorResponse(e, 'Failed to fetch googleUserID for the given access_token: ')
+			});
 	} else {
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. IDToken.');
 		getGoogleIDForIDToken(req.body.google_id_token)
-			.then((uID) => { executeLinkCollectionUpdate(uID) })
-			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+			.then((uID) => {
+				executeLinkCollectionUpdate(uID)
+			})
+			.catch((e) => {
+				internalErrorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+			});
 	}
 
 });
 
-app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
+app.get('/linksforuser', Celebrate({
+	query: SCHEMA_GET_LINKS
+}), (req, res) => {
 	logger.info('GET received... \tLinksForUser');
 
 	function errorResponse(error, message) {
@@ -230,7 +278,7 @@ app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
 	}
 
 	function completeGet(gID) {
-		getLinksForUser(gID, function(userEntity) {
+		getLinksForUser(gID, function (userEntity) {
 			Joi.validate(userEntity, SCHEMA_RES_LINKS).then((userEntity) => {
 
 				logger.debug('User fetch completed for user: ' + userEntity.username);
@@ -241,8 +289,12 @@ app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
 	}
 
 	getGoogleIDForIDToken(req.query.google_id_token)
-		.then((google_uID) => { completeGet(google_uID) })
-		.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+		.then((google_uID) => {
+			completeGet(google_uID)
+		})
+		.catch((e) => {
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+		});
 });
 
 
@@ -252,7 +304,9 @@ app.get('/linksforuser', Celebrate({ query: SCHEMA_GET_LINKS }), (req, res) => {
  *
  */
 
-app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
+app.get('/settings', Celebrate({
+	query: SCHEMA_GET_SETTINGS
+}), (req, res) => {
 
 	logger.info('GET received... \tSettings ');
 
@@ -262,7 +316,7 @@ app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
 	}
 
 	function completeGet(gID) {
-		getSettingsForUser(gID, function(userEntity) {
+		getSettingsForUser(gID, function (userEntity) {
 			logger.debug('User fetched for user settings request');
 			logger.silly(userEntity);
 
@@ -288,13 +342,21 @@ app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
 		// fuck you Google and your stupid auth system in chrome extensions
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings AccessToken.');
 		getGoogleIDForAccessToken(req.query.google_access_token)
-			.then((uID) => { completeGet(uID) })
-			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ') });
+			.then((uID) => {
+				completeGet(uID)
+			})
+			.catch((e) => {
+				errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ')
+			});
 	} else {
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings IDToken.');
 		getGoogleIDForIDToken(req.query.google_id_token)
-			.then((uID) => { completeGet(uID) })
-			.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+			.then((uID) => {
+				completeGet(uID)
+			})
+			.catch((e) => {
+				errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+			});
 	}
 
 	// getGoogleIDForIDToken(req.query.google_id_token)
@@ -302,7 +364,9 @@ app.get('/settings', Celebrate({ query: SCHEMA_GET_SETTINGS }), (req, res) => {
 	// 	.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
 });
 
-app.post('/settings', Celebrate({ body: SCHEMA_POST_SETTINGS }), (req, res) => {
+app.post('/settings', Celebrate({
+	body: SCHEMA_POST_SETTINGS
+}), (req, res) => {
 
 	logger.debug('POST received... \tSettings');
 
@@ -312,7 +376,7 @@ app.post('/settings', Celebrate({ body: SCHEMA_POST_SETTINGS }), (req, res) => {
 	}
 
 	function completeSet(googleUserID) {
-		updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function(userEntity) {
+		updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function (userEntity) {
 			logger.debug('User fetched for user settings POST request');
 			logger.silly(userEntity);
 			// because I didn't include a settings object to start now we have to control for it somehow
@@ -328,13 +392,19 @@ app.post('/settings', Celebrate({ body: SCHEMA_POST_SETTINGS }), (req, res) => {
 
 
 	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => { completeSet(google_uID) })
-		.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
+		.then((google_uID) => {
+			completeSet(google_uID)
+		})
+		.catch((e) => {
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+		});
 });
 
 
 
-app.post('/email', Celebrate({ body: SCHEMA_POST_EMAIL }), (req, res) => {
+app.post('/email', Celebrate({
+	body: SCHEMA_POST_EMAIL
+}), (req, res) => {
 
 	logger.info('POST received... \tEmail');
 
@@ -345,7 +415,7 @@ app.post('/email', Celebrate({ body: SCHEMA_POST_EMAIL }), (req, res) => {
 
 
 	function completeSet(googleUserID) {
-		updateEmailForUser(googleUserID, req.body.emailaddress, function(userEntity) {
+		updateEmailForUser(googleUserID, req.body.emailaddress, function (userEntity) {
 			if (!userEntity) {
 				res.status(404).send('No user exists for that ID or an unknown error occurred');
 			} else {
@@ -355,8 +425,12 @@ app.post('/email', Celebrate({ body: SCHEMA_POST_EMAIL }), (req, res) => {
 	}
 
 	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => { completeSet(google_uID); })
-		.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: '); });
+		.then((google_uID) => {
+			completeSet(google_uID);
+		})
+		.catch((e) => {
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
+		});
 });
 
 

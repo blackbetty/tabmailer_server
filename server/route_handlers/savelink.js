@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'development') {
 // *****************************************************************
 
 
-module.exports = function(googleUserID, tab_url, tab_title, callback) {
+module.exports = function (googleUserID, tab_url, tab_title, callback) {
     var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
@@ -32,6 +32,14 @@ module.exports = function(googleUserID, tab_url, tab_title, callback) {
 
     datastoreClient.runQuery(query, (err, entities) => {
         try {
+            if (entities[0] == undefined) {
+                logger.verbose(`Attempt to fetch user for ID ${googleUserID} return no Entity`);
+                var err = new Error();
+                err.message = 'It looks like a user for GoogleID that ID doesn\'t exist, did you complete signup?';
+                err.name = 'UserDoesNotExistError';
+                callback(err, null);
+                return;
+            }
             var userEntity = entities[0];
             var article_entity = {
                 article_url: tab_url,
@@ -46,9 +54,10 @@ module.exports = function(googleUserID, tab_url, tab_title, callback) {
                     logger.debug(`Link: "${tab_title}"\nsaved for user: "${userEntity.username}"`);
                     logger.silly(userEntity);
 
-                    callback(userEntity);
+                    callback(null, userEntity);
                 }).catch((reason) => logger.warn(`Error, updating link object failed: ${reason}`));
-        } catch(error){
+
+        } catch (error) {
             logger.error(`An error occurred saving link data for the user with googleUserID [${googleUserID}], reason:\n\n${error}`)
         }
     });

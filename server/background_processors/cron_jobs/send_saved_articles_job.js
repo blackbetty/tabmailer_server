@@ -6,12 +6,12 @@ const mailSender = require('../mail_sender.js');
 var datastoreInterface = require('../../utilities/datastore_interface.js');
 var moment = require('moment');
 const EMAIL_MODE_INDIVIDUAL = 'individual';
-const EMAIL_MODE_DIGEST = 'digest';
-const util = require('util');
-var today = moment().format("dddd, MMMM Do, YYYY");
+// const EMAIL_MODE_DIGEST = 'digest';
+// const util = require('util');
+var today = moment().format('dddd, MMMM Do, YYYY');
 const getTodaysUserLinkCollectionObjectsArray = require('../user_selection_functions/pick_user_links_to_send.js');
 const emailBodyGenerator = require('../../utilities/email_utilities/email_body_generator.js');
-const dropOneMaxArticleFromListByUrlAndTitle = require('../../utilities/data_utilities/remove_article_list_entries_by_values.js')
+const dropOneMaxArticleFromListByUrlAndTitle = require('../../utilities/data_utilities/remove_article_list_entries_by_values.js');
 
 
 // a user object has the following keys in this context
@@ -41,7 +41,7 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 		});
 		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function(user) {
 			logger.info(`Updated user "${userObject.username}" link collection to remove sent links`);
-		})
+		});
 	}
 
 
@@ -56,7 +56,7 @@ async function sendUserLinksJob() {
 	try {
 		var finalRecipientContentDataObject = await emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
 	} catch (error) {
-		logger.error("Generating email bodies failed for some reason:\n\t \t  " + error);
+		logger.error('Generating email bodies failed for some reason:\n\t \t  ' + error);
 		return;
 	}
 
@@ -74,7 +74,7 @@ async function sendUserLinksJob() {
 	if (process.env.LIVE_EMAIL == 'true') {
 		removeSentArticles(userLinkCollectionObjectsArray);
 	} else {
-		logger.info(`FAKE removed sent links`);
+		logger.info('FAKE removed sent links');
 	}
 
 }

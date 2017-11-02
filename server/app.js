@@ -1,16 +1,10 @@
 require('dotenv').config();
-var GoogleAuth = require('google-auth-library');
-var auth = new GoogleAuth;
-var gapiClient = new auth.OAuth2(process.env.GAPI_CLIENTID, '', '');
-const util = require('util');
 var express = require('express');
-var cors = require('cors');
 // var sync = require('synchronize');
 var app = express();
 var bodyParser = require('body-parser');
 var path = require('path');
 var httpsRedirect = require('express-https-redirect');
-const env = process.env.NODE_ENV || 'development';
 const Celebrate = require('celebrate');
 const {
 	Joi
@@ -72,8 +66,8 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	res.header('Access-Control-Allow-Origin', '*');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
 	next();
 });
 
@@ -84,7 +78,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
 	var pem = require('pem');
 	var https = require('https');
-	logger.info("Server listening on port " + process.env.PORT || 9145);
+	logger.info('Server listening on port ' + process.env.PORT || 9145);
 	pem.createCertificate({
 		days: 1,
 		selfSigned: true
@@ -115,17 +109,17 @@ if (process.env.NODE_ENV === 'production') {
  */
 
 app.get('/', function (req, res) {
-	logger.info("GET received... \tHomepage ");
+	logger.info('GET received... \tHomepage ');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
 app.get('/signup', function (req, res) {
-	logger.info("GET received... \tSignup ");
+	logger.info('GET received... \tSignup ');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
 app.get('/dashboard', function (req, res) {
-	logger.info("GET received... \tDashboard ");
+	logger.info('GET received... \tDashboard ');
 	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
 
@@ -139,7 +133,7 @@ app.get('/dashboard', function (req, res) {
 app.post('/createUser', Celebrate({
 	body: SCHEMA_POST_CREATEUSER
 }), function (req, res) {
-	logger.info("POST received... \tCreateUser");
+	logger.info('POST received... \tCreateUser');
 
 	function errorResponse(error, message) {
 		logger.error(message, error);
@@ -158,10 +152,10 @@ app.post('/createUser', Celebrate({
 
 	getGoogleIDForIDToken(req.body.google_id_token)
 		.then((google_uID) => {
-			completeGet(google_uID)
+			completeGet(google_uID);
 		})
 		.catch((e) => {
-			errorResponse(e, "Failed to fetch googleUserID for the given id_token: ")
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
 		});
 });
 
@@ -186,7 +180,7 @@ app.get('/activateUser/:userHash', Celebrate({
 			// we just don't return a cookie, which the UI takes as meaning the activation failed.
 			logger.info('USER ACTIVATION FAILED FOR USERHASH ' + userHash, {
 				error: err
-			})
+			});
 			res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
 		}
 	});
@@ -249,19 +243,19 @@ app.post('/linksforuser', Celebrate({
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. AccessToken.');
 		getGoogleIDForAccessToken(req.body.google_access_token)
 			.then((uID) => {
-				executeLinkCollectionUpdate(uID)
+				executeLinkCollectionUpdate(uID);
 			})
 			.catch((e) => {
-				internalErrorResponse(e, 'Failed to fetch googleUserID for the given access_token: ')
+				internalErrorResponse(e, 'Failed to fetch googleUserID for the given access_token: ');
 			});
 	} else {
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. IDToken.');
 		getGoogleIDForIDToken(req.body.google_id_token)
 			.then((uID) => {
-				executeLinkCollectionUpdate(uID)
+				executeLinkCollectionUpdate(uID);
 			})
 			.catch((e) => {
-				internalErrorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+				internalErrorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
 			});
 	}
 
@@ -290,10 +284,10 @@ app.get('/linksforuser', Celebrate({
 
 	getGoogleIDForIDToken(req.query.google_id_token)
 		.then((google_uID) => {
-			completeGet(google_uID)
+			completeGet(google_uID);
 		})
 		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
 		});
 });
 
@@ -343,19 +337,19 @@ app.get('/settings', Celebrate({
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings AccessToken.');
 		getGoogleIDForAccessToken(req.query.google_access_token)
 			.then((uID) => {
-				completeGet(uID)
+				completeGet(uID);
 			})
 			.catch((e) => {
-				errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ')
+				errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ');
 			});
 	} else {
 		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings IDToken.');
 		getGoogleIDForIDToken(req.query.google_id_token)
 			.then((uID) => {
-				completeGet(uID)
+				completeGet(uID);
 			})
 			.catch((e) => {
-				errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+				errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
 			});
 	}
 
@@ -393,10 +387,10 @@ app.post('/settings', Celebrate({
 
 	getGoogleIDForIDToken(req.body.google_id_token)
 		.then((google_uID) => {
-			completeSet(google_uID)
+			completeSet(google_uID);
 		})
 		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ')
+			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
 		});
 });
 

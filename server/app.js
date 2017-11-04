@@ -71,29 +71,6 @@ app.use(function (req, res, next) {
 	next();
 });
 
-if (process.env.NODE_ENV === 'production') {
-	app.listen(process.env.PORT || 9145, function () {
-		process.env.DOMAIN = /*'https://'+*/ process.env.PROJECTID + '.appspot.com';
-	});
-} else {
-	var pem = require('pem');
-	var https = require('https');
-	logger.info('Server listening on port ' + process.env.PORT || 9145);
-	pem.createCertificate({
-		days: 1,
-		selfSigned: true
-	}, function (err, keys) {
-		if (err) {
-			throw err;
-		}
-		https.createServer({
-			key: keys.serviceKey,
-			cert: keys.certificate
-		}, app).listen(process.env.PORT || 9145, function () {
-			process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
-		});
-	});
-}
 /*
  *
  * End server config
@@ -109,7 +86,7 @@ if (process.env.NODE_ENV === 'production') {
  */
 
 app.get('/', function (req, res) {
-	logger.info('GET received... \tHomepage ');
+	if (req.headers['user-agent'] != 'GoogleStackdriverMonitoring-UptimeChecks(https://cloud.google.com/monitoring)') logger.info('GET received... \tHomepage ');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
@@ -434,3 +411,4 @@ app.post('/email', Celebrate({
 //Not sure why this needs to go after but ¯\_(ツ)_/¯
 
 app.use(Celebrate.errors());
+module.exports = app;

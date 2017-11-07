@@ -73,16 +73,40 @@ describe('Saves a link for a user', () => {
 
 
 describe('Saves 2 links for a user', () => {
-	let callback = (error, user, url, title) => {
-		let checkSchema = {
-			article_url: tabURL,
+	test('and both end up validate properly', done => {
+		let url1 = 'www.charlie.com';
+		let url2 = 'www.johnny.com';
+		let called = 0;
+		let checkSchema1 = {
+			article_url: url1,
 			article_title: tabTitle,
 			datetime_added: expect.any(Number)
 		};
-		expect(user.article_list).toContainEqual(checkSchema);
-		done();
-	};
-	saveLink(googleID, 'url1', tabTitle, callback);
+		let checkSchema2 = {
+			article_url: url2,
+			article_title: tabTitle,
+			datetime_added: expect.any(Number)
+		};
+		let completeTest = ()=>{
+			if(called<1){
+				called++;
+			} else {
+				done();
+			}
+		};
+		let callback1 = (error, user) => {
+			expect(user.article_list).toContainEqual(checkSchema1);
+
+			completeTest(user);
+		};
+		let callback2 = (error, user) => {
+			expect(user.article_list).toContainEqual(checkSchema2);
+			completeTest(user);
+		};
+		saveLink(googleID, url1, tabTitle, callback1);
+		saveLink(googleID, url2, tabTitle, callback2);
+
+	});
 });
 
 afterEach((done) => {

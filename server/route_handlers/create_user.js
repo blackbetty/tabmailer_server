@@ -32,9 +32,8 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 
 
 	datastoreClient.runQuery(query, function (err, entities) {
-		var userEntity = entities[0];
-		if (userEntity) {
-			logger.error(`A user for the username ${userEntity.username} already exists`);
+		if (entities && entities[0]) {
+			logger.error(`A user for the username ${entities[0].username} already exists`);
 			callback(false); // a user for this username already exists
 		} else {
 			var userKey = {

@@ -5,7 +5,7 @@
 	"main": "app.js",
 	"repository": "https://gitlab.com/tabmailer/tabmailer_server.git",
 	"scripts": {
-		"test": "export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && LOG_LEVEL=info && NODE_ENV=development && LIVE_EMAIL=false && jest",
+		"test": "export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && LOG_LEVEL=warn&& NODE_ENV=development&& LIVE_EMAIL=false&& jest",
 		"start": "node server.js",
 		"startdev": "ttab -G -w -t 'Datastore Emulator' gcloud beta emulators datastore start && export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon --ignore 'logs/*' --ignore 'pages/*' server.js",
 		"debug": "ttab -w -t 'Datastore Emulator' gcloud beta emulators datastore start && export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon  --inspect --ignore 'logs/*' --ignore 'pages/*' server.js"

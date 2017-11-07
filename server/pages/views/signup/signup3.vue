@@ -15,10 +15,10 @@
             </router-link>
         </div>
         <div v-else>
-            <div class="completionContainer alert" v-bind:class="{ 'alert-success': completionSuccess, 'alert-danger': !completionSuccess }" role="alert">
+            <div class="completionContainer alert" v-if="signupCompleted" v-bind:class="{ 'alert-success': completionSuccess, 'alert-danger': !completionSuccess }" role="alert">
                 {{completionMessage}}
             </div>
-            <div class="completionSuccess" v-if="completionSuccess">
+            <div class="completionSuccess" v-if="signupCompleted && completionSuccess">
                 <a href="/dashboard" class="btn btn-primary btn-block">
                     Account Settings
                 </a>
@@ -30,7 +30,13 @@
 // import default as gapi from 'https://apis.google.com/js/platform.js'
 
 module.exports = {
-    props: {},
+    data: function() {
+        return {
+            completionMessage: null,
+            completionSuccess: false,
+			signupCompleted: false
+        }
+    },
     computed: {
         isDisabled: function() {
             if (
@@ -61,10 +67,12 @@ module.exports = {
 
                     that.completionMessage = 'Thanks for signing up, look for an activation email in your inbox!';
                     that.completionSuccess = true;
+					that.signupCompleted = true;
                 } else if (request.readyState == XMLHttpRequest.DONE && request.status != 200) {
                     // Request finished and return a non-200
                     that.completionMessage = 'There was an issue signing up, please try again later.';
-                    that.completionSuccess = true;
+                    that.signupCompleted = true;
+					that.completionSuccess = false;
                 }
             }
 
@@ -80,12 +88,6 @@ module.exports = {
             this.$emit('email-changed', e.target.value);
         }
     },
-    mounted: function() {},
-    data: function() {
-        return {
-            completionMessage: null,
-            completionSuccess: false
-        }
-    }
+    mounted: function() {}
 }
 </script>

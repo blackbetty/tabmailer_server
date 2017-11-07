@@ -173,7 +173,7 @@ app.get('/activateUser/:userHash', Celebrate({
 app.post('/linksforuser', Celebrate({
 	body: SCHEMA_POST_LINKS
 }), (req, res) => {
-	logger.info('POST received... \tCreateUser');
+	logger.info('POST received... \tLinksForUser');
 
 	function executeLinkCollectionUpdate(googleUserID) {
 		saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {

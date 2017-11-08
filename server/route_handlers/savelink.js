@@ -1,6 +1,7 @@
 const Datastore = require('@google-cloud/datastore');
 var logger = require('../utilities/logger.js');
 const util = require('util');
+const uuidv4 = require('uuid/v4');
 
 
 // Refactor this into its own file later
@@ -41,17 +42,15 @@ module.exports = function (googleUserID, tab_url, tab_title, callback) {
 				return;
 			}
 			var userEntity = entities[0];
-			// var article_key = datastoreClient.key(['article_id',]);
-			// datastoreClient
+
+
 			var article_data = {
 				article_url: tab_url,
 				article_title: tab_title,
+				article_id: uuidv4(),
 				datetime_added: Date.now()
 			};
-			// var article_entity = {
-			// 	key: article_key,
-			// 	data: article_data
-			// };
+
 			userEntity['article_list'].push(article_data);
 			datastoreClient.update(userEntity)
 				.then(() => {

@@ -7,7 +7,7 @@
 	"scripts": {
 		"test": "export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && LOG_LEVEL=warn&& NODE_ENV=development&& LIVE_EMAIL=false&& jest",
 		"start": "node server.js",
-		"startdev": "ttab -G -w -t 'Datastore Emulator' gcloud beta emulators datastore start && export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon --ignore 'logs/*' --ignore 'pages/*' server.js",
+		"startdev": "ttab -G -t 'Datastore Emulator' gcloud beta emulators datastore start && export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon --ignore 'logs/*' --ignore 'pages/*' server.js",
 		"debug": "ttab -w -t 'Datastore Emulator' gcloud beta emulators datastore start && export DATASTORE_EMULATOR_HOST=localhost:8081 && $(gcloud beta emulators datastore env-init) && NODE_ENV=development nodemon  --inspect --ignore 'logs/*' --ignore 'pages/*' server.js"
 	},
 	"keywords": [
@@ -49,6 +49,7 @@
 		"sync": "^0.2.5",
 		"synchronize": "^2.0.0",
 		"underscore": "^1.8.3",
+		"uuid": "^3.1.0",
 		"vue": "^2.4.4",
 		"winston": "^2.3.1",
 		"winston-daily-rotate-file": "^1.4.6"
@@ -64,7 +65,7 @@
 		"node-sass": "^4.5.3",
 		"sass-loader": "^6.0.6",
 		"supertest": "^3.0.0",
-		"ttab": "^0.6.0",
+		"ttab": "^0.6.1",
 		"vue-loader": "^13.0.5",
 		"vue-template-compiler": "^2.4.4",
 		"webpack": "^3.6.0",

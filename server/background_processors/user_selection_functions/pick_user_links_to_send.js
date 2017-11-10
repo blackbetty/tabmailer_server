@@ -65,7 +65,8 @@ function createDailyRandomLinkCollectionObjectCollection(users) {
 
 					var articleObject = {
 						link_url: article.article_url,
-						link_title: article.article_title
+						link_title: article.article_title,
+						link_id: article.article_id
 					};
 					linkCollectionObject.linkCollection.push(articleObject);
 				}

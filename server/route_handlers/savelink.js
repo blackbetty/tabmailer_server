@@ -1,7 +1,8 @@
 const Datastore = require('@google-cloud/datastore');
 var logger = require('../utilities/logger.js');
 var cryptFunctions = require('../utilities/data_utilities/crypt_functions.js');
-// const util = require('util');
+const util = require('util');
+const uuidv4 = require('uuid/v4');
 
 
 // Refactor this into its own file later
@@ -45,6 +46,7 @@ module.exports = function (googleUserID, tab_url, tab_title, callback) {
 			var article_entity = {
 				article_url: cryptFunctions.encrypt(tab_url),
 				article_title: cryptFunctions.encrypt(tab_title),
+				article_id: uuidv4(),
 				datetime_added: Date.now()
 			};
 
@@ -56,7 +58,10 @@ module.exports = function (googleUserID, tab_url, tab_title, callback) {
 					logger.silly(userEntity);
 
 					callback(null, userEntity);
-				}).catch((reason) => logger.warn(`Error, updating link object failed: ${reason}`));
+				}).catch((reason) => {
+					logger.warn(`Error, updating link object failed: ${reason}`);
+					callback(reason, userEntity);
+				});
 
 		} catch (error) {
 			logger.error(`An error occurred saving link data for the user with googleUserID [${googleUserID}], reason:\n\n${error}`);

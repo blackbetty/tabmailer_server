@@ -16,7 +16,7 @@ const SCHEMA_userObjectArray = Joi.array().items(
 		emailMode: Joi.string().required()
 	})
 );
-var SCHEMA_ERROR_SILLY = `-----------userObjectArray INVALID SCHEMA----------:\n\t\t ${util.inspect(userObjectArray)}\n\t\t -----------END INVALID SCHEMA----------`;
+
 var SCHEMA_ERROR = 'an error occurred generating email bodies in returnLCOArrayWithEmailBodies: ';
 
 var returnLCOArrayWithEmailBodies = function (userObjectArray) {
@@ -40,7 +40,7 @@ var returnLCOArrayWithEmailBodies = function (userObjectArray) {
 		Joi.validate(userObjectArray, SCHEMA_userObjectArray)
 			.then(users => returnUsersWithBodies(users))
 			.catch((reason) => {
-				logger.silly(SCHEMA_ERROR_SILLY);
+				logger.silly(`-----------userObjectArray INVALID SCHEMA----------:\n\t\t ${util.inspect(userObjectArray)}\n\t\t -----------END INVALID SCHEMA----------`);
 				logger.error(SCHEMA_ERROR, {
 					error: reason
 				});

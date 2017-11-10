@@ -75,7 +75,7 @@ function createDailyRandomLinkCollectionObjectCollection(users) {
 						link_id: article.article_id
 					};
 					
-					if (!hasWhiteSpace(articleObject.article_title) && !hasWhiteSpace(articleObject.article_url)) {
+					if (!hasWhiteSpace(articleObject.link_title) && !hasWhiteSpace(articleObject.link_url)) {
 						articleObject.link_url = cryptFunctions.decrypt(article.article_url);
 						articleObject.link_title = cryptFunctions.decrypt(article.article_title);
 					}

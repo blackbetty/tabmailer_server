@@ -13,6 +13,7 @@ const getTodaysUserLinkCollectionObjectsArray = require('../user_selection_funct
 const emailBodyGenerator = require('../../utilities/email_utilities/email_body_generator.js');
 const dropOneMaxArticleFromListByUrlAndTitle = require('../../utilities/data_utilities/remove_article_list_entries_by_values.js');
 const dropArticleByID = require('../../utilities/data_utilities/remove_article_list_entry_by_id.js');
+var cryptFunctions = require('../../utilities/data_utilities/crypt_functions.js');
 
 
 // a user object has the following keys in this context
@@ -41,7 +42,8 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 							userObject.article_list = dropArticleByID(userObject.article_list, linkObject.link_id);
 						} else {
 							// eventually I can remove this condition because all articles will have IDs
-							userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, linkObject.link_url, linkObject.link_title);
+							
+							userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, cryptFunctions.encrypt(linkObject.link_url), cryptFunctions.encrypt(linkObject.link_title));
 						}
 					});
 				}

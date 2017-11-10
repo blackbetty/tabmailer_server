@@ -65,3 +65,6 @@ typings/
 
 # nodemon config
 nodemon.json
+
+# backup job
+backupcron/

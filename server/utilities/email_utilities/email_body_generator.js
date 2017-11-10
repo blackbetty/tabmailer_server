@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const logger = require('../logger.js');
-const { Joi } = require('celebrate');
+const {
+	Joi
+} = require('celebrate');
 const generateDigestBody = require('./generate_digest_body.js');
 const generateIndividualBodies = require('./generate_individual_bodies.js');
 const EMAIL_MODE_INDIVIDUAL = 'individual';
@@ -15,15 +17,15 @@ const SCHEMA_userObjectArray = Joi.array().items(
 	})
 );
 
-var returnLCOArrayWithEmailBodies = function(userObjectArray) {
+var returnLCOArrayWithEmailBodies = function (userObjectArray) {
 	return new Promise((resolve, reject) => {
 		function returnUsersWithBodies(userObjectArray) {
-			_.each(userObjectArray, function(user) {
+			_.each(userObjectArray, function (user) {
 				user.emailBodyCollection = [];
 
 				if (user.emailMode == EMAIL_MODE_DIGEST) {
 					var digestBody = generateDigestBody(user.linkCollection);
-					if (digestBody != null){
+					if (digestBody != null) {
 						user.emailBodyCollection.push(digestBody);
 					}
 				} else if (user.emailMode == EMAIL_MODE_INDIVIDUAL) {
@@ -37,7 +39,9 @@ var returnLCOArrayWithEmailBodies = function(userObjectArray) {
 			.then(users => returnUsersWithBodies(users))
 			.catch((reason) => {
 				logger.silly(`-----------userObjectArray INVALID SCHEMA----------:\n\t\t ${util.inspect(userObjectArray)}\n\t\t -----------END INVALID SCHEMA----------`);
-				logger.error("an error occurred generating email bodies in returnLCOArrayWithEmailBodies: ", { error: reason });
+				logger.error('an error occurred generating email bodies in returnLCOArrayWithEmailBodies: ', {
+					error: reason
+				});
 				reject(reason);
 			});
 
@@ -45,13 +49,13 @@ var returnLCOArrayWithEmailBodies = function(userObjectArray) {
 
 	});
 
-}
+};
 
 
 
 
 const emailBodyGenerator = {
 	buildLMLEmailBodyCollection: returnLCOArrayWithEmailBodies
-}
+};
 
 module.exports = emailBodyGenerator;

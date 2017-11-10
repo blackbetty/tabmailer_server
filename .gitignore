@@ -64,4 +64,8 @@ typings/
 .env
 
 # nodemon config
-nodemon.json.vscode/
+nodemon.json
+
+#vscode config files
+*.vscode*
+server/.vscode/

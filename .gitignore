@@ -68,3 +68,7 @@ nodemon.json
 
 # backup job
 backupcron/
+
+#vscode config files
+*.vscode*
+server/.vscode/

@@ -65,6 +65,7 @@ module.exports = function (googleUserID, tab_url, tab_title, callback) {
 
 		} catch (error) {
 			logger.error(`An error occurred saving link data for the user with googleUserID [${googleUserID}], reason:\n\n${error}`);
+			callback(error, userEntity);
 		}
 	});
 };

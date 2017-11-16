@@ -8,7 +8,6 @@ var moment = require('moment');
 const EMAIL_MODE_INDIVIDUAL = 'individual';
 // const EMAIL_MODE_DIGEST = 'digest';
 // const util = require('util');
-var today = moment().format('dddd, MMMM Do, YYYY');
 const getTodaysUserLinkCollectionObjectsArray = require('../user_selection_functions/pick_user_links_to_send.js');
 const emailBodyGenerator = require('../../utilities/email_utilities/email_body_generator.js');
 const dropOneMaxArticleFromListByUrlAndTitle = require('../../utilities/data_utilities/remove_article_list_entries_by_values.js');
@@ -22,8 +21,8 @@ var cryptFunctions = require('../../utilities/data_utilities/crypt_functions.js'
 //             linkCollection:[],
 //             emailMode: user.settings.email_format
 //
-const DIGEST_SUBJECT = 'Your LinkMeLater Digest For ' + today;
-const INDIVIDUAL_SUBJECT = 'Your LinkMeLater Link For ' + today;
+const DIGEST_SUBJECT = 'Your LinkMeLater Digest For ';
+const INDIVIDUAL_SUBJECT = 'Your LinkMeLater Link For ';
 
 
 // I hate myself as I am writing this
@@ -83,6 +82,7 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 	});
 }
 async function sendUserLinksJob() {
+	var today = moment().format('dddd, MMMM Do, YYYY');
 	var userLinkCollectionObjectsArray = await getTodaysUserLinkCollectionObjectsArray();
 	try {
 		var finalRecipientContentDataObject = await emailBodyGenerator.buildLMLEmailBodyCollection(userLinkCollectionObjectsArray);
@@ -96,7 +96,7 @@ async function sendUserLinksJob() {
 		var subject = user.emailMode == EMAIL_MODE_INDIVIDUAL ? INDIVIDUAL_SUBJECT : DIGEST_SUBJECT;
 		if (user.emailBodyCollection.length != 0 && user.linkCollection.length != 0) {
 			_.each(user.emailBodyCollection, function (emailBody) {
-				mailSender.sendEmail(user.targetEmail, subject, emailBody);
+				mailSender.sendEmail(user.targetEmail, subject + today, emailBody);
 			});
 		}
 	});
@@ -106,5 +106,5 @@ async function sendUserLinksJob() {
 	removeSentArticles(userLinkCollectionObjectsArray);
 }
 
-sendUserLinksJob();
+
 module.exports = sendUserLinksJob;

@@ -38,8 +38,12 @@ module.exports = function (googleUserID, callback) {
 		logger.silly(userEntity);
 		_.each(userEntity.article_list, (articleObject) => {
 			if (!hasWhiteSpace(articleObject.article_title) && !hasWhiteSpace(articleObject.article_url)){
-				articleObject.article_title = cryptFunctions.decrypt(articleObject.article_title);
-				articleObject.article_url = cryptFunctions.decrypt(articleObject.article_url);
+				try{
+					articleObject.article_title = cryptFunctions.decrypt(articleObject.article_title);
+					articleObject.article_url = cryptFunctions.decrypt(articleObject.article_url);
+				} catch(error) {
+					logger.error('Decyphering article title failed for article: '+articleObject.article_title);
+				}
 			}
 		});
 		callback(userEntity);

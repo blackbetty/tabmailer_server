@@ -82,7 +82,8 @@
 					) {
 						// Request finished and return a non-200
 						that.completionMessage =
-							"There was an issue signing up, please try again later.";
+							JSON.parse(request.response).error_text ? JSON.parse(request.response).error_text : "There was an issue signing up, please try again later." ;
+						console.log(JSON.parse(request.response).message);
 						that.signupCompleted = true;
 						that.completionSuccess = false;
 					}

@@ -28,13 +28,15 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 	var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 	//fix this later to use authkey
-	query.filter('username', username);
+	query.filter('google_user_id', google_user_id);
 
 
 	datastoreClient.runQuery(query, function (err, entities) {
 		if (entities && entities[0]) {
-			logger.error(`A user for the username ${entities[0].username} already exists`);
-			callback(false); // a user for this username already exists
+			logger.error(`A user for the username ${google_user_id} already exists`);
+			callback({
+				error: 'A user for this ID already exists'
+			}); // a user for this user_id already exists
 		} else {
 			var userKey = {
 				kind: 'tabmailer_user'

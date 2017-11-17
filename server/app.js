@@ -112,9 +112,11 @@ app.post('/createUser', Celebrate({
 }), function (req, res) {
 	logger.info('POST received... \tCreateUser');
 
-	function errorResponse(error, message) {
+	function errorResponse(error, message, errorCode) {
 		logger.error(message, error);
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
+		res.status(errorCode).send({
+			error_text: message
+		});
 	}
 
 	function completeGet(google_uID) {
@@ -123,7 +125,14 @@ app.post('/createUser', Celebrate({
 			logger.debug('Google ID', {
 				authID: google_uID
 			});
-			res.send(value);
+
+
+			if (value.error) {
+				errorResponse(value.error, 'A user for that Google Account already exists, please go to your existing dashboard', 400);
+			} else {
+				res.send(value);
+			}
+
 		});
 	}
 
@@ -132,7 +141,7 @@ app.post('/createUser', Celebrate({
 			completeGet(google_uID);
 		})
 		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
+			errorResponse(e, 'Failed to fetch googleUserID for the given ID token', 500);
 		});
 });
 

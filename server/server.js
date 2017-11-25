@@ -4,7 +4,7 @@ const logger = require('./utilities/logger.js');
 var server;
 if (process.env.NODE_ENV === 'production') {
 	server = app.listen(process.env.PORT || 9145, function () {
-		logger.info('Server listening on port ' + process.env.PORT || 9145);
+		logger.info('Production Server listening on port ' + process.env.PORT || 9145);
 		process.env.DOMAIN = '0.0.0.0:' + process.env.PORT;
 	});
 } else {

@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'production') {
 			key: keys.serviceKey,
 			cert: keys.certificate
 		}, app).listen(process.env.PORT || 9145, function () {
-			process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
+			process.env.DOMAIN = '0.0.0.0:' + process.env.PORT;
 		});
 	});
 }

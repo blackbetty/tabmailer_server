@@ -72,3 +72,7 @@ backupcron/
 #vscode config files
 *.vscode*
 server/.vscode/
+
+
+# tarball of the docker container
+tabmailer-prod.tar

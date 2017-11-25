@@ -10,6 +10,7 @@ COPY package*.json ./
 
 # RUN npm install
 # If you are building your code for production
+RUN npm install pm2 -g --only=production
 RUN npm install --only=production
 
 # Bundle app source
@@ -19,4 +20,5 @@ COPY . .
 
 EXPOSE 5000
 
-CMD [ "npm", "start" ]
+CMD ["pm2-docker", "server.js"]
+

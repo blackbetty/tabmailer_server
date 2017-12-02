@@ -21,8 +21,8 @@ var user_activator = {
 			{
 				user_activated: true
 			}
-		)
-			.then((rows) => {
+		).then(
+			(rows) => {
 				const entity = rows[0];
 				if (!entity) {
 					var err = 'No user found';
@@ -30,24 +30,13 @@ var user_activator = {
 				} else {
 					cb(null, entity);
 				}
-
-			})
-			.catch((error) => {
+			}
+		).catch(
+			(error) => {
 				logger.error('Unknown Error In User Activation', error)
 				cb(error, null);
-			});
-		// datastore_interface.fetchUserForPropertyAndValue('user_hash', userHash, function (optionalUserEntities) {
-		// 	var err = '';
-		// 	if (!optionalUserEntities[0]) {
-		// 		err = 'No user found';
-		// 		cb(err, null);
-		// 		return;
-		// 	}
-		// 	var userEntity = optionalUserEntities[0];
-		// 	datastore_interface.setValueForProperty(userEntity, 'activated', true, function (endUser) {
-		// 		cb(null, endUser);
-		// 	});
-		// });
+			}
+		);
 	}
 };
 

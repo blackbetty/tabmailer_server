@@ -5,7 +5,7 @@ var server;
 if (process.env.NODE_ENV === 'production') {
 	server = app.listen(process.env.PORT || 9145, function () {
 		logger.info('Production Server listening on port ' + process.env.PORT || 9145);
-		process.env.DOMAIN = '0.0.0.0:' + process.env.PORT;
+		process.env.DOMAIN = 'https://linkmelater.win';
 	});
 } else {
 	var pem = require('pem');

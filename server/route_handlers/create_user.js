@@ -40,7 +40,7 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 		Promise.all([pUser, pSettings])
 			.then((rows) => {
 				trx.commit;
-				var entity = rows[0];
+				var entity = rows[0][0];
 				user_activator.sendUserActivationEmail(entity);
 				callback(rows);
 			})

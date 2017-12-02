@@ -7,13 +7,13 @@ var user_activator = {
 
 	sendUserActivationEmail: function (entity) {
 
-		var hash = entity.data.user_hash;
+		var hash = entity.user_hash;
 		var activation_url = process.env.DOMAIN + '/activateUser/' + hash;
 
 		var email_body = 'please visit the following link to activate your account: ' + activation_url;
 		var email_subject = 'TabMailer Activation';
-		logger.info('Sending user activation email to: ' + entity.username);
-		mail_sender.sendEmail(entity.data.emailaddress, email_subject, email_body);
+		logger.info('Sending user activation email to: ' + entity.user_name);
+		mail_sender.sendEmail(entity.user_email, email_subject, email_body);
 	},
 
 	activateUser: function (userHash, cb) {

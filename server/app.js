@@ -119,7 +119,7 @@ app.post('/createUser', Celebrate({
 		});
 	}
 
-	function completeGet(google_uID) {
+	function completePost(google_uID) {
 		createUser(req.body.emailaddress, req.body.username, google_uID, function (value) {
 			// can be false or The Entity
 			logger.debug('Google ID', {
@@ -138,7 +138,7 @@ app.post('/createUser', Celebrate({
 
 	getGoogleIDForIDToken(req.body.google_id_token)
 		.then((google_uID) => {
-			completeGet(google_uID);
+			completePost(google_uID);
 		})
 		.catch((e) => {
 			errorResponse(e, 'Failed to fetch googleUserID for the given ID token', 500);

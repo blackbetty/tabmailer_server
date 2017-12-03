@@ -1,54 +1,53 @@
-const Datastore = require('@google-cloud/datastore');
+const datastore_interface = require('../utilities/datastore_interface.js');
 var logger = require('../utilities/logger.js');
 
-
-// Refactor this into its own file later
-// *****************************************************************
-
-const projectId = 'tabmailer-174400';
-var logger = require('../utilities/logger.js');
-
-// Instantiates a client
-const datastoreClient = Datastore({
-    projectId: projectId
-});
-
-if (process.env.NODE_ENV === 'development') {
-    var config = {
-        projectId: projectId,
-        keyFilename: '../keys/tabmailer-946de2b4591a.json'
-    };
-}
-
-// *****************************************************************
+module.exports = function (googleUserID, newSettings, newSettingKey, callback) {
 
 
-module.exports = function(googleUserID, newSettings, newSettingKey, callback) {
-    var query = datastoreClient.createQuery('tabmailer_user').limit(1);
+	console.log(`––––––––––––––––––––––––––––––––––––${newSettingKey}`);
+	console.log(`––––––––––––––––––––––––––––––––––––${newSettings}`);
+	datastore_interface.transaction(function (trx) {
+		datastore_interface('settings').update({
+			[newSettingKey]: newSettings
+		}).where('user_id', googleUserID).returning('*').then(
+			(rows) => {
+				var settings = rows[0];
+				trx.commit;
+				logger.debug(`Settings updated for:\t${settings.user_id}`);
+				callback(settings);
+			}
+
+		).catch((reason) => {
+			logger.warn(`Error, saving settings object failed: ${reason}`);
+			trx.rollback;
+			throw(reason, googleUserID);
+		});
+	});
+	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
-    query.filter('google_user_id', googleUserID);
+	// query.filter('google_user_id', googleUserID);
 
 
-    datastoreClient.runQuery(query, function(err, entities) {
-        var userEntity = entities[0];
+	// datastoreClient.runQuery(query, function (err, entities) {
+	// 	var userEntity = entities[0];
 
 
-        // Some user objects don't have settings because I didn't account for them at first
-        if(!userEntity['settings']){
-            userEntity['settings'] = {};
-        }
+	// 	// Some user objects don't have settings because I didn't account for them at first
+	// 	if (!userEntity['settings']) {
+	// 		userEntity['settings'] = {};
+	// 	}
 
-        userEntity['settings'][newSettingKey] = newSettings;
-        userEntity['settingsChanged'] = true;
+	// 	userEntity['settings'][newSettingKey] = newSettings;
+	// 	userEntity['settingsChanged'] = true;
 
 
 
-        datastoreClient.update(userEntity)
-            .then(() => {
-                // Task updated successfully.
-                logger.debug(`Settings updated for:\t${userEntity.username}`);
-                callback(userEntity);
-            });
-    });
+	// 	datastoreClient.update(userEntity)
+	// 		.then(() => {
+	// 			// Task updated successfully.
+	// 			logger.debug(`Settings updated for:\t${userEntity.username}`);
+	// 			callback(userEntity);
+	// 		});
+	// });
 }

@@ -302,13 +302,13 @@ app.get('/settings', Celebrate({
 			if (!err) {
 				logger.debug('User fetched for user settings request');
 				logger.silly(settings);
-				var status = 404;
+				var status_code = 404;
 				var res_val = 'No settings found for given User ID';
 				if(settings){
-					status = 200;
+					status_code = 200;
 					res_val = settings;
 				}
-				res.status(status).send(res_val);
+				res.status(status_code).send(res_val);
 			} else {
 				res.status(500).send('Internal Server Error while fetching settings');
 			}
@@ -354,17 +354,16 @@ app.post('/settings', Celebrate({
 	}
 
 	function completeSet(googleUserID) {
-		updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function (userEntity) {
+		updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function (settings) {
 			logger.debug('User fetched for user settings POST request');
-			logger.silly(userEntity);
-			// because I didn't include a settings object to start now we have to control for it somehow
-			// they'll be created by the UI every time the settings are updated, so if they're empty we
-			// just create a default one
-			if (!userEntity) {
-				res.status(404).send('No user exists for that ID');
-			} else {
-				res.status(200).send(userEntity['settings']);
+			logger.silly(settings);
+			var status_code = 404;
+			var res_val = 'No user exists for that ID';
+			if (settings) {
+				status_code = 200;
+				res_val = settings;
 			}
+			res.status(status_code).send(res_val);
 		});
 	}
 

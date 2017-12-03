@@ -1,54 +1,52 @@
-const Datastore = require('@google-cloud/datastore');
+var datastore_interface = require('../utilities/datastore_interface');
 var logger = require('../utilities/logger.js');
 
 
 
-// Refactor this into its own file later
-// *****************************************************************
+module.exports = function (googleUserID, callback) {
 
-const projectId = 'tabmailer-174400';
+	datastore_interface.transaction(function (trx) {
+		datastore_interface('users').update({
+			settings_changed: false
+		}).where('user_google_id', googleUserID).returning('*').then(
+			(user) => {
+				logger.debug(`settingsChanged Reset For:\t${user.user_id}`);
 
-// Instantiates a client
-const datastoreClient = Datastore({
-    projectId: projectId
-});
-
-if (process.env.NODE_ENV === 'development') {
-    var config = {
-        projectId: projectId,
-        keyFilename: '../keys/tabmailer-946de2b4591a.json'
-    };
-}
-
-
-// *****************************************************************
-
-
-module.exports = function(googleUserID, callback) {
-    var query = datastoreClient.createQuery('tabmailer_user').limit(1);
+				if (callback) {
+					callback(user);
+				}
+				trx.commit;
+			}
+		).catch((reason) => {
+			logger.warn('Settings Changed Set False Promise Rejected: ' + reason);
+			trx.rollback;
+			throw (reason, googleUserID);
+		});
+	});
+	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
 
 
-    query.filter('google_user_id', googleUserID);
+	// query.filter('google_user_id', googleUserID);
 
 
-    datastoreClient.runQuery(query, function(err, entities) {
-        var userEntity = entities[0];
+	// datastoreClient.runQuery(query, function(err, entities) {
+	//     var userEntity = entities[0];
 
 
-        userEntity['settingsChanged'] = false;
+	//     userEntity['settingsChanged'] = false;
 
 
 
-        datastoreClient.update(userEntity)
-            .then(() => {
-                // Task updated successfully.
+	//     datastoreClient.update(userEntity)
+	//         .then(() => {
+	//             // Task updated successfully.
 
-                logger.debug(`settingsChanged Reset For:\t${userEntity.username}`);
+	//             logger.debug(`settingsChanged Reset For:\t${userEntity.username}`);
 
-                if (callback) {
-                    callback(userEntity);
-                }
+	//             if (callback) {
+	//                 callback(userEntity);
+	//             }
 
-            });
-    });
+	//         });
+	// });
 }

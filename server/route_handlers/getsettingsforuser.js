@@ -3,18 +3,6 @@ var logger = require('../utilities/logger.js');
 
 
 module.exports = function (googleUserID, callback) {
-	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
-
-	// // switch this for authKey later
-	// query.filter('google_user_id', googleUserID);
-
-
-	// datastoreClient.runQuery(query, function (err, entities) {
-	// 	var userEntity = entities[0];
-	// 	logger.silly("Settings user object: " + JSON.stringify(userEntity));
-	// 	callback(userEntity);
-	// });
-
 	datastore_interface('settings').select('*').where('user_id', googleUserID)
 		.then(
 			(rows) => {

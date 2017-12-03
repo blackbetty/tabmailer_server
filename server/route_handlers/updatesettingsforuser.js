@@ -3,9 +3,6 @@ var logger = require('../utilities/logger.js');
 
 module.exports = function (googleUserID, newSettings, newSettingKey, callback) {
 
-
-	console.log(`––––––––––––––––––––––––––––––––––––${newSettingKey}`);
-	console.log(`––––––––––––––––––––––––––––––––––––${newSettings}`);
 	datastore_interface.transaction(function (trx) {
 		datastore_interface('settings').update({
 			[newSettingKey]: newSettings
@@ -23,31 +20,4 @@ module.exports = function (googleUserID, newSettings, newSettingKey, callback) {
 			throw(reason, googleUserID);
 		});
 	});
-	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
-
-
-	// query.filter('google_user_id', googleUserID);
-
-
-	// datastoreClient.runQuery(query, function (err, entities) {
-	// 	var userEntity = entities[0];
-
-
-	// 	// Some user objects don't have settings because I didn't account for them at first
-	// 	if (!userEntity['settings']) {
-	// 		userEntity['settings'] = {};
-	// 	}
-
-	// 	userEntity['settings'][newSettingKey] = newSettings;
-	// 	userEntity['settingsChanged'] = true;
-
-
-
-	// 	datastoreClient.update(userEntity)
-	// 		.then(() => {
-	// 			// Task updated successfully.
-	// 			logger.debug(`Settings updated for:\t${userEntity.username}`);
-	// 			callback(userEntity);
-	// 		});
-	// });
-}
+};

@@ -31,25 +31,4 @@ module.exports = function (googleUserID, callback) {
 				throw (error, null);
 			}
 		);
-	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
-
-	// // switch this for authKey later
-	// query.filter('google_user_id', googleUserID);
-
-
-	// datastoreClient.runQuery(query, function (err, entities) {
-	// 	var userEntity = entities[0];
-	// 	logger.silly(userEntity);
-	// 	_.each(userEntity.article_list, (articleObject) => {
-	// 		if (!hasWhiteSpace(articleObject.article_title) && !hasWhiteSpace(articleObject.article_url)){
-	// 			try{
-	// 				articleObject.article_title = cryptFunctions.decrypt(articleObject.article_title);
-	// 				articleObject.article_url = cryptFunctions.decrypt(articleObject.article_url);
-	// 			} catch(error) {
-	// 				logger.error('Decyphering article title failed for article: '+articleObject.article_title);
-	// 			}
-	// 		}
-	// 	});
-	// 	callback(userEntity);
-	// });
 };

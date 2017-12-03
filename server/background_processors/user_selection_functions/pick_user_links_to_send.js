@@ -5,12 +5,14 @@ const _ = require('lodash');
 var moment = require('moment');
 const logger = require('../../utilities/logger.js');
 var cryptFunctions = require('../../utilities/data_utilities/crypt_functions.js');
+const fetchAllActivatedUsers = require('../../utilities/data_utilities/fetch_activated_users.js');
 
 
 
 function hasWhiteSpace(s) {
 	return /\s/g.test(s);
 }
+
 
 function filterUsersForDeliveryPreferenceMatch(users) {
 
@@ -34,7 +36,7 @@ function filterUsersForDeliveryPreferenceMatch(users) {
 async function getActiveUsers() {
 	logger.debug('Fetching active users initiated...');
 	try {
-		var activeUsers = await datastore_interface.fetchAllActivatedUsers();
+		var activeUsers = await fetchAllActivatedUsers();
 	} catch (error) {
 		if (error) {
 			logger.error('Error occurred while fetching activated users: ' + error);

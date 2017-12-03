@@ -8,13 +8,7 @@ const util = require('util');
 
 
 module.exports = function (emailaddress, username, google_user_id, callback) {
-	// var query = datastoreClient.createQuery('tabmailer_user').limit(1);
-
-	//fix this later to use authkey
-	// query.filter('google_user_id', google_user_id);
-
-
-	// Using trx as a transaction object:
+	
 	datastore_interface.transaction(function (trx) {
 		var user = {
 			user_google_id: google_user_id,
@@ -54,59 +48,4 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 				}
 			});
 	});
-	// .then(function (rowArray) {
-	// 	console.log('rowArray');
-	// 	callback(rowArray[0]);
-	// }).catch(function (error) {
-	// 	logger.error(`User creation error - ${error}`);
-	// 	if (error.code == 23505) {
-	// 		callback({
-	// 			error: 'A user for this ID already exists'
-	// 		});
-	// 	}
-	// });
-
-	// datastoreClient.runQuery(query, function (err, entities) {
-	// 	if (entities && entities[0]) {
-	// 		logger.error(`A user for the username ${google_user_id} already exists`);
-	// 		callback({
-	// 			error: 'A user for this ID already exists'
-	// 		}); // a user for this user_id already exists
-	// 	} else {
-	// 		var userKey = {
-	// 			kind: 'tabmailer_user'
-	// 		};
-	// 		logger.silly(google_user_id);
-	// 		var user = {
-	// 			emailaddress: emailaddress,
-	// 			google_user_id: google_user_id,
-	// 			username: username,
-	// 			article_list: [],
-	// 			settings: {
-	// 				frequency: 'DAILY',
-	// 				close_tab: true,
-	// 				email_format: 'individual'
-	// 			},
-	// 			settingsChanged: true,
-	// 			date_user_created: Date.now(),
-	// 			activated: false
-	// 		};
-	// 		user.user_hash = hash(user);
-
-	// 		const entity = {
-	// 			key: userKey,
-	// 			data: user
-	// 		};
-
-	// 		datastoreClient.insert(entity)
-	// 			.then(() => {
-	// 				// Task inserted successfully
-
-	// 				user_activator.sendUserActivationEmail(entity);
-	// 				logger.silly(entity);
-	// 				callback(entity);
-	// 			});
-	// 	}
-	// });
-
 };

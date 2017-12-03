@@ -12,10 +12,10 @@
                         <paginate name="tabObjectsArray" :list="tabObjectsArray" class="paginate-list" tab="div">
                             <div class="tab-container rounded container-fluid" v-for="tabObject in paginated('tabObjectsArray')">
                                 <h4 class="display-6">
-                        {{ tabObject.article_title ? tabObject.article_title : 'Page title unavailable... ' }}
+                        {{ tabObject.link_title ? tabObject.link_title : 'Page title unavailable... ' }}
                         </h4>
-                                <a :href="tabObject.article_url"> {{ tabObject.article_url }} </a>
-                                <p class="addedTime">Added on {{ generateDateTime(tabObject.datetime_added) }}</p>
+                                <a :href="tabObject.link_url"> {{ tabObject.link_url }} </a>
+                                <p class="addedTime">Added on {{ generateDateTime(tabObject.link_date_created) }}</p>
                             </div>
                         </paginate>
                     </div>

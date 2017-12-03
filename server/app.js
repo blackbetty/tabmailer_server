@@ -12,9 +12,9 @@ const {
 
 
 // Route Handlers
-var saveLink = require('./route_handlers/savelink.js');
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
+var saveLink = require('./route_handlers/savelink.js');
 var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
 var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
@@ -258,12 +258,14 @@ app.get('/linksforuser', Celebrate({
 	}
 
 	function completeGet(gID) {
-		getLinksForUser(gID, function (userEntity) {
-			Joi.validate(userEntity, SCHEMA_RES_LINKS).then((userEntity) => {
+		getLinksForUser(gID, function (link_array) {
+			Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
+				
+				var	log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty'
 
-				logger.debug('User fetch completed for user: ' + userEntity.username);
-				logger.silly(userEntity);
-				res.send(userEntity);
+				logger.debug(log_msg);
+				logger.silly(link_array);
+				res.send(link_array);
 			}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
 		});
 	}
@@ -296,23 +298,19 @@ app.get('/settings', Celebrate({
 	}
 
 	function completeGet(gID) {
-		getSettingsForUser(gID, function (userEntity) {
-			logger.debug('User fetched for user settings request');
-			logger.silly(userEntity);
-
-			// because I didn't include a settings object to start now we have to control for it somehow
-			// they'll be created by the UI every time the settings are updated, so if they're empty we
-			// just create a default one
-			if (!userEntity) {
-				res.status(404).send('No user exists for that ID');
-			} else if (!userEntity['settings']) {
-				logger.debug('Settings object didn\'t exist for user, returning empty obj JSON');
-				res.status(200).send('{}');
-			} else if (Object.keys(userEntity['settings']).length === 0 && userEntity['settings'].constructor === Object) {
-				logger.debug('Settings object for user was empty, returning empty obj JSON');
-				res.status(200).send('{}');
+		getSettingsForUser(gID, function (err, settings) {
+			if (!err) {
+				logger.debug('User fetched for user settings request');
+				logger.silly(settings);
+				var status = 404;
+				var res_val = 'No settings found for given User ID';
+				if(settings){
+					status = 200;
+					res_val = settings;
+				}
+				res.status(status).send(res_val);
 			} else {
-				res.status(200).send(userEntity['settings']);
+				res.status(500).send('Internal Server Error while fetching settings');
 			}
 		});
 	}

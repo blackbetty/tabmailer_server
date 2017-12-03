@@ -57,8 +57,7 @@ var dashboardVueInstance = new Vue({
 			//this call always hits production data (for now)
 			this.sendRequestWithGoogleIDToken('GET', FETCH_USER_TABS_URL, id_token, function(success, res) {
 				if (success) {
-					EventBus.$emit('tabsLoadedEvent', JSON.parse(res).article_list, function() {
-
+					EventBus.$emit('tabsLoadedEvent', JSON.parse(res), function() {
 						dashboardVueInstance.showTabHeap = true;
 					});
 				} else {

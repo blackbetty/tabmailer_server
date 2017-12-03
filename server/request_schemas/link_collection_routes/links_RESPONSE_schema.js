@@ -1,15 +1,17 @@
-const { Joi } = require('celebrate');
+const {
+	Joi
+} = require('celebrate');
 
-const links_RES_schema = Joi.object().keys({
-    activated: Joi.boolean().required(),
-    article_list: Joi.array().required(),
-    date_user_created: Joi.number().integer().required(),
-    emailaddress: Joi.string().email().required(),
-    google_user_id: Joi.string().required(),
-    settings: Joi.object().required(),
-    settingsChanged: Joi.boolean().required(),
-    user_hash: Joi.string().alphanum().required(),
-    username: Joi.string().token().required()
-});
+const objectSchema = Joi.object({
+	link_id: Joi.string().guid().required(),
+	link_url: Joi.string().uri({
+		allowRelative: true
+	}).required(),
+	link_title: Joi.string().required(),
+	link_date_created: Joi.date().required(),
+	user_id: Joi.number().required()
+}).required();
 
+
+const links_RES_schema = Joi.array().items(objectSchema).required();
 module.exports = links_RES_schema;

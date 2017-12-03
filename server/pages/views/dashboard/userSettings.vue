@@ -63,12 +63,12 @@
                             <div id="email-format-container" class="container-fluid">
                                 <div class="form-check">
                                     <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios1" value="individual" v-model="emailFormatSetting" checked> Individual Links
+                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios1" value="INDIVIDUAL" v-model="emailFormatSetting" checked> Individual Links
                                     </label>
                                 </div>
                                 <div class="form-check">
                                     <label class="form-check-label">
-                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios2" value="digest" v-model="emailFormatSetting"> Digest Mode
+                                        <input class="form-check-input" type="radio" name="emailFormatRadios" id="emailFormatRadios2" value="DIGEST" v-model="emailFormatSetting"> Digest Mode
                                     </label>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@ module.exports = {
             dropdownSelected: 'Daily',
             userEmail: '',
             closeTabSetting: true,
-            emailFormatSetting: 'individual',
+            emailFormatSetting: 'INDIVIDUAL',
             emailFrequencySetting: 'DAILY',
             emailValid: false,
             settingsUpdateSucceeded: false,
@@ -277,7 +277,7 @@ module.exports = {
             } else {
                 this.closeTabSetting = settingsObj.close_tab;
                 this.emailFormatSetting = settingsObj.email_format;
-                this.emailFrequencySetting = settingsObj.frequency;
+                this.emailFrequencySetting = settingsObj.run_frequency;
                 this.unwatchSettings = this.$watch('closeTabSetting', this.handleTabSettingChanges);
                 this.unwatchSettings = this.$watch('emailFormatSetting', this.handleEmailFormatChanges);
                 // Will add these back in once they do something

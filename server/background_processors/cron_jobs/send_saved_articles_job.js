@@ -27,59 +27,88 @@ const INDIVIDUAL_SUBJECT = 'Your LinkMeLater Link For ';
 
 // I hate myself as I am writing this
 async function removeSentArticles(userLinkCollectionObjectsArray) {
+	var linksToDeleteIDArray = _.flatten(_.map(userLinkCollectionObjectsArray, (userLinkCollectionObject) => {
+		return _.map(userLinkCollectionObject.linkCollection, 'link_id');
+	}));
+	var userEmailsArray = _.map(userLinkCollectionObjectsArray, 'targetEmail');
 
-	function updateArticleList(userObject) {
-		// need to do this because the fetch returns an array
-		// since the SELECT is technically not unique
-		if (process.env.LIVE_EMAIL == 'true') {
-			userObject = userObject[0];
-			// replace this with a WHERE/FILTER at some point
-			_.each(userLinkCollectionObjectsArray, function (userLCO) {
-				if (userLCO.targetEmail == userObject.emailaddress) {
-					_.each(userLCO.linkCollection, function (linkObject) {
-						if(linkObject.link_id){
-							userObject.article_list = dropArticleByID(userObject.article_list, linkObject.link_id);
-						} else {
-							// eventually I can remove this condition because all articles will have IDs
-							
-							userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, cryptFunctions.encrypt(linkObject.link_url), cryptFunctions.encrypt(linkObject.link_title));
-						}
-					});
-				}
-			});
-			datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
-				logger.info(`Updated user "${user.username}" link collection to remove sent links`);
-			});
-		} else {
-			userObject = userObject[0];
-			// replace this with a WHERE/FILTER at some point
-			_.each(userLinkCollectionObjectsArray, function (userLCO) {
-				if (userLCO.targetEmail == userObject.emailaddress) {
-					_.each(userLCO.linkCollection, function (linkObject) {
-						
-						if (linkObject.link_id) {
-							logger.debug(`+Faked Deleting Article by ID ${linkObject.link_id} and title ${linkObject.link_title}`);
-						} else {
-							// eventually I can remove this condition because all articles will have IDs
-							logger.debug(`Faked Deleting Article with url ${linkObject.link_url} and title ${linkObject.link_title}`);
-						}
+	var log_msg = `Faked deleting links with IDs: ${linksToDeleteIDArray} for users: ${userEmailsArray}`;
+	var log_level = 'info';
 
-					});
-				}
-			});
-			datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
-				logger.info(`Updated user "${user.username}" link collection to remove sent links`);
-			});
-		}
+	if (process.env.LIVE_EMAIL == 'true') {
+		log_level = 'info';
+		log_msg = `Deleted links with IDs: ${linksToDeleteIDArray} for users: ${userEmailsArray}`;
+
+		datastoreInterface.transaction(function (trx) {
+			datastoreInterface('links').whereIn('link_id', linksToDeleteIDArray).returning('link_id').delete()
+				.then(
+					(link_ids) => {
+						log_msg = `Deleted links with IDs: ${link_ids} for users: ${userEmailsArray}`;
+						trx.commit;
+						logger.log(log_level, log_msg);
+					}
+				).catch((reason) => {
+					logger.error('Deleting Links Failed: ' + reason);
+					trx.rollback;
+				});
+		});
+	} else {
+		var x = 1;
+		logger.log(log_level, log_msg);
+		x = 2;
 	}
+	// function updateArticleList(userObject) {
+	// 	// need to do this because the fetch returns an array
+	// 	// since the SELECT is technically not unique
+	// 	if (process.env.LIVE_EMAIL == 'true') {
+	// 		userObject = userObject[0];
+	// 		// replace this with a WHERE/FILTER at some point
+	// 		_.each(userLinkCollectionObjectsArray, function (userLCO) {
+	// 			if (userLCO.targetEmail == userObject.emailaddress) {
+	// 				_.each(userLCO.linkCollection, function (linkObject) {
+	// 					if(linkObject.link_id){
+	// 						userObject.article_list = dropArticleByID(userObject.article_list, linkObject.link_id);
+	// 					} else {
+	// 						// eventually I can remove this condition because all articles will have IDs
+
+	// 						userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, cryptFunctions.encrypt(linkObject.link_url), cryptFunctions.encrypt(linkObject.link_title));
+	// 					}
+	// 				});
+	// 			}
+	// 		});
+	// 		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
+	// 			logger.info(`Updated user "${user.username}" link collection to remove sent links`);
+	// 		});
+	// 	} else {
+	// 		userObject = userObject[0];
+	// 		// replace this with a WHERE/FILTER at some point
+	// 		_.each(userLinkCollectionObjectsArray, function (userLCO) {
+	// 			if (userLCO.targetEmail == userObject.emailaddress) {
+	// 				_.each(userLCO.linkCollection, function (linkObject) {
+
+	// 					if (linkObject.link_id) {
+	// 						logger.debug(`+Faked Deleting Article by ID ${linkObject.link_id} and title ${linkObject.link_title}`);
+	// 					} else {
+	// 						// eventually I can remove this condition because all articles will have IDs
+	// 						logger.debug(`Faked Deleting Article with url ${linkObject.link_url} and title ${linkObject.link_title}`);
+	// 					}
+
+	// 				});
+	// 			}
+	// 		});
+	// 		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
+	// 			logger.info(`Updated user "${user.username}" link collection to remove sent links`);
+	// 		});
+	// 	}
+	// }
 
 
 
 
-	_.each(userLinkCollectionObjectsArray, function (userLCO) {
+	// _.each(userLinkCollectionObjectsArray, function (userLCO) {
 
-		datastoreInterface.fetchUserForPropertyAndValue('emailaddress', userLCO.targetEmail, updateArticleList);
-	});
+	// 	datastoreInterface.fetchUserForPropertyAndValue('emailaddress', userLCO.targetEmail, updateArticleList);
+	// });
 }
 async function sendUserLinksJob() {
 	var today = moment().format('dddd, MMMM Do, YYYY');

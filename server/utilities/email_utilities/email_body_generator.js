@@ -5,8 +5,8 @@ const {
 } = require('celebrate');
 const generateDigestBody = require('./generate_digest_body.js');
 const generateIndividualBodies = require('./generate_individual_bodies.js');
-const EMAIL_MODE_INDIVIDUAL = 'individual';
-const EMAIL_MODE_DIGEST = 'digest';
+const EMAIL_MODE_INDIVIDUAL = 'INDIVIDUAL';
+const EMAIL_MODE_DIGEST = 'DIGEST';
 const util = require('util');
 const SCHEMA_LABEL = 'the collection of users and the links they should receive today';
 const SCHEMA_userObjectArray = Joi.array().items(

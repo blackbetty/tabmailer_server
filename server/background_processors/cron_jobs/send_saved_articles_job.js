@@ -40,16 +40,16 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 		log_msg = `Deleted links with IDs: ${linksToDeleteIDArray} for users: ${userEmailsArray}`;
 
 		datastoreInterface.transaction(function (trx) {
-			datastoreInterface('links').whereIn('link_id', linksToDeleteIDArray).returning('link_id').delete()
+			trx('links').whereIn('link_id', linksToDeleteIDArray).returning('link_id').delete()
 				.then(
 					(link_ids) => {
 						log_msg = `Deleted links with IDs: ${link_ids} for users: ${userEmailsArray}`;
-						trx.commit;
+						trx.commit();
 						logger.log(log_level, log_msg);
 					}
 				).catch((reason) => {
 					logger.error('Deleting Links Failed: ' + reason);
-					trx.rollback;
+					trx.rollback();
 				});
 		});
 	} else {

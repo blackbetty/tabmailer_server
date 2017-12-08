@@ -4,19 +4,19 @@ var logger = require('../utilities/logger.js');
 module.exports = function (googleUserID, newSettings, newSettingKey, callback) {
 
 	datastore_interface.transaction(function (trx) {
-		datastore_interface('settings').update({
+		trx('settings').update({
 			[newSettingKey]: newSettings
 		}).where('user_id', googleUserID).returning('*').then(
 			(rows) => {
 				var settings = rows[0];
-				trx.commit;
+				trx.commit();
 				logger.debug(`Settings updated for:\t${settings.user_id}`);
 				callback(settings);
 			}
 
 		).catch((reason) => {
 			logger.warn(`Error, saving settings object failed: ${reason}`);
-			trx.rollback;
+			trx.rollback();
 			throw(reason, googleUserID);
 		});
 	});

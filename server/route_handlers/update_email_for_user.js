@@ -7,7 +7,7 @@ var logger = require('../utilities/logger.js');
 module.exports = function (googleUserID, newEmail, callback) {
 
 	datastore_interface.transaction(function (trx) {
-		datastore_interface('users').update({
+		trx('users').update({
 			user_email: newEmail,
 			user_activated: false,
 			user_hash: hash([newEmail, googleUserID, Date.now()])
@@ -17,11 +17,11 @@ module.exports = function (googleUserID, newEmail, callback) {
 				logger.debug(`Email updated for user "${googleUserID}" to: ${newEmail}`);
 				user_activator.sendUserActivationEmail(updatedUser);
 				callback(updatedUser);
-				trx.commit;
+				trx.commit();
 			}
 		).catch((reason) => {
 			logger.warn('Promise Rejected: ' + reason);
-			trx.rollback;
+			trx.rollback();
 			throw (reason, googleUserID);
 		});
 	});

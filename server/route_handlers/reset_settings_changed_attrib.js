@@ -6,20 +6,20 @@ var logger = require('../utilities/logger.js');
 module.exports = function (googleUserID, callback) {
 
 	datastore_interface.transaction(function (trx) {
-		datastore_interface('users').update({
+		trx('users').update({
 			settings_changed: false
 		}).where('user_google_id', googleUserID).returning('*').then(
 			(user) => {
 				logger.debug(`settingsChanged Reset For:\t${user.user_id}`);
 
+				trx.commit();
 				if (callback) {
 					callback(user);
 				}
-				trx.commit;
 			}
 		).catch((reason) => {
 			logger.warn('Settings Changed Set False Promise Rejected: ' + reason);
-			trx.rollback;
+			trx.rollback();
 			throw (reason, googleUserID);
 		});
 	});

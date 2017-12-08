@@ -25,21 +25,21 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 		};
 
 		var pUser = new Promise((resolve, reject) => {
-			datastore_interface('users').returning('*').insert(user).then((rows) => resolve(rows)).catch((error) => reject(error));
+			trx('users').returning('*').insert(user).then((rows) => resolve(rows)).catch((error) => reject(error));
 		});
 		var pSettings = new Promise((resolve, reject) => {
-			datastore_interface.table('settings').insert(settings).then(resolve).catch((error) => reject(error));
+			trx('settings').insert(settings).then(resolve).catch((error) => reject(error));
 		});
 
 		Promise.all([pUser, pSettings])
 			.then((rows) => {
-				trx.commit;
+				trx.commit();
 				var entity = rows[0][0];
 				user_activator.sendUserActivationEmail(entity);
 				callback(rows);
 			})
 			.catch((error) => {
-				trx.rollback;
+				trx.rollback();
 				logger.error(`User creation error - ${error}`);
 				if (error.code == 23505) {
 					callback({

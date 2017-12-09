@@ -16,7 +16,7 @@
 		</div>
 		<div class="dashboard-component-container border-secondary rounded">
 			<div class="dashboard-component-header settings-header">
-				<h2 class="display-5" style="display: inline">Settings <small style="color: lightgrey">(WIP + Disabled)</small> </h2>
+				<h2 class="display-5" style="display: inline">Settings</h2>
 				<hr>
 			</div>
 			<div v-if="showSettings">

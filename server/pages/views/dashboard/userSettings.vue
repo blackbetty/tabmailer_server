@@ -77,9 +77,7 @@
 				</div>
 			</div>
 			<div class="flexbox" v-else>
-				<div class="loader">
-					Loading....
-				</div>
+				<img class="dash-loader" src="/pages/images/loader.svg"/>
 			</div>
 		</div>
 	</div>

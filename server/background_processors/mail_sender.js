@@ -28,7 +28,7 @@ var testSend = function(emailRecipient, subject, emailBody, callback) {
 var liveSend = function(emailRecipient, subject, emailBody, callback) {
 	logger.info(`Sending email to ${emailRecipient}... `);
 	nodemailerMailgun.sendMail({
-		from: 'LinkMeLater@dangolant.rocks',
+		from: 'LinkMeLater@linkmelater.win',
 		to: emailRecipient, // An array if you have multiple recipients.
 		subject: subject,
 		html: emailBody,

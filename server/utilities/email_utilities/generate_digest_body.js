@@ -37,7 +37,7 @@ const generate_digest_body = function(linkObjectArray) {
 	// 	body: {
 	// 		title: 'Your LinkMeLater Digest for ' + today,
 	// 		action: [],
-	// 		outro: 'Need help, or have questions? Just email me at dgolant@gmail.com for now, while I set up a better system :)'
+	// 		outro: 'Need help, or have questions? Just email me at admin@linkmelater.win for now, while I set up a better system :)'
 	// 	}
 	// };
 
@@ -53,7 +53,7 @@ const generate_digest_body = function(linkObjectArray) {
 			table: {
 				data: []
 			},
-			outro: 'Need help, or have questions? Just email me at dgolant@gmail.com for now, while I set up a better system :)'
+			outro: 'Need help, or have questions? Just email me at admin@linkmelater.win for now, while I set up a better system :)'
 		}
 	};
 	if (linkObjectArray.length != 0) {

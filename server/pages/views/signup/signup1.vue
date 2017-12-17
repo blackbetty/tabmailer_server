@@ -7,7 +7,6 @@
 <script>
 module.exports = {
     mounted: function() {
-        // console.log('use this.$parent: ' + this.$parent);
     },
     methods: {
         nextPage: function(e) {
@@ -15,7 +14,6 @@ module.exports = {
         }
     },
     updated: function() {
-        // this.$parent.email = this.butt;
     },
     data: function() {
         return {

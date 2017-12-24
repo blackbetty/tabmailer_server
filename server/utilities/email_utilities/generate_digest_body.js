@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const logger = require('../logger.js');
 var moment = require('moment');
-var today = moment().format("dddd, MMMM Do, YYYY");
+var today = moment().format('dddd, MMMM Do, YYYY');
 var Mailgen = require('mailgen');
 
 var mailGenerator = new Mailgen({
@@ -9,8 +9,8 @@ var mailGenerator = new Mailgen({
 	product: {
 		// Appears in header & footer of e-mails
 		name: 'LinkMeLater',
-		link: 'tabmailer-174400.appspot.com',
-		logo: 'https://tabmailer-174400.appspot.com/pages/images/icon.png'
+		link: 'https://www.linkmelater.win',
+		logo: 'https://www.linkmelater.win/pages/images/icon.png'
 	}
 });
 
@@ -21,7 +21,7 @@ function generate_list_element(linkObject) {
 
 	var listItem = {
 		'Saved Links': `<a href=${linkObject.link_url}>${linkObject.link_title}</a>`
-	}
+	};
 	// var listItem = {
 	// 	button: {
 	// 		color: '#22BC66',
@@ -53,7 +53,7 @@ const generate_digest_body = function(linkObjectArray) {
 			table: {
 				data: []
 			},
-			outro: 'Need help, or have questions? Just email me at admin@linkmelater.win for now, while I set up a better system :)'
+			outro: 'Need help, or have questions? Send them to admin@linkmelater.win or tweet at us @LinkMeLaterApp'
 		}
 	};
 	if (linkObjectArray.length != 0) {
@@ -67,5 +67,5 @@ const generate_digest_body = function(linkObjectArray) {
 	} else {
 		return null;
 	}
-}
+};
 module.exports = generate_digest_body;

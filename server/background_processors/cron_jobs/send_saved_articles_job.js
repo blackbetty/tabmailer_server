@@ -57,58 +57,6 @@ async function removeSentArticles(userLinkCollectionObjectsArray) {
 		logger.log(log_level, log_msg);
 		x = 2;
 	}
-	// function updateArticleList(userObject) {
-	// 	// need to do this because the fetch returns an array
-	// 	// since the SELECT is technically not unique
-	// 	if (process.env.LIVE_EMAIL == 'true') {
-	// 		userObject = userObject[0];
-	// 		// replace this with a WHERE/FILTER at some point
-	// 		_.each(userLinkCollectionObjectsArray, function (userLCO) {
-	// 			if (userLCO.targetEmail == userObject.emailaddress) {
-	// 				_.each(userLCO.linkCollection, function (linkObject) {
-	// 					if(linkObject.link_id){
-	// 						userObject.article_list = dropArticleByID(userObject.article_list, linkObject.link_id);
-	// 					} else {
-	// 						// eventually I can remove this condition because all articles will have IDs
-
-	// 						userObject.article_list = dropOneMaxArticleFromListByUrlAndTitle(userObject.article_list, cryptFunctions.encrypt(linkObject.link_url), cryptFunctions.encrypt(linkObject.link_title));
-	// 					}
-	// 				});
-	// 			}
-	// 		});
-	// 		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
-	// 			logger.info(`Updated user "${user.username}" link collection to remove sent links`);
-	// 		});
-	// 	} else {
-	// 		userObject = userObject[0];
-	// 		// replace this with a WHERE/FILTER at some point
-	// 		_.each(userLinkCollectionObjectsArray, function (userLCO) {
-	// 			if (userLCO.targetEmail == userObject.emailaddress) {
-	// 				_.each(userLCO.linkCollection, function (linkObject) {
-
-	// 					if (linkObject.link_id) {
-	// 						logger.debug(`+Faked Deleting Article by ID ${linkObject.link_id} and title ${linkObject.link_title}`);
-	// 					} else {
-	// 						// eventually I can remove this condition because all articles will have IDs
-	// 						logger.debug(`Faked Deleting Article with url ${linkObject.link_url} and title ${linkObject.link_title}`);
-	// 					}
-
-	// 				});
-	// 			}
-	// 		});
-	// 		datastoreInterface.setValueForProperty(userObject, 'article_list', userObject.article_list, function (user) {
-	// 			logger.info(`Updated user "${user.username}" link collection to remove sent links`);
-	// 		});
-	// 	}
-	// }
-
-
-
-
-	// _.each(userLinkCollectionObjectsArray, function (userLCO) {
-
-	// 	datastoreInterface.fetchUserForPropertyAndValue('emailaddress', userLCO.targetEmail, updateArticleList);
-	// });
 }
 async function sendUserLinksJob() {
 	var today = moment().format('dddd, MMMM Do, YYYY');

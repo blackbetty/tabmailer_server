@@ -9,8 +9,8 @@ const Celebrate = require('celebrate');
 const {
 	Joi
 } = Celebrate;
-
-
+const session = require('express-session');
+const passport = require('./config/passport');
 // Route Handlers
 var getLinksForUser = require('./route_handlers/getlinksforuser.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
@@ -95,7 +95,7 @@ app.get('/signup', function (req, res) {
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/dashboard', function (req, res) {
+app.get('/dashboard', ensureAuthenticated, function (req, res) {
 	logger.info('GET received... \tDashboard ');
 	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
@@ -260,8 +260,8 @@ app.get('/linksforuser', Celebrate({
 	function completeGet(gID) {
 		getLinksForUser(gID, function (link_array) {
 			Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
-				
-				var	log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty'
+
+				var log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty';
 
 				logger.debug(log_msg);
 				logger.silly(link_array);
@@ -304,7 +304,7 @@ app.get('/settings', Celebrate({
 				logger.silly(settings);
 				var status_code = 404;
 				var res_val = 'No settings found for given User ID';
-				if(settings){
+				if (settings) {
 					status_code = 200;
 					res_val = settings;
 				}
@@ -410,7 +410,60 @@ app.post('/email', Celebrate({
 		});
 });
 
+app.get('/logout', function (req, res) {
+	req.logout();
+	res.redirect('/');
+});
 
+// Express and Passport Session
+
+app.use(session({
+	secret: 'abstractsecret'
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, done) {
+	// placeholder for custom user serialization
+	// null is for errors
+	done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+	// placeholder for custom user deserialization.
+	// maybe you are going to get the user from mongo by id?
+	// null is for errors
+	done(null, user);
+});
+
+
+// we will call this to start the GitHub Login process
+app.get('/auth/github', passport.authenticate('github'));
+
+// GitHub will call this URL
+app.get('/auth/github/callback', passport.authenticate('github', {
+	failureRedirect: '/'
+}),
+function (req, res) {
+	// res.redirect('/');
+	// dump the user for debugging
+	if (req.isAuthenticated()) {
+		let html = '<p>authenticated as user:</p>';
+		html += '<pre>' + JSON.stringify(req.user, null, 4) + '</pre>';
+		res.send(html);
+	}
+}
+);
+
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		// req.user is available for use here
+		return next();
+	}
+
+	// denied. redirect to login
+	res.redirect('/');
+}
 
 
 

@@ -50,11 +50,19 @@
 	color: rgba(0,0,0,.4);
 
 .flexbox
-	display: flex;
+	// display: flex;
 	justify-content: center;
 	align-items: center;
-	padding-top: 50px;
-	flex-flow: column;
+	padding-top: 30px;
+	margin: 0px 50px 0px 50px
+	.row
+		// align-items: center;
+		// justify-content: center;
+		.col-sm-2
+			&:first-child
+				margin-right: 15px !important;
+			&:second-child
+				margin-left: 15px !important;
 
 .slide-fade-enter-active
 	transition: all .7s ease;

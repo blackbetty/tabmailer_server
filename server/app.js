@@ -465,7 +465,11 @@ function ensureAuthenticated(req, res, next) {
 	res.redirect('/');
 }
 
-
+app.get('/logout', function (req, res) {
+	logger.info('logging out');
+	req.logout();
+	res.redirect('/');
+});
 
 //Not sure why this needs to go after but ¯\_(ツ)_/¯
 

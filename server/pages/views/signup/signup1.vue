@@ -1,7 +1,7 @@
 <template>
 	<div class="signup step1">
 		<h2 class="display-5 flexbox"> To get started, sign in below!</h2>
-		<!-- <div class="g-signin2 flexbox" v-on:click="nextPage" data-onsuccess="onSignIn"></div> -->
+		<div class="g-signin2 flexbox" v-on:click="nextPage" data-onsuccess="onSignIn"></div>
 		<div class='login-providers flexbox'>
 			<div class="row">
 

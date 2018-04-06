@@ -1,23 +1,20 @@
 const datastore_interface = require('../utilities/datastore_interface.js');
 var logger = require('../utilities/logger.js');
 
-module.exports = function (googleUserID, newSettings, newSettingKey, callback) {
+module.exports = async function (googleUserID, newSettings, newSettingKey) {
 
-	datastore_interface.transaction(function (trx) {
-		trx('settings').update({
-			[newSettingKey]: newSettings
-		}).where('user_id', googleUserID).returning('*').then(
-			(rows) => {
-				var settings = rows[0];
-				trx.commit();
-				logger.debug(`Settings updated for:\t${settings.user_id}`);
-				callback(settings);
-			}
+	try {
+		const rows = await datastore_interface.transaction((trx) =>
+			trx('settings').update({
+				[newSettingKey]: newSettings
+			}).where('user_id', googleUserID).returning('*')
+		);
+		const settings = rows[0];
 
-		).catch((reason) => {
-			logger.warn(`Error, saving settings object failed: ${reason}`);
-			trx.rollback();
-			throw(reason, googleUserID);
-		});
-	});
+		logger.debug(`Settings updated for:\t${settings.user_id}`);
+		return settings;
+	} catch (error) {
+		logger.warn(`Error, saving settings object failed: ${error}`);
+		throw (error, googleUserID);
+	}
 };

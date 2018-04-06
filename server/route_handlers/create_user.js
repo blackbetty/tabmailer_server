@@ -7,14 +7,16 @@ const util = require('util');
 
 
 
-module.exports = function (emailaddress, username, google_user_id, callback) {
-	
-	datastore_interface.transaction(function (trx) {
+module.exports = async (emailaddress, username, google_user_id) => {
+	// TODO: Refactor to be more async/await-ish
+	return await datastore_interface.transaction(async (trx) => {
+		
 		var user = {
 			user_google_id: google_user_id,
 			user_email: emailaddress,
 			user_name: username,
 		};
+
 		user.user_hash = hash(user);
 
 		var settings = {
@@ -24,28 +26,27 @@ module.exports = function (emailaddress, username, google_user_id, callback) {
 			email_format: 'INDIVIDUAL'
 		};
 
-		var pUser = new Promise((resolve, reject) => {
-			trx('users').returning('*').insert(user).then((rows) => resolve(rows)).catch((error) => reject(error));
-		});
-		var pSettings = new Promise((resolve, reject) => {
-			trx('settings').insert(settings).then(resolve).catch((error) => reject(error));
-		});
+		
+		try {
+			// need to resolve pUser here, but don't necessarily need settings just yet
+			var pUser = await trx('users').returning('*').insert(user);
+			await trx('settings').returning('*').insert(settings);
 
-		Promise.all([pUser, pSettings])
-			.then((rows) => {
-				trx.commit();
-				var entity = rows[0][0];
-				user_activator.sendUserActivationEmail(entity);
-				callback(rows);
-			})
-			.catch((error) => {
-				trx.rollback();
-				logger.error(`User creation error - ${error}`);
-				if (error.code == 23505) {
-					callback({
-						error: 'A user for this ID already exists'
-					});
-				}
-			});
+			
+			const entity = pUser[0];
+			user_activator.sendUserActivationEmail(entity);
+			return pUser;
+		} catch(error){
+			
+			logger.error(`User creation error - ${error}`);
+			if (error.code == 23505) {
+				return {
+					error: 'A user for this ID already exists'
+				};
+			} else {
+				throw error;
+			}
+		}
 	});
+	
 };

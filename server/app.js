@@ -19,6 +19,7 @@ var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_change
 var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
+const authMiddleware = require('./middleware/auth_middleware');
 
 // Background Processors
 var user_activator = require('./background_processors/user_activator.js');
@@ -27,8 +28,7 @@ var cron_functions = require('./background_processors/cron_functions.js');
 // Utilities
 const logger = require('./utilities/logger.js');
 // Router Utilities
-const getGoogleIDForAccessToken = require('./utilities/router_utilities/get_google_id_for_access_token.js');
-const getGoogleIDForIDToken = require('./utilities/router_utilities/get_google_uID_for_id_token.js');
+
 
 // API Request Schemas
 const SCHEMA_POST_LINKS = require('./request_schemas/link_collection_routes/links_POST_schema.js');
@@ -47,10 +47,6 @@ const SCHEMA_POST_EMAIL = require('./request_schemas/settings_routes/email_POST_
  * Server Config
  *
  */
-
-// app.use(function(req, res, next) {
-// 	sync.fiber(next);
-// });
 
 app.use('/', httpsRedirect());
 
@@ -95,7 +91,7 @@ app.get('/signup', function (req, res) {
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/dashboard', ensureAuthenticated, function (req, res) {
+app.get('/dashboard', function (req, res) {
 	logger.info('GET received... \tDashboard ');
 	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
@@ -103,49 +99,13 @@ app.get('/dashboard', ensureAuthenticated, function (req, res) {
 
 /*
  *
- * User CRUD Routes
+ * User Activation Route
  *
  */
 
-app.post('/createUser', Celebrate({
-	body: SCHEMA_POST_CREATEUSER
-}), function (req, res) {
-	logger.info('POST received... \tCreateUser');
-
-	function errorResponse(error, message, errorCode) {
-		logger.error(message, error);
-		res.status(errorCode).send({
-			error_text: message
-		});
-	}
-
-	function completePost(google_uID) {
-		createUser(req.body.emailaddress, req.body.username, google_uID, function (value) {
-			// can be false or The Entity
-			logger.debug('Google ID', {
-				authID: google_uID
-			});
 
 
-			if (value.error) {
-				errorResponse(value.error, 'A user for that Google Account already exists, please go to your existing dashboard', 400);
-			} else {
-				res.send(value);
-			}
-
-		});
-	}
-
-	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => {
-			completePost(google_uID);
-		})
-		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given ID token', 500);
-		});
-});
-
-app.get('/activateUser/:userHash', Celebrate({
+app.get('/activate/:userHash', Celebrate({
 	params: SCHEMA_GET_ACTIVATEUSER
 }), (req, res) => {
 
@@ -172,6 +132,49 @@ app.get('/activateUser/:userHash', Celebrate({
 	});
 
 });
+
+
+/*
+ *
+ * User CRUD Routes
+ *
+ */
+
+app.use(authMiddleware);
+
+app.post('/createUser', Celebrate({
+	body: SCHEMA_POST_CREATEUSER
+}), async (req, res) => {
+	logger.info('POST received... \tCreateUser');
+
+	let status_code = 400; 
+	let res_val = 'Generic error, something went wrong while creating a user';
+	try {
+		// can be false or The Entity
+		const userRecordEntity = await createUser(req.body.emailaddress, req.body.username, req.user_id);
+		logger.silly(userRecordEntity);
+
+		logger.debug('Google ID', {
+			authID: req.user_id
+		});
+
+		if (userRecordEntity.error) {
+			logger.error(userRecordEntity.error);
+			status_code = 400;
+			res_val = 'A user for that Google Account already exists, please go to your existing dashboard';
+		} else {
+			status_code = 200;
+			res_val = userRecordEntity;
+		}
+	} catch (error) {
+		logger.error(`POST ERROR: Creating a user for ${req.user_id || 'USER ID NULL'} failed`);
+		status_code = 500;
+		res_val = `Internal Error:\n\t Creating user failed ${error}`;
+	}
+
+	res.status(status_code).send(res_val);
+});
+
 
 /*
  *
@@ -212,39 +215,13 @@ app.post('/linksforuser', Celebrate({
 		});
 	}
 
+
 	function userErrorResponse(error) {
 		logger.error('User Link Post Error: ' + error.name);
 		res.status(400).send(error);
 	}
 
-	function internalErrorResponse(error, message) {
-		logger.warn(message, {
-			error_body: error
-		});
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
-	}
-
-	if (req.body.google_access_token) {
-		// fuck you Google and your stupid auth system in chrome extensions
-		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. AccessToken.');
-		getGoogleIDForAccessToken(req.body.google_access_token)
-			.then((uID) => {
-				executeLinkCollectionUpdate(uID);
-			})
-			.catch((e) => {
-				internalErrorResponse(e, 'Failed to fetch googleUserID for the given access_token: ');
-			});
-	} else {
-		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. IDToken.');
-		getGoogleIDForIDToken(req.body.google_id_token)
-			.then((uID) => {
-				executeLinkCollectionUpdate(uID);
-			})
-			.catch((e) => {
-				internalErrorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
-			});
-	}
-
+	executeLinkCollectionUpdate(req.user_id);
 });
 
 app.get('/linksforuser', Celebrate({
@@ -252,31 +229,16 @@ app.get('/linksforuser', Celebrate({
 }), (req, res) => {
 	logger.info('GET received... \tLinksForUser');
 
-	function errorResponse(error, message) {
-		logger.warn(message, error);
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
-	}
+	getLinksForUser(req.user_id, function (link_array) {
+		Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
 
-	function completeGet(gID) {
-		getLinksForUser(gID, function (link_array) {
-			Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
+			var log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty';
 
-				var log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty';
-
-				logger.debug(log_msg);
-				logger.silly(link_array);
-				res.send(link_array);
-			}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
-		});
-	}
-
-	getGoogleIDForIDToken(req.query.google_id_token)
-		.then((google_uID) => {
-			completeGet(google_uID);
-		})
-		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
-		});
+			logger.debug(log_msg);
+			logger.silly(link_array);
+			res.send(link_array);
+		}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
+	});
 });
 
 
@@ -292,89 +254,45 @@ app.get('/settings', Celebrate({
 
 	logger.info('GET received... \tSettings ');
 
-	function errorResponse(error, message) {
-		logger.warn(message, error);
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
-	}
-
-	function completeGet(gID) {
-		getSettingsForUser(gID, function (err, settings) {
-			if (!err) {
-				logger.debug('User fetched for user settings request');
-				logger.silly(settings);
-				var status_code = 404;
-				var res_val = 'No settings found for given User ID';
-				if (settings) {
-					status_code = 200;
-					res_val = settings;
-				}
-				res.status(status_code).send(res_val);
-			} else {
-				res.status(500).send('Internal Server Error while fetching settings');
-			}
-		});
-	}
-
-
-	if (req.query.google_access_token) {
-		// fuck you Google and your stupid auth system in chrome extensions
-		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings AccessToken.');
-		getGoogleIDForAccessToken(req.query.google_access_token)
-			.then((uID) => {
-				completeGet(uID);
-			})
-			.catch((e) => {
-				errorResponse(e, 'Failed to fetch googleUserID for the given access_token: ');
-			});
-	} else {
-		logger.silly('Any errors here are Google and their stupid god damn OAuth implentation for CRX\'s fault. Settings IDToken.');
-		getGoogleIDForIDToken(req.query.google_id_token)
-			.then((uID) => {
-				completeGet(uID);
-			})
-			.catch((e) => {
-				errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
-			});
-	}
-
-	// getGoogleIDForIDToken(req.query.google_id_token)
-	// 	.then((google_uID) => { completeGet(google_uID) })
-	// 	.catch((e) => { errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ') });
-});
-
-app.post('/settings', Celebrate({
-	body: SCHEMA_POST_SETTINGS
-}), (req, res) => {
-
-	logger.debug('POST received... \tSettings');
-
-	function errorResponse(error, message) {
-		logger.warn(message, error);
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
-	}
-
-	function completeSet(googleUserID) {
-		updateSettingsForUser(googleUserID, req.body[req.body.newKey], req.body.newKey, function (settings) {
-			logger.debug('User fetched for user settings POST request');
+	getSettingsForUser(req.user_id, function (err, settings) {
+		if (!err) {
+			logger.debug('User fetched for user settings request');
 			logger.silly(settings);
 			var status_code = 404;
-			var res_val = 'No user exists for that ID';
+			var res_val = 'No settings found for given User ID';
 			if (settings) {
 				status_code = 200;
 				res_val = settings;
 			}
 			res.status(status_code).send(res_val);
-		});
+		} else {
+			res.status(500).send('Internal Server Error while fetching settings');
+		}
+	});
+
+});
+
+app.post('/settings', Celebrate({
+	body: SCHEMA_POST_SETTINGS
+}), async (req, res) => {
+
+	logger.debug('POST received... \tSettings');
+	let settings;
+	let status_code = 404;
+	let res_val = 'User with that ID not found';
+	try {
+		settings = await updateSettingsForUser(req.user_id, req.body[req.body.newKey], req.body.newKey);
+		logger.silly(settings);
+		status_code = 200;
+		res_val = settings;
+	} catch(error){
+		logger.error(`POST ERROR: Saving settings for user ${req.user_id || 'USER ID NULL'} failed`);
+		res.status(500).send(`Internal Error:\n\t Saving settings failed ${error}`);
+		status_code = 500;
+		res_val = error;
 	}
-
-
-	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => {
-			completeSet(google_uID);
-		})
-		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
-		});
+	
+	res.status(status_code).send(res_val);	
 });
 
 
@@ -385,29 +303,16 @@ app.post('/email', Celebrate({
 
 	logger.info('POST received... \tEmail');
 
-	function errorResponse(error, message) {
-		logger.warn(message, error);
-		res.status(500).send(`Internal Error:\n\t${message} ${error}`);
-	}
+	updateEmailForUser(req.user_id, req.body.emailaddress, function (userEntity) {
+		if (!userEntity) {
+			res.status(404).send('No user exists for that ID or an unknown error occurred');
+		} else {
+			res.status(200).send(userEntity);
+		}
+	});
 
 
-	function completeSet(googleUserID) {
-		updateEmailForUser(googleUserID, req.body.emailaddress, function (userEntity) {
-			if (!userEntity) {
-				res.status(404).send('No user exists for that ID or an unknown error occurred');
-			} else {
-				res.status(200).send(userEntity);
-			}
-		});
-	}
 
-	getGoogleIDForIDToken(req.body.google_id_token)
-		.then((google_uID) => {
-			completeSet(google_uID);
-		})
-		.catch((e) => {
-			errorResponse(e, 'Failed to fetch googleUserID for the given id_token: ');
-		});
 });
 
 app.get('/logout', function (req, res) {
@@ -417,59 +322,59 @@ app.get('/logout', function (req, res) {
 
 // Express and Passport Session
 
-app.use(session({
-	secret: 'abstractsecret'
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(session({
+// 	secret: 'abstractsecret'
+// }));
+// app.use(passport.initialize());
+// app.use(passport.session());
 
-passport.serializeUser(function (user, done) {
-	// placeholder for custom user serialization
-	// null is for errors
-	done(null, user);
-});
+// passport.serializeUser(function (user, done) {
+// 	// placeholder for custom user serialization
+// 	// null is for errors
+// 	done(null, user);
+// });
 
-passport.deserializeUser(function (user, done) {
-	// placeholder for custom user deserialization.
-	// maybe you are going to get the user from mongo by id?
-	// null is for errors
-	done(null, user);
-});
+// passport.deserializeUser(function (user, done) {
+// 	// placeholder for custom user deserialization.
+// 	// maybe you are going to get the user from mongo by id?
+// 	// null is for errors
+// 	done(null, user);
+// });
 
 
-// we will call this to start the GitHub Login process
-app.get('/auth/github', passport.authenticate('github'));
+// // we will call this to start the GitHub Login process
+// app.get('/auth/github', passport.authenticate('github'));
 
-// GitHub will call this URL
-app.get('/auth/github/callback', passport.authenticate('github', {
-	failureRedirect: '/'
-}),
-function (req, res) {
-	// res.redirect('/');
-	// dump the user for debugging
-	if (req.isAuthenticated()) {
-		let html = '<p>authenticated as user:</p>';
-		html += '<pre>' + JSON.stringify(req.user, null, 4) + '</pre>';
-		res.send(html);
-	}
-}
-);
+// // GitHub will call this URL
+// app.get('/auth/github/callback', passport.authenticate('github', {
+// 	failureRedirect: '/'
+// }),
+// function (req, res) {
+// 	// res.redirect('/');
+// 	// dump the user for debugging
+// 	if (req.isAuthenticated()) {
+// 		let html = '<p>authenticated as user:</p>';
+// 		html += '<pre>' + JSON.stringify(req.user, null, 4) + '</pre>';
+// 		res.send(html);
+// 	}
+// }
+// );
 
-function ensureAuthenticated(req, res, next) {
-	if (req.isAuthenticated()) {
-		// req.user is available for use here
-		return next();
-	}
+// function ensureAuthenticated(req, res, next) {
+// 	if (req.isAuthenticated()) {
+// 		// req.user is available for use here
+// 		return next();
+// 	}
 
-	// denied. redirect to login
-	res.redirect('/');
-}
+// 	// denied. redirect to login
+// 	res.redirect('/');
+// }
 
-app.get('/logout', function (req, res) {
-	logger.info('logging out');
-	req.logout();
-	res.redirect('/');
-});
+// app.get('/logout', function (req, res) {
+// 	logger.info('logging out');
+// 	req.logout();
+// 	res.redirect('/');
+// });
 
 //Not sure why this needs to go after but ¯\_(ツ)_/¯
 

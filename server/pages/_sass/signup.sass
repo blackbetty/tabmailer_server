@@ -1,3 +1,6 @@
+
+$breakpoint-tablet: 768px;
+
 #app-bg
 	position: absolute;
 	background-color: lightgrey;
@@ -50,19 +53,30 @@
 	color: rgba(0,0,0,.4);
 
 .flexbox
-	// display: flex;
+	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	padding-top: 30px;
 	margin: 0px 50px 0px 50px
 	.row
-		// align-items: center;
-		// justify-content: center;
-		.col-sm-2
-			&:first-child
-				margin-right: 15px !important;
-			&:second-child
-				margin-left: 15px !important;
+		padding-bottom: 15px;
+		width: 100%
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around
+		padding: 0px 100px 15px 100px
+		.display-5
+			width: 100%;
+		.g-signin2
+			>*
+				width: 212px !important
+		.btn-github,
+		.btn-facebook,
+		.btn-bitbucket
+			min-width: 212px !important
+		.fa-gitlab
+			margin: 2px
 
 .slide-fade-enter-active
 	transition: all .7s ease;

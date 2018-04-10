@@ -20,6 +20,7 @@ var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./route_handlers/create_user.js');
 const authMiddleware = require('./middleware/auth_middleware');
+const {activateUser: activateUserRoute, auth: ppAuth} = require('./routes/public/');
 
 // Background Processors
 var user_activator = require('./background_processors/user_activator.js');
@@ -48,6 +49,8 @@ const SCHEMA_POST_EMAIL = require('./request_schemas/settings_routes/email_POST_
  *
  */
 
+const protectedRouter = express.Router();
+const publicRouter = express.Router();
 app.use('/', httpsRedirect());
 
 cron_functions.scheduleAllJobs();
@@ -81,31 +84,23 @@ app.use(function (req, res, next) {
  *
  */
 
-app.get('/', function (req, res) {
+publicRouter.get('/', function (req, res) {
 	if (req.headers['user-agent'] != 'GoogleStackdriverMonitoring-UptimeChecks(https://cloud.google.com/monitoring)') logger.info('GET received... \tHomepage ');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/signup', function (req, res) {
+publicRouter.get('/signup', function (req, res) {
 	logger.info('GET received... \tSignup ');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-app.get('/dashboard', function (req, res) {
+publicRouter.get('/dashboard', function (req, res) {
 	logger.info('GET received... \tDashboard ');
 	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 });
 
 
-/*
- *
- * User Activation Route
- *
- */
-
-
-
-app.get('/activate/:userHash', Celebrate({
+publicRouter.get('/activate/:userHash', Celebrate({
 	params: SCHEMA_GET_ACTIVATEUSER
 }), (req, res) => {
 
@@ -140,9 +135,9 @@ app.get('/activate/:userHash', Celebrate({
  *
  */
 
-app.use(authMiddleware);
+protectedRouter.use(authMiddleware);
 
-app.post('/createUser', Celebrate({
+protectedRouter.post('/createUser', Celebrate({
 	body: SCHEMA_POST_CREATEUSER
 }), async (req, res) => {
 	logger.info('POST received... \tCreateUser');
@@ -182,7 +177,7 @@ app.post('/createUser', Celebrate({
  *
  */
 
-app.post('/linksforuser', Celebrate({
+protectedRouter.post('/linksforuser', Celebrate({
 	body: SCHEMA_POST_LINKS
 }), (req, res) => {
 	logger.info('POST received... \tLinksForUser');
@@ -224,7 +219,7 @@ app.post('/linksforuser', Celebrate({
 	executeLinkCollectionUpdate(req.user_id);
 });
 
-app.get('/linksforuser', Celebrate({
+protectedRouter.get('/linksforuser', Celebrate({
 	query: SCHEMA_GET_LINKS
 }), (req, res) => {
 	logger.info('GET received... \tLinksForUser');
@@ -248,7 +243,7 @@ app.get('/linksforuser', Celebrate({
  *
  */
 
-app.get('/settings', Celebrate({
+protectedRouter.get('/settings', Celebrate({
 	query: SCHEMA_GET_SETTINGS
 }), (req, res) => {
 
@@ -272,7 +267,7 @@ app.get('/settings', Celebrate({
 
 });
 
-app.post('/settings', Celebrate({
+protectedRouter.post('/settings', Celebrate({
 	body: SCHEMA_POST_SETTINGS
 }), async (req, res) => {
 
@@ -297,7 +292,7 @@ app.post('/settings', Celebrate({
 
 
 
-app.post('/email', Celebrate({
+protectedRouter.post('/email', Celebrate({
 	body: SCHEMA_POST_EMAIL
 }), (req, res) => {
 
@@ -310,73 +305,39 @@ app.post('/email', Celebrate({
 			res.status(200).send(userEntity);
 		}
 	});
+});
+// Passport
+
+publicRouter.get('/logout', ppAuth.logout);
+
+protectedRouter.use(session({
+	secret: 'abstractsecret'
+}));
+publicRouter.use(passport.initialize());
+publicRouter.use(passport.session());
 
 
-
+// WIP
+passport.serializeUser(function (user, done) {
+	// placeholder for custom user serialization
+	// null is for errors
+	done(null, user);
 });
 
-app.get('/logout', function (req, res) {
-	req.logout();
-	res.redirect('/');
+passport.deserializeUser(function (user, done) {
+	// placeholder for custom user deserialization.
+	// maybe you are going to get the user from mongo by id?
+	// null is for errors
+	done(null, user);
 });
 
-// Express and Passport Session
 
-// app.use(session({
-// 	secret: 'abstractsecret'
-// }));
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// passport.serializeUser(function (user, done) {
-// 	// placeholder for custom user serialization
-// 	// null is for errors
-// 	done(null, user);
-// });
-
-// passport.deserializeUser(function (user, done) {
-// 	// placeholder for custom user deserialization.
-// 	// maybe you are going to get the user from mongo by id?
-// 	// null is for errors
-// 	done(null, user);
-// });
-
-
-// // we will call this to start the GitHub Login process
-// app.get('/auth/github', passport.authenticate('github'));
-
-// // GitHub will call this URL
-// app.get('/auth/github/callback', passport.authenticate('github', {
-// 	failureRedirect: '/'
-// }),
-// function (req, res) {
-// 	// res.redirect('/');
-// 	// dump the user for debugging
-// 	if (req.isAuthenticated()) {
-// 		let html = '<p>authenticated as user:</p>';
-// 		html += '<pre>' + JSON.stringify(req.user, null, 4) + '</pre>';
-// 		res.send(html);
-// 	}
-// }
-// );
-
-// function ensureAuthenticated(req, res, next) {
-// 	if (req.isAuthenticated()) {
-// 		// req.user is available for use here
-// 		return next();
-// 	}
-
-// 	// denied. redirect to login
-// 	res.redirect('/');
-// }
-
-// app.get('/logout', function (req, res) {
-// 	logger.info('logging out');
-// 	req.logout();
-// 	res.redirect('/');
-// });
-
+publicRouter.get('/auth/github', ppAuth.auth.github(passport));
+publicRouter.get('/auth/github/callback', ...(ppAuth.auth.githubCallback(passport)));
 //Not sure why this needs to go after but ¯\_(ツ)_/¯
 
+
+app.use('/', publicRouter);
+app.use('/', protectedRouter);
 app.use(Celebrate.errors());
 module.exports = app;

@@ -114,7 +114,6 @@ publicRouter.get('/activate/:userHash', Celebrate({
 			});
 			res.cookie('tabmailer_data', JSON.stringify(userObject.user_hash));
 			res.sendFile(path.join(__dirname + '/pages/views/activation/activation.html'));
-			// res.end();
 		} else {
 			// if the user activation failed,
 			// for example if the hash provided was invalid,

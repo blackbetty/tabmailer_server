@@ -1,0 +1,221 @@
+#activation-app {
+  background-color: lightgrey;
+  position: absolute;
+  min-height: 100%;
+  min-width: 100%; }
+  #activation-app #activation-response {
+    max-width: 30%; }
+    #activation-app #activation-response .alert {
+      text-align: center; }
+  #activation-app .vertical-centermin-height {
+    height: 100%;
+    /* Fallback for browsers do NOT support vh unit */
+    min-height: 100vh;
+    /* These two lines are counted as one :-)       */
+    display: flex;
+    align-items: center; }
+
+#app-dashboard .btn-primary {
+  white-space: normal; }
+
+#app-dashboard .column-thing {
+  max-width: 50%; }
+
+#app-dashboard .dashboard-container {
+  padding-top: 20px;
+  padding-left: 100px;
+  padding-right: 100px;
+  position: absolute;
+  min-height: 100%;
+  min-width: 100%;
+  background-color: lightgrey; }
+  #app-dashboard .dashboard-container .dashboard-component-container {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+    color: rgba(0, 0, 0, 0.8);
+    margin-bottom: 20px; }
+    #app-dashboard .dashboard-container .dashboard-component-container .dash-loader {
+      max-height: 50px;
+      max-width: 50px;
+      margin-bottom: 30px; }
+  #app-dashboard .dashboard-container .settings-body.disabledbutton {
+    pointer-events: none;
+    opacity: 0.4; }
+  #app-dashboard .dashboard-container .tab-heap-body .tab-container {
+    background-color: white;
+    padding: 20px 20px 0px 20px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.8);
+    border: 1px solid #0069d9;
+    margin-bottom: 20px; }
+    #app-dashboard .dashboard-container .tab-heap-body .tab-container a {
+      word-wrap: break-word; }
+    #app-dashboard .dashboard-container .tab-heap-body .tab-container h4 {
+      color: #0069d9; }
+    #app-dashboard .dashboard-container .tab-heap-body .tab-container .addedTime {
+      color: lightgrey; }
+    #app-dashboard .dashboard-container .tab-heap-body .tab-container p {
+      margin-top: 20px; }
+  #app-dashboard .dashboard-container .tab-heap-body .paginate-list {
+    padding-left: 0px; }
+  #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray {
+    user-select: none;
+    text-align: center; }
+    #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray a {
+      cursor: pointer;
+      color: #0069d9; }
+    #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray li {
+      display: inline-block;
+      margin: 0 10px; }
+    #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray li.active a {
+      font-weight: bold; }
+    #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray li.next:before {
+      content: ' | ';
+      margin-right: 13px;
+      color: #ddd; }
+    #app-dashboard .dashboard-container .tab-heap-body .paginate-links.tabObjectsArray li.disabled a {
+      color: #ccc;
+      cursor: no-drop; }
+
+#app-dashboard .disabledDiv {
+  pointer-events: none;
+  border: 1px solid lightgrey !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  padding: 10px;
+  color: rgba(0, 0, 0, 0.4) !important;
+  display: none; }
+
+#app-dashboard .settingsChangedAlert {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 10; }
+
+.dropdown-container {
+  position: relative; }
+  .dropdown-container i {
+    position: relative;
+    right: 20px;
+    color: #0069d9; }
+
+.dropdown-container button {
+  width: 200px;
+  line-height: 30px;
+  background: #ffffff;
+  border: 1px solid #0069d9;
+  color: #0069d9;
+  text-align: left;
+  padding: 0px;
+  padding-left: 8px;
+  font-size: 1em;
+  cursor: pointer; }
+
+.dd {
+  position: absolute;
+  top: 30px;
+  left: 0px;
+  display: inline-block;
+  width: 200px;
+  border: 1px solid #0069d9;
+  background: #ffffff;
+  color: #0069d9;
+  z-index: 20;
+  cursor: pointer;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  box-shadow: 8px 8px 5px rgba(0, 0, 0, 0.08); }
+  .dd span {
+    margin-left: 8px; }
+
+.dd div:hover {
+  background: #eee; }
+
+.flexbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50px;
+  flex-flow: column; }
+
+button {
+  cursor: pointer; }
+
+.expand-transition {
+  transition: all 0.3s ease;
+  height: 30px;
+  padding: 10px;
+  background-color: #eee;
+  overflow: hidden; }
+
+/* .expand-enter defines the starting state for entering */
+/* .expand-leave defines the ending state for leaving */
+.expand-enter,
+.expand-leave {
+  height: 0;
+  padding: 0 10px;
+  opacity: 0; }
+
+#app-bg {
+  position: absolute;
+  background-color: lightgrey;
+  min-height: 100%;
+  min-width: 100%;
+  padding-top: 3rem; }
+
+#app-signup {
+  padding-top: 40px; }
+  #app-signup #column-container {
+    padding-top: 60px; }
+    #app-signup #column-container #sign_up_container1 {
+      width: 80%;
+      margin: 0 auto;
+      text-align: justify;
+      text-justify: inter-word; }
+      #app-signup #column-container #sign_up_container1 .signup {
+        margin: 0 auto; }
+        #app-signup #column-container #sign_up_container1 .signup input {
+          margin: auto; }
+      #app-signup #column-container #sign_up_container1 #sign_up {
+        display: block; }
+        #app-signup #column-container #sign_up_container1 #sign_up .signup.step1 {
+          margin: 0 auto;
+          text-align: center;
+          background-color: rgba(0, 0, 0, 0.4);
+          height: 258px; }
+        #app-signup #column-container #sign_up_container1 #sign_up input {
+          display: block; }
+        #app-signup #column-container #sign_up_container1 #sign_up .rlink {
+          margin-top: 10px; }
+        #app-signup #column-container #sign_up_container1 #sign_up label {
+          text-align: left;
+          color: rgba(0, 0, 0, 0.8);
+          padding-left: 2px; }
+
+.header.display-3 {
+  font-family: sans-serif;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8); }
+
+.display-5color {
+  color: rgba(0, 0, 0, 0.4); }
+
+.flexboxdisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 50px;
+  flex-flow: column; }
+
+.slide-fade-enter-activetransition {
+  transition: all 0.7s ease; }
+
+.slide-fade-leave-activetransition {
+  transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1); }
+
+.slide-fade-enter,
+.slide-fade-leave-totransform {
+  transform: translateX(10px);
+  opacity: 0; }

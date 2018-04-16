@@ -5,7 +5,7 @@ winston.emitErrs = true;
 
 
 
-const logDir = '/logs';
+const logDir = './logs';
 // Create the log directory if it does not exist
 if (!fs.existsSync(logDir)) {
 	// console.log('CWD +++++++++++++++++++++' + process.cwd());

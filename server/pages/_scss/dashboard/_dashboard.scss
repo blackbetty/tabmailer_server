@@ -1,18 +1,12 @@
-$dd-height: 30px;
-// $dd-width: 100%;
-$dd-width: 200px;
-$dd-border-color: #0069d9;
-$dd-fill-color: #ffffff;
-$card-fill-color: white;
-
-
-#app-dashboard
-	.btn-primary
-    	white-space: normal;
-	.column-thing
+#app-dashboard {
+	.btn-primary {
+		white-space: normal;
+	}
+	.column-thing {
 		// hack until I get pagination set up on the tab controller
 		max-width: 50%;
-	.dashboard-container
+	}
+	.dashboard-container {
 		padding-top: 20px;
 		padding-left: 100px;
 		padding-right: 100px;
@@ -20,81 +14,103 @@ $card-fill-color: white;
 		min-height: 100%;
 		min-width: 100%;
 		background-color: lightgrey;
-		.dashboard-component-container
+		.dashboard-component-container {
 			background-color: white;
 			padding: 20px;
-			box-shadow: 5px 5px 5px rgba(0,0,0,0.4);
-			color: rgba(0,0,0,0.8);
+			box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+			color: rgba(0, 0, 0, 0.8);
 			// max-height: 700px;
 			// overflow: auto;
 			margin-bottom: 20px;
-			.dash-loader
+			.dash-loader {
 				max-height: 50px;
 				max-width: 50px;
 				margin-bottom: 30px;
-		.dashboard-component-body
+			}
+		}
+		.dashboard-component-body {
 			// overflow: auto;
-		.settings-body.disabledbutton
+		}
+		.settings-body.disabledbutton {
 			pointer-events: none;
 			opacity: 0.4;
-		.tab-heap-body
-			.tab-container
+		}
+		.tab-heap-body {
+			.tab-container {
 				background-color: $card-fill-color;
 				padding: 20px 20px 0px 20px;
-				box-shadow: 5px 5px 5px rgba(0,0,0,0.08);
-				color: rgba(0,0,0,0.8);
+				box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.08);
+				color: rgba(0, 0, 0, 0.8);
 				border: 1px solid $dd-border-color;
 				margin-bottom: 20px;
-				a
+				a {
 					word-wrap: break-word;
-				h4
+				}
+				h4 {
 					color: $dd-border-color;
-				.addedTime
+				}
+				.addedTime {
 					color: lightgrey;
-				p
+				}
+				p {
 					margin-top: 20px;
-			.paginate-list
+				}
+			}
+			.paginate-list {
 				padding-left: 0px;
-			.paginate-links.tabObjectsArray
+			}
+			.paginate-links.tabObjectsArray {
 				user-select: none;
 				text-align: center;
-				a
+				a {
 					cursor: pointer;
 					color: $dd-border-color;
-				li
+				}
+				li {
 					display: inline-block;
 					margin: 0 10px;
-				li.active a
+				}
+				li.active a {
 					font-weight: bold;
-				li.next:before
+				}
+				li.next:before {
 					content: ' | ';
 					margin-right: 13px;
 					color: #ddd;
-				li.disabled a
+				}
+				li.disabled a {
 					color: #ccc;
 					cursor: no-drop;
-
-		.disabledDiv
-			pointer-events: none;
-			border: 1px solid lightgrey !important;
-			background-color: rgba(0,0,0,0.4) !important;
-			padding: 10px;
-			color: rgba(0,0,0,0.4) !important;
-			display: none;
-	.settingsChangedAlert
+				}
+			}
+		}
+	}
+	.disabledDiv {
+		pointer-events: none;
+		border: 1px solid lightgrey !important;
+		background-color: rgba(0, 0, 0, 0.4) !important;
+		padding: 10px;
+		color: rgba(0, 0, 0, 0.4) !important;
+		display: none;
+	}
+	.settingsChangedAlert {
 		position: fixed;
 		top: 10px;
 		right: 10px;
 		z-index: 10;
+	}
+}
 
-.dropdown-container
+.dropdown-container {
 	position: relative;
-	i
+	i {
 		position: relative;
 		right: 20px;
 		color: $dd-border-color;
+	}
+}
 
-.dropdown-container button
+.dropdown-container button {
 	width: $dd-width;
 	line-height: $dd-height;
 	background: $dd-fill-color;
@@ -105,8 +121,8 @@ $card-fill-color: white;
 	padding-left: 8px;
 	font-size: 1em;
 	cursor: pointer;
-
-.dd
+}
+.dd {
 	position: absolute;
 	top: $dd-height;
 	left: 0px;
@@ -121,39 +137,42 @@ $card-fill-color: white;
 	border-bottom-right-radius: 5px;
 	padding-top: 2px;
 	padding-bottom: 2px;
-	box-shadow: 8px 8px 5px rgba(0,0,0,0.08);
-	span
+	box-shadow: 8px 8px 5px rgba(0, 0, 0, 0.08);
+	span {
 		margin-left: 8px;
+	}
+}
 
-.dd div:hover
-	background: #EEE;
+.dd div:hover {
+	background: #eee;
+}
 
-
-.flexbox
+.flexbox {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding-top: 50px;
 	flex-flow: column;
+}
 
-
-
-button
+button {
 	cursor: pointer;
-
+}
 
 // Transition
-.expand-transition
-	transition: all .3s ease;
+.expand-transition {
+	transition: all 0.3s ease;
 	height: 30px;
 	padding: 10px;
 	background-color: #eee;
 	overflow: hidden;
+}
 
 /* .expand-enter defines the starting state for entering */
 /* .expand-leave defines the ending state for leaving */
-.expand-enter, .expand-leave
+.expand-enter,
+.expand-leave {
 	height: 0;
 	padding: 0 10px;
 	opacity: 0;
-
+}

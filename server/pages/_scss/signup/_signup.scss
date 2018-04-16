@@ -1,68 +1,84 @@
-#app-bg
+#app-bg {
 	position: absolute;
 	background-color: lightgrey;
 	min-height: 100%;
 	min-width: 100%;
 	padding-top: 3rem;
-#app-signup
+}
+#app-signup {
 	padding-top: 40px;
-	#column-container
+	#column-container {
 		padding-top: 60px;
-		#sign_up_container1
+		#sign_up_container1 {
 			// position: absolute;
 			width: 80%;
 			margin: 0 auto;
 			text-align: justify;
 			text-justify: inter-word;
-			.signup
+			.signup {
 				margin: 0 auto;
-				input
+				input {
 					margin: auto;
-			#sign_up
+				}
+			}
+			#sign_up {
 				display: block;
 				// margin: 7.0em 15.0em;
 				// text-align: center;
-				.signup.step1
+				.signup.step1 {
 					margin: 0 auto;
 					text-align: center;
-					background-color: rgba(0,0,0,.4);
+					background-color: rgba(0, 0, 0, 0.4);
 					// padding-top: 10px;
 					// padding-bottom: 50px;
 					height: 258px;
-				.step3
+				}
+				.step3 {
 					// padding-top: 106px;
-				input
+				}
+				input {
 					display: block;
-				.rlink
+				}
+				.rlink {
 					margin-top: 10px;
-				label
+				}
+				label {
 					text-align: left;
-					color: rgba(0,0,0,0.8);
+					color: rgba(0, 0, 0, 0.8);
 					padding-left: 2px;
+				}
+			}
+		}
+	}
+}
 
+.header.display-3 {
+	font-family: sans-serif;
+	font-weight: 500;
+	color: rgba(0, 0, 0, 0.8);
+}
+.display-5color {
+	color: rgba(0, 0, 0, 0.4);
+}
 
-.header
-	.display-3
-		font-family: sans-serif;
-		font-weight: 500;
-		color: rgba(0,0,0,.8);
-	.display-5
-	color: rgba(0,0,0,.4);
-
-.flexbox
+.flexboxdisplay {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding-top: 50px;
 	flex-flow: column;
+}
 
-.slide-fade-enter-active
-	transition: all .7s ease;
+.slide-fade-enter-activetransition {
+	transition: all 0.7s ease;
+}
 
-.slide-fade-leave-active
-	transition: all .1s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+.slide-fade-leave-activetransition {
+	transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
 
-.slide-fade-enter, .slide-fade-leave-to
+.slide-fade-enter,
+.slide-fade-leave-totransform {
 	transform: translateX(10px);
 	opacity: 0;
-
+}

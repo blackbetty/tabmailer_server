@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
 	var pem = require('pem');
 	var https = require('https');
-	logger.info('Server listening on port ' + process.env.PORT || 9145);
+	logger.info('Server listening on port ' + (process.env.PORT || 9145));
 	pem.createCertificate({
 		days: 1,
 		selfSigned: true
@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'production') {
 		server = https.createServer({
 			key: keys.serviceKey,
 			cert: keys.certificate
-		}, app).listen(process.env.PORT || 9145, function () {
+		}, app).listen((process.env.PORT || 9145), function () {
 			process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
 		});
 	});

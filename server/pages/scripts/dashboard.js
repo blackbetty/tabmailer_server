@@ -52,43 +52,6 @@ var dashboardVueInstance = new Vue({
 		};
 	},
 	methods: {
-		onSignIn: function(googleUser) {
-			var id_token = googleUser.getAuthResponse().id_token;
-			//this call always hits production data (for now)
-			this.sendRequestWithGoogleIDToken('GET', FETCH_USER_TABS_URL, id_token, function(success, res) {
-				if (success) {
-					EventBus.$emit('tabsLoadedEvent', JSON.parse(res), function() {
-						dashboardVueInstance.showTabHeap = true;
-					});
-				} else {
-
-					// credentialErrorFillerVar Eventually this will have to be an actual functionality
-					var credentialErrorFillerVar = false;
-					if (credentialErrorFillerVar) {
-						dashboardVueInstance.credentialError = true;
-					}
-
-				}
-			});
-			this.sendRequestWithGoogleIDToken('GET', FETCH_USER_SETTINGS_URL, id_token, function(success, res) {
-
-				if (success) {
-
-					EventBus.$emit('settingsLoadedEvent', JSON.parse(res), function() {
-
-						dashboardVueInstance.showSettings = true;
-					});
-				} else {
-
-					// credentialErrorFillerVar Eventually this will have to be an actual functionality
-					var credentialErrorFillerVar = false;
-					if (credentialErrorFillerVar) {
-
-						dashboardVueInstance.credentialError = true;
-					}
-				}
-			});
-		},
 		sendRequestWithGoogleIDToken: function(method, url, google_id_token, callback) {
 			var xhr = new XMLHttpRequest();
 			var req_body = {};

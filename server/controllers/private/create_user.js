@@ -1,8 +1,8 @@
-const datastore_interface = require('../utilities/datastore_interface.js');
+const datastore_interface = require('../../utilities/datastore_interface.js');
 var hash = require('object-hash');
-var user_activator = require('../background_processors/user_activator.js');
+var user_activator = require('../../background_processors/user_activator.js');
 require('dotenv').config();
-const logger = require('../utilities/logger.js');
+const logger = require('../../utilities/logger.js');
 const util = require('util');
 
 

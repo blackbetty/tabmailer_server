@@ -55,12 +55,6 @@
 	<script src="https://use.fontawesome.com/334a1884e2.js"></script>
 	<app-signup2 :gapiloaded2="'gapi_loaded'"></app-signup2>
 </head>
-<script>
-	function onSignIn(googleUser) {
-		signupScreen.onSignIn(googleUser);
-	}
-</script>
-
 <style>
 	@import url('https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed');
 	*,
@@ -100,11 +94,11 @@
 							<span>To get
 								<strong>LinkMeLater</strong>, </span>
 							<a href="https://chrome.google.com/webstore/detail/tabmailer/hjckfmabbnhjkfejdmiecefhkbekkefe">download it here!</a>
-							<span> Or, if you already have the extension and an account,
-								<a href="/dashboard">check out your dashboard!</a>
-							</span>
 						</div>
 						<div class="col">
+							<span> If you already have the extension and an account,
+								<a href="/dashboard">check out your dashboard!</a>
+							</span>
 							<fieldset id="sign_up" class="form-group">
 								<transition name="slide-fade">
 									<router-view v-on:email-changed="emailChanged" v-on:username-changed="usernameChanged"></router-view>

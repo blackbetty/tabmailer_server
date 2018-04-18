@@ -43,14 +43,6 @@ var signupScreen = new Vue({
 		},
 		usernameChanged: function(newData) {
 			this.username = newData;
-		},
-		onSignIn: function(googleUser) {
-			var profile = googleUser.getBasicProfile();
-			var id_token = googleUser.getAuthResponse().id_token;
-
-			this.gapi_id_token = id_token;
-			this.gapi_user_email = profile.getEmail();
-			this.gapi_user_given_name = profile.getName();
 		}
 	},
 	computed: {

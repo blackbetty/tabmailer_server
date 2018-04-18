@@ -18,9 +18,9 @@ var saveLink = require('./route_handlers/savelink.js');
 var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
 var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
-var createUser = require('./route_handlers/create_user.js');
+var createUser = require('./controllers/private/create_user.js');
 const authMiddleware = require('./middleware/auth_middleware');
-const {activateUser: activateUserRoute, auth: ppAuth} = require('./routes/public/');
+const {activateUser: activateUserRoute, auth: ppAuth} = require('./controllers/public/');
 
 // Background Processors
 var user_activator = require('./background_processors/user_activator.js');
@@ -134,40 +134,7 @@ publicRouter.get('/activate/:userHash', Celebrate({
  *
  */
 
-protectedRouter.use(authMiddleware);
-
-protectedRouter.post('/createUser', Celebrate({
-	body: SCHEMA_POST_CREATEUSER
-}), async (req, res) => {
-	logger.info('POST received... \tCreateUser');
-
-	let status_code = 400; 
-	let res_val = 'Generic error, something went wrong while creating a user';
-	try {
-		// can be false or The Entity
-		const userRecordEntity = await createUser(req.body.emailaddress, req.body.username, req.user_id);
-		logger.silly(userRecordEntity);
-
-		logger.debug('Google ID', {
-			authID: req.user_id
-		});
-
-		if (userRecordEntity.error) {
-			logger.error(userRecordEntity.error);
-			status_code = 400;
-			res_val = 'A user for that Google Account already exists, please go to your existing dashboard';
-		} else {
-			status_code = 200;
-			res_val = userRecordEntity;
-		}
-	} catch (error) {
-		logger.error(`POST ERROR: Creating a user for ${req.user_id || 'USER ID NULL'} failed`);
-		status_code = 500;
-		res_val = `Internal Error:\n\t Creating user failed ${error}`;
-	}
-
-	res.status(status_code).send(res_val);
-});
+// protectedRouter.use(authMiddleware);
 
 
 /*
@@ -307,32 +274,58 @@ protectedRouter.post('/email', Celebrate({
 });
 // Passport
 
-publicRouter.get('/logout', ppAuth.logout);
+// publicRouter.get('/logout', ppAuth.logout);
 
 protectedRouter.use(session({
-	secret: 'abstractsecret'
+	secret: process.env.PP_SESSION_SECRET,
+	resave: true,
+	saveUninitialized: true
+}));
+
+publicRouter.use(session({
+	secret: process.env.PP_SESSION_SECRET
 }));
 publicRouter.use(passport.initialize());
 publicRouter.use(passport.session());
 
 
-// WIP
-passport.serializeUser(function (user, done) {
-	// placeholder for custom user serialization
-	// null is for errors
-	done(null, user);
+publicRouter.get('/auth/github', ppAuth.providers.github.authenticate(passport));
+publicRouter.get('/auth/google', ppAuth.providers.google.authenticate(passport));
+publicRouter.get('/auth/github/callback', ...(ppAuth.providers.github.callback(passport)));
+publicRouter.get('/auth/google/callback', ...(ppAuth.providers.google.callback(passport)));
+
+publicRouter.post('/users/', Celebrate({
+	body: SCHEMA_POST_CREATEUSER
+}), async (req, res) => {
+	logger.info('POST received... \tCreateUser');
+	const check = req.isAuthenticated();
+	let status_code = 400;
+	let res_val = 'Generic error, something went wrong while creating a user';
+	try {
+		// can be false or The Entity
+		const userRecordEntity = await createUser(req.body.emailaddress, req.body.username, req.user.id);
+		logger.silly(userRecordEntity);
+
+		logger.debug('Google ID', {
+			authID: req.user.id
+		});
+
+		if (userRecordEntity.error) {
+			logger.error(userRecordEntity.error);
+			status_code = 400;
+			res_val = 'A user for that Google Account already exists, please go to your existing dashboard';
+		} else {
+			status_code = 200;
+			res_val = userRecordEntity;
+		}
+	} catch (error) {
+		logger.error(`POST ERROR: Creating a user for ${req.user.id || 'USER ID NULL'} failed`);
+		status_code = 500;
+		res_val = `Internal Error:\n\t Creating user failed ${error}`;
+	}
+
+	res.status(status_code).send(res_val);
 });
-
-passport.deserializeUser(function (user, done) {
-	// placeholder for custom user deserialization.
-	// maybe you are going to get the user from mongo by id?
-	// null is for errors
-	done(null, user);
-});
-
-
-publicRouter.get('/auth/github', ppAuth.auth.github(passport));
-publicRouter.get('/auth/github/callback', ...(ppAuth.auth.githubCallback(passport)));
 //Not sure why this needs to go after but ¯\_(ツ)_/¯
 
 

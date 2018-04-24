@@ -7,7 +7,7 @@ const util = require('util');
 
 
 
-module.exports = async (emailaddress, username, oauth_user_id) => {
+module.exports = async (emailaddress, username, oauth_user_id, oauth_provider) => {
 	// TODO: Refactor to be more async/await-ish
 	return await datastore_interface.transaction(async (trx) => {
 		
@@ -15,6 +15,7 @@ module.exports = async (emailaddress, username, oauth_user_id) => {
 			user_oauth_id: oauth_user_id,
 			user_email: emailaddress,
 			user_name: username,
+			oauth_provider: oauth_provider
 		};
 
 		user.user_hash = hash(user);

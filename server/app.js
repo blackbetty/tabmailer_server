@@ -167,7 +167,7 @@ publicRouter.post('/users/', Celebrate({
 	let res_val = 'Generic error, something went wrong while creating a user';
 	try {
 		// can be false or The Entity
-		const userRecordEntity = await createUser(req.body.emailaddress, req.body.username, req.user.id);
+		const userRecordEntity = await createUser(req.body.emailaddress, req.body.username, req.user.id, req.user.oauth_provider);
 		logger.silly(userRecordEntity);
 
 		logger.debug('Google ID', {

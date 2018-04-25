@@ -12,7 +12,7 @@ const {
 const session = require('express-session');
 const passport = require('./config/passport');
 // Route Handlers
-var getLinksForUser = require('./route_handlers/getlinksforuser.js');
+var getLinksForUser = require('./controllers/private/get_links_for_user.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');
 var saveLink = require('./route_handlers/savelink.js');
 var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
@@ -20,7 +20,10 @@ var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
 var createUser = require('./controllers/private/create_user.js');
 const authMiddleware = require('./middleware/auth_middleware');
-const {activateUser: activateUserRoute, auth: ppAuth} = require('./controllers/public/');
+const {
+	activateUser: activateUserRoute,
+	auth: ppAuth
+} = require('./controllers/public/');
 
 // Background Processors
 var user_activator = require('./background_processors/user_activator.js');
@@ -79,6 +82,9 @@ protectedRouter.use(session({
 	resave: true,
 	saveUninitialized: true
 }));
+protectedRouter.use(passport.initialize());
+protectedRouter.use(passport.session());
+
 
 publicRouter.use(session({
 	secret: process.env.PP_SESSION_SECRET
@@ -156,14 +162,13 @@ publicRouter.get('/activate/:userHash', Celebrate({
  *
  */
 
-// protectedRouter.use(authMiddleware);
 
 publicRouter.post('/users/', Celebrate({
 	body: SCHEMA_POST_CREATEUSER
 }), async (req, res) => {
 	logger.info('POST received... \tCreateUser');
 	const check = req.isAuthenticated();
-	let status_code = 400; 
+	let status_code = 400;
 	let res_val = 'Generic error, something went wrong while creating a user';
 	try {
 		// can be false or The Entity
@@ -239,21 +244,22 @@ protectedRouter.post('/linksforuser', Celebrate({
 	executeLinkCollectionUpdate(req.user_id);
 });
 
-protectedRouter.get('/linksforuser', Celebrate({
+protectedRouter.get('/links', Celebrate({
 	query: SCHEMA_GET_LINKS
-}), (req, res) => {
+}), async (req, res) => {
 	logger.info('GET received... \tLinksForUser');
 
-	getLinksForUser(req.user_id, function (link_array) {
-		Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
+	const link_array = await getLinksForUser(req.user.id);
 
-			var log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty';
 
-			logger.debug(log_msg);
-			logger.silly(link_array);
-			res.send(link_array);
-		}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
-	});
+	Joi.validate(link_array, SCHEMA_RES_LINKS).then((link_array) => {
+
+		var log_msg = link_array[0] ? 'User fetch completed for user: ' + link_array[0].user_id : 'User link collection empty';
+		logger.debug(log_msg);
+		logger.silly(link_array);
+		res.send(link_array);
+	}).catch((reason) => res.status(400).send(`Something appears to be wrong with this account: ${reason}`));
+
 });
 
 
@@ -300,14 +306,14 @@ protectedRouter.post('/settings', Celebrate({
 		logger.silly(settings);
 		status_code = 200;
 		res_val = settings;
-	} catch(error){
+	} catch (error) {
 		logger.error(`POST ERROR: Saving settings for user ${req.user_id || 'USER ID NULL'} failed`);
 		res.status(500).send(`Internal Error:\n\t Saving settings failed ${error}`);
 		status_code = 500;
 		res_val = error;
 	}
-	
-	res.status(status_code).send(res_val);	
+
+	res.status(status_code).send(res_val);
 });
 
 

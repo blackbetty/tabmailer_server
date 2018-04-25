@@ -3,35 +3,35 @@ const FETCH_USER_TABS_URL = '/linksforuser';
 const FETCH_USER_SETTINGS_URL = '/settings';
 
 // runs immediately when gapi loads
-var loadGapi = function() {
-	gapi.load('client:auth2', {
-		callback: function() {
-			gapi.auth2.init().then(function() {
-				gAuthInstance = gapi.auth2.getAuthInstance();
+// var loadGapi = function() {
+// 	gapi.load('client:auth2', {
+// 		callback: function() {
+// 			// gapi.auth2.init().then(function() {
+// 			// 	gAuthInstance = gapi.auth2.getAuthInstance();
 
-				if (gAuthInstance.isSignedIn.get()) {
-					var googleUser = gAuthInstance.currentUser.get();
-					dashboardVueInstance.onSignIn(googleUser);
-				} else {
+// 			// 	if (gAuthInstance.isSignedIn.get()) {
+// 			// 		var googleUser = gAuthInstance.currentUser.get();
+// 			// 		dashboardVueInstance.onSignIn(googleUser);
+// 			// 	} else {
 
-					gAuthInstance.signIn().then(function(googleUser) {
-						dashboardVueInstance.onSignIn(googleUser);
+// 			// 		gAuthInstance.signIn().then(function(googleUser) {
+// 			// 			dashboardVueInstance.onSignIn(googleUser);
 
-					});
-				}
-			});
-		},
-		onerror: function() {
-			// Handle loading error.
-			alert('gapi.client failed to load!');
-		},
-		timeout: 5000, // 5 seconds.
-		ontimeout: function() {
-			// Handle timeout.
-			alert('gapi.client could not load in a timely manner!');
-		}
-	});
-};
+// 			// 		});
+// 			// 	}
+// 			// });
+// 		},
+// 		onerror: function() {
+// 			// Handle loading error.
+// 			alert('gapi.client failed to load!');
+// 		},
+// 		timeout: 5000, // 5 seconds.
+// 		ontimeout: function() {
+// 			// Handle timeout.
+// 			alert('gapi.client could not load in a timely manner!');
+// 		}
+// 	});
+// };
 
 
 // event bus instance

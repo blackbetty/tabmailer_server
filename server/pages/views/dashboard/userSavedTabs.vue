@@ -5,7 +5,7 @@
                 <h2 class="display-5">Your Tab Collection</h2>
                 <hr>
             </div>
-            <div v-if="showTabHeap">
+            <div v-if="true">
                 <div class="dashboard-component-body tab-heap-body">
                     <div v-if="tabObjectsArray.length > 0">
                         <paginate-links for="tabObjectsArray" :limit="12" :show-step-links="true"></paginate-links>
@@ -32,29 +32,58 @@
 </template>
 <script>
 module.exports = {
-    props: ['showTabHeap'],
-    created: function() {
-        EventBus.$on('tabsLoadedEvent', (tabs, cb) => {
-            // console.log('tabsLoadedEvent triggered and responded to by child!');
-            this.setTabData(tabs, cb);
-        });
+    props: [],
+    created: async function() {
+        
+		const tabs = await this.fetchTabData();
+
+		this.setTabData(tabs);
     },
     data: function() {
         return {
             tabObjectsArray: [],
-            paginate: ['tabObjectsArray']
+			paginate: ['tabObjectsArray'],
+			showTabHeap: false
         }
     },
     methods: {
-        setTabData: function(tabs, callback) {
-            this.tabObjectsArray = tabs;
-            callback();
+        setTabData: function(tabs) {
+			this.tabObjectsArray = tabs;
+			this.showTabHeap = true;
+			console.log(this.tabObjectsArray);
         },
         generateDateTime(timeInt) {
             var formattedTime = moment(timeInt).format("MMMM Do, YYYY [at] hh:mm a") //parse integer
-
             return formattedTime;
-        }
+		},
+		fetchTabData: async function(){
+			console.log('rachel is picking lunch rightn ow while I test this');
+			var xhr = new XMLHttpRequest();
+			const url = '/links';
+			const method = 'GET';
+			const async = true;
+			xhr.open(method, url, async);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.onload = function() {
+				if (this.status === 401 && retry) {
+					// This status may indicate that the cached
+					// access token was invalid. Retry once with
+					// a fresh token.
+					retry = false;
+					return;
+				} else if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+					return xhr.response;
+				} else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+					console.log(xhr.response);
+					
+				}
+			};
+
+			// relies on req_body being undefined in the case of a get, sends an empty body
+			// which on a GET gets ignored anyway
+			xhr.send();
+		}
+		
     },
     mounted: function() {},
     computed: {}

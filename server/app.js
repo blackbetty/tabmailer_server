@@ -122,9 +122,13 @@ publicRouter.get('/signup', function (req, res) {
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
-publicRouter.get('/dashboard', function (req, res) {
-	logger.info('GET received... \tDashboard ');
-	res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
+protectedRouter.get('/dashboard', function (req, res) {
+	if(req.user){
+		logger.info('GET received... \tDashboard ');
+		res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
+	} else {
+		res.send('butts');
+	}
 });
 
 

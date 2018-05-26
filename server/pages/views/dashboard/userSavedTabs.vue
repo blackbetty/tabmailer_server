@@ -10,7 +10,7 @@
                     <div v-if="tabObjectsArray.length > 0">
                         <paginate-links for="tabObjectsArray" :limit="12" :show-step-links="true"></paginate-links>
                         <paginate name="tabObjectsArray" :list="tabObjectsArray" class="paginate-list" tab="div">
-                            <div class="tab-container rounded container-fluid" v-for="tabObject in paginated('tabObjectsArray')">
+                            <div class="tab-container rounded container-fluid" v-for="tabObject in paginated('tabObjectsArray')" :key="tabObject.link_id">
                                 <h4 class="display-6">
                         {{ tabObject.link_title ? tabObject.link_title : 'Page title unavailable... ' }}
                         </h4>
@@ -33,11 +33,10 @@
 <script>
 module.exports = {
     props: [],
-    created: async function() {
-        
-		const tabs = await this.fetchTabData();
-
-		this.setTabData(tabs);
+    created: function() {
+		this.fetchTabData()
+		.then((tabs) => { this.setTabData(tabs)})
+		.catch((err) => {alert(err)});
     },
     data: function() {
         return {
@@ -50,38 +49,37 @@ module.exports = {
         setTabData: function(tabs) {
 			this.tabObjectsArray = tabs;
 			this.showTabHeap = true;
-			console.log(this.tabObjectsArray);
+			// console.log(this.tabObjectsArray);
         },
         generateDateTime(timeInt) {
             var formattedTime = moment(timeInt).format("MMMM Do, YYYY [at] hh:mm a") //parse integer
             return formattedTime;
 		},
-		fetchTabData: async function(){
-			console.log('rachel is picking lunch rightn ow while I test this');
-			var xhr = new XMLHttpRequest();
-			const url = '/links';
-			const method = 'GET';
-			const async = true;
-			xhr.open(method, url, async);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.onload = function() {
-				if (this.status === 401 && retry) {
-					// This status may indicate that the cached
-					// access token was invalid. Retry once with
-					// a fresh token.
-					retry = false;
-					return;
-				} else if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-					return xhr.response;
-				} else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
-					console.log(xhr.response);
-					
-				}
-			};
-
-			// relies on req_body being undefined in the case of a get, sends an empty body
-			// which on a GET gets ignored anyway
-			xhr.send();
+		fetchTabData: function(){
+			return new Promise((resolve, reject) => {
+				var xhr = new XMLHttpRequest();
+				const url = '/links';
+				const method = 'GET';
+				const async = true;
+				xhr.open(method, url, async);
+				xhr.setRequestHeader('Content-Type', 'application/json');
+				xhr.onload = function() {
+					if (this.status === 401 && retry) {
+						// This status may indicate that the cached
+						// access token was invalid. Retry once with
+						// a fresh token.
+						retry = false;
+						reject();
+					} else if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+						 resolve(JSON.parse(xhr.response));
+					} else if (this.readyState == XMLHttpRequest.DONE && this.status != 200) {
+						reject(xhr.response);
+					}
+				};
+				// relies on req_body being undefined in the case of a get, sends an empty body
+				// which on a GET gets ignored anyway
+				xhr.send();
+			})
 		}
 		
     },

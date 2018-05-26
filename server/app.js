@@ -114,6 +114,7 @@ publicRouter.get('/auth/google/callback', ...(ppAuth.providers.google.callback(p
 
 publicRouter.get('/', function (req, res) {
 	if (req.headers['user-agent'] != 'GoogleStackdriverMonitoring-UptimeChecks(https://cloud.google.com/monitoring)') logger.info('GET received... \tHomepage ');
+	if (req.user) res.redirect('/dashboard');
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 

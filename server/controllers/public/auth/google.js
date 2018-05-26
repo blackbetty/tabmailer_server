@@ -13,7 +13,6 @@ const callback = (passportInstance) => [
 		if (req.isAuthenticated()) {
 			req.user.oauth_provider = OAUTH_PROVIDER;
 			res.redirect(_.get(req, 'headers.referer') || '/#/2');
-			// console.log(JSON.stringify(req.user, null, 4));
 		}
 	}
 ];

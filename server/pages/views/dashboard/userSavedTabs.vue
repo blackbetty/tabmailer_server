@@ -49,7 +49,6 @@ module.exports = {
         setTabData: function(tabs) {
 			this.tabObjectsArray = tabs;
 			this.showTabHeap = true;
-			// console.log(this.tabObjectsArray);
         },
         generateDateTime(timeInt) {
             var formattedTime = moment(timeInt).format("MMMM Do, YYYY [at] hh:mm a") //parse integer

@@ -290,7 +290,7 @@ protectedRouter.get('/settings', Celebrate({
 
 	logger.info('GET received... \tSettings ');
 
-	getSettingsForUser(req.user_id, function (err, settings) {
+	getSettingsForUser(req.user.id, function (err, settings) {
 		if (!err) {
 			logger.debug('User fetched for user settings request');
 			logger.silly(settings);

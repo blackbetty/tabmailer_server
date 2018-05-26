@@ -9,12 +9,10 @@ const callback = (passportInstance) => [
 		failureFlash: true,
 		display: 'popup'
 	}),
-	async function (req, res) {
+	function (req, res) {
 		if (req.isAuthenticated()) {
 			req.user.oauth_provider = OAUTH_PROVIDER;
-			console.log(JSON.stringify(req.user, null, 4));
-			req.session.save();
-			return  res.redirect('/#/2');
+			res.redirect(_.get(req, 'headers.referer') || '/#/2');
 		}
 	}
 ];

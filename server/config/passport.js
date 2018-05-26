@@ -1,5 +1,5 @@
 var passport = require('passport');
-
+const _ = require('lodash');
 
 // WIP
 passport.serializeUser(function (user, done) {
@@ -22,9 +22,11 @@ var GithubStrategy = require('passport-github').Strategy;
 passport.use(new GithubStrategy({
 	clientID: '739ab279e272b81baa0b',
 	clientSecret: '1f127e83b84ca87ee5a83445141e1d58cce30979',
-	callbackURL: 'https://localhost:5000/auth/github/callback'
+	callbackURL: 'https://localhost:5000/auth/github/callback',
+	passReqToCallback: true,
+	state: true
 },
-function (accessToken, refreshToken, profile, done) {
+function (req, accessToken, refreshToken, profile, done) {
 	return done(null, profile);
 }
 ));
@@ -36,9 +38,11 @@ passport.use(new GoogleStrategy({
 	clientSecret: process.env.GAPI_CLIENT_SECRET,
 	userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
 	scope: ['profile'],
-	callbackURL: 'https://localhost:5000/auth/google/callback'
+	callbackURL: 'https://localhost:5000/auth/google/callback',
+	passReqToCallback: true,
+	state: true
 },
-function (accessToken, refreshToken, profile, done) {
+function (req, accessToken, refreshToken, profile, done) {
 	return done(null, profile);
 }
 ));

@@ -122,12 +122,23 @@ publicRouter.get('/signup', function (req, res) {
 	res.sendFile(path.join(__dirname + '/pages/views/home.html'));
 });
 
+publicRouter.get('/login', function (req, res) {
+	logger.info('GET received... \tlogin ');
+	if (req.user) {
+		res.redirect('/dashboard');
+		return;
+	}
+	res.sendFile(path.join(__dirname + '/pages/views/login/login.html'));
+});
+
+
+
 protectedRouter.get('/dashboard', function (req, res) {
 	if(req.user){
 		logger.info('GET received... \tDashboard ');
 		res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 	} else {
-		res.send('butts');
+		res.redirect('/login');
 	}
 });
 

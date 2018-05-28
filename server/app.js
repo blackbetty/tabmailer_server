@@ -135,7 +135,7 @@ publicRouter.get('/login', function (req, res) {
 
 
 protectedRouter.get('/dashboard', function (req, res) {
-	if(req.user){
+	if (req.user) {
 		logger.info('GET received... \tDashboard ');
 		res.sendFile(path.join(__dirname + '/pages/views/dashboard/dashboard.html'));
 	} else {
@@ -222,7 +222,11 @@ protectedRouter.post('/linksforuser', Celebrate({
 	body: SCHEMA_POST_LINKS
 }), (req, res) => {
 	logger.info('POST received... \tLinksForUser');
-
+	if (req.user) {
+		executeLinkCollectionUpdate(req.user_id);
+	} else {
+		res.status(401).send();
+	}
 	function executeLinkCollectionUpdate(googleUserID) {
 		saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {
 			if (!err) {
@@ -256,8 +260,6 @@ protectedRouter.post('/linksforuser', Celebrate({
 		logger.error('User Link Post Error: ' + error.name);
 		res.status(400).send(error);
 	}
-
-	executeLinkCollectionUpdate(req.user_id);
 });
 
 protectedRouter.get('/links', Celebrate({

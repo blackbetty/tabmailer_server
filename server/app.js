@@ -94,7 +94,7 @@ publicRouter.use(passport.session());
 
 
 publicRouter.get('/auth/github', ppAuth.providers.github.authenticate(passport));
-publicRouter.get('/auth/google', ppAuth.providers.google.authenticate(passport));
+publicRouter.get('/auth/google', ppAuth.providers.google.authenticate(passport, this.req, this.res));
 publicRouter.get('/auth/github/callback', ...(ppAuth.providers.github.callback(passport)));
 publicRouter.get('/auth/google/callback', ...(ppAuth.providers.google.callback(passport)));
 
@@ -132,7 +132,10 @@ publicRouter.get('/login', function (req, res) {
 	res.sendFile(path.join(__dirname + '/pages/views/login/login.html'));
 });
 
-
+publicRouter.get('/login/modal', function (req, res) {
+	logger.info('GET received... \tlogin modal');
+	res.sendFile(path.join(__dirname + '/pages/views/login/login.html'));
+});
 
 protectedRouter.get('/dashboard', function (req, res) {
 	if (req.user) {
@@ -223,12 +226,13 @@ protectedRouter.post('/linksforuser', Celebrate({
 }), (req, res) => {
 	logger.info('POST received... \tLinksForUser');
 	if (req.user) {
-		executeLinkCollectionUpdate(req.user_id);
+		executeLinkCollectionUpdate(req.user.id);
 	} else {
 		res.status(401).send();
 	}
-	function executeLinkCollectionUpdate(googleUserID) {
-		saveLink(googleUserID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {
+
+	function executeLinkCollectionUpdate(userID) {
+		saveLink(userID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {
 			if (!err) {
 				if (userEntity.settingsChanged == true) {
 					// if its true send an object that contains a url and the settings object

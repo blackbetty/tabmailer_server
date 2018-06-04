@@ -31,6 +31,11 @@
 <script>
 	module.exports = {
 		mounted: function () {},
+		created: function(){
+			 window.onunload = () => window.close();
+		},
+		destroyed: function(){
+		},
 		methods: {
 			nextPage: function (e) {
 				router.push({

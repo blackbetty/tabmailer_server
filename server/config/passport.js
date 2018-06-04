@@ -26,7 +26,7 @@ passport.use(new GithubStrategy({
 	passReqToCallback: true,
 	state: true
 },
-function (req, accessToken, refreshToken, profile, done) {
+function (req, accessToken, refreshToken, params, profile, done) {
 	return done(null, profile);
 }
 ));
@@ -39,10 +39,11 @@ passport.use(new GoogleStrategy({
 	userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
 	scope: ['profile'],
 	callbackURL: 'https://localhost:5000/auth/google/callback',
-	passReqToCallback: true,
-	state: true
+	passReqToCallback: true
 },
-function (req, accessToken, refreshToken, profile, done) {
+function (req, accessToken, refreshToken, params, profile, done) {
+	console.log(req.params);
+	console.log(req.query);
 	return done(null, profile);
 }
 ));

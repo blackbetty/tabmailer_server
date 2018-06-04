@@ -1,5 +1,7 @@
 const _ = require('lodash');
-const authenticate = (passportInstance) => passportInstance.authenticate('google');
+const authenticate = (passportInstance, req, res) => {
+	return passportInstance.authenticate('google');
+};
 //Google will call this URL
 
 const OAUTH_PROVIDER = 'GOOGLE';
@@ -17,7 +19,7 @@ const callback = (passportInstance) => [
 	}
 ];
 
-module.exports ={
+module.exports = {
 	authenticate,
 	callback
 };

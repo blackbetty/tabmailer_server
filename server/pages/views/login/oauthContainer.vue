@@ -15,7 +15,7 @@
 
 			</div>
 			<div class="row">
-				<a class="btn btn-social btn-google" href="/auth/google/?redir=login">
+				<a class="btn btn-social btn-google" href="/auth/google/?redir=login_successful">
 					<span class="fa fa-google"></span>
 					Login with Google
 				</a>
@@ -32,7 +32,7 @@
 	module.exports = {
 		mounted: function () {},
 		created: function(){
-			 window.onunload = () => window.close();
+			 window.onunload = () => { if (window.location.pathname != '/login') {return window.close()}};
 		},
 		destroyed: function(){
 		},

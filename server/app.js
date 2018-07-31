@@ -18,12 +18,23 @@ var saveLink = require('./route_handlers/savelink.js');
 var resetSettingsChangedAttrib = require('./route_handlers/reset_settings_changed_attrib.js');
 var updateEmailForUser = require('./route_handlers/update_email_for_user.js');
 var updateSettingsForUser = require('./route_handlers/updatesettingsforuser.js');
-var createUser = require('./controllers/private/create_user.js');
-const authMiddleware = require('./middleware/auth_middleware');
+const User = require('./models/user');
+// var createUser = require('./controllers/private/create_user.js');
+
+const {
+	assertUserExistsMiddleware,
+	authMiddleware
+} = require('./middleware/');
+
 const {
 	activateUser: activateUserRoute,
 	auth: ppAuth
 } = require('./controllers/public/');
+
+const {
+	createUser, 
+	...rest
+} = require('./controllers/private/');
 
 // Background Processors
 var user_activator = require('./background_processors/user_activator.js');
@@ -75,8 +86,6 @@ app.use(function (req, res, next) {
 
 // Passport
 
-// publicRouter.get('/logout', ppAuth.logout);
-
 protectedRouter.use(session({
 	secret: process.env.PP_SESSION_SECRET,
 	resave: true,
@@ -93,10 +102,10 @@ publicRouter.use(passport.initialize());
 publicRouter.use(passport.session());
 
 
-publicRouter.get('/auth/github', ppAuth.providers.github.authenticate(passport));
-publicRouter.get('/auth/google', ppAuth.providers.google.authenticate(passport, this.req, this.res));
-publicRouter.get('/auth/github/callback', ...(ppAuth.providers.github.callback(passport)));
-publicRouter.get('/auth/google/callback', ...(ppAuth.providers.google.callback(passport)));
+publicRouter.get('/auth/github', ppAuth.providers.github.authenticate);
+publicRouter.get('/auth/google', ppAuth.providers.google.authenticate);
+publicRouter.get('/auth/github/callback', ppAuth.providers.github.callback);
+publicRouter.get('/auth/google/callback', ppAuth.providers.google.callback);
 
 /*
  *
@@ -223,13 +232,21 @@ publicRouter.post('/users/', Celebrate({
 
 protectedRouter.post('/linksforuser', Celebrate({
 	body: SCHEMA_POST_LINKS
-}), (req, res) => {
-	logger.info('POST received... \tLinksForUser');
-	if (req.user) {
-		executeLinkCollectionUpdate(req.user.id);
-	} else {
-		res.status(401).send();
+}), async (req, res, next) => {
+	try {
+		if (!req.user || !req.user.id) return res.sendStatus(401);
+		
+		const users = await User.findByID(req.user.id);
+		if (users.length < 1) return res.sendStatus(404);
+		return next();
+	} catch (error) {
+		logger.error(error);
+		res.send(500);
 	}
+}, (req, res) => {
+	logger.info('POST received... \tLinksForUser');
+	executeLinkCollectionUpdate(req.user.id);
+
 
 	function executeLinkCollectionUpdate(userID) {
 		saveLink(userID, req.body.tab_url, req.body.tab_title, function (err, userEntity) {

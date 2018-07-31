@@ -1,18 +1,25 @@
-const authenticate = (passportInstance) => passportInstance.authenticate('github');
-
+const passport = require('passport');
+const User = require('../../../models/user');
+const _ = require('lodash');
+const authenticate = (req, res, next) => { 
+	const { redir } = req.query;
+	const state = redir ? new Buffer(JSON.stringify({ redir })).toString('base64') : undefined;
+	const authenticator = passport.authenticate('github', { state });
+	return authenticator(req, res, next);
+};
 
 // GitHub will call this URL
 const OAUTH_PROVIDER = 'GITHUB';
-const callback = (passportInstance) => [
-	passportInstance.authenticate('github', {
-		failureRedirect: '/',
-		failureFlash: true,
-		display: 'popup'
-	}),
-	function (req, res) {
+const callback = [
+	(req, res) => {
 		if (req.isAuthenticated()) {
-			req.user.oauth_provider = OAUTH_PROVIDER;
-			res.redirect(_.get(req, 'headers.referer') || '/#/2');
+			if (User.findByID(req.user.id)){
+				req.user.oauth_provider = OAUTH_PROVIDER;
+				res.redirect(_.get(req, 'headers.referer') || '/#/2');
+			} else {
+				req.logout();
+				res.sendState('404');
+			}
 		}
 	}
 ];

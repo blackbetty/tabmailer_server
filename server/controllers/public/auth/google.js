@@ -1,20 +1,23 @@
 const _ = require('lodash');
-const authenticate = (passportInstance, req, res) => {
-	return passportInstance.authenticate('google');
+const passport = require('passport');
+const authenticate = (req, res, next) => {
+	const { redir } = req.query;
+	const state = redir ? new Buffer(JSON.stringify({ redir })).toString('base64') : undefined;
+	const authenticator = passport.authenticate('google', { scope: ['profile'], state , failureRedirect: '/-/fail'});
+	authenticator(req, res, next);
 };
+	
 //Google will call this URL
 
 const OAUTH_PROVIDER = 'GOOGLE';
-const callback = (passportInstance) => [
-	passportInstance.authenticate('google', {
-		failureRedirect: '/',
-		failureFlash: true,
-		display: 'popup'
-	}),
-	function (req, res) {
+const callback = [
+	passport.authenticate('google', { failureRedirect: '/-/failure' }),
+	(req, res) => {
 		if (req.isAuthenticated()) {
 			req.user.oauth_provider = OAUTH_PROVIDER;
-			res.redirect(_.get(req, 'headers.referer') || '/#/2');
+			const { state } = req.query;
+			const { redir } = JSON.parse(new Buffer(state, 'base64').toString());
+			res.redirect(_.get(req, redir) || '/#/2');
 		}
 	}
 ];

@@ -96,7 +96,9 @@ protectedRouter.use(passport.session());
 
 
 publicRouter.use(session({
-	secret: process.env.PP_SESSION_SECRET
+	secret: process.env.PP_SESSION_SECRET,
+	saveUninitialized: false, // Don't store empty sessions
+	resave: true // Related to session storage engine
 }));
 publicRouter.use(passport.initialize());
 publicRouter.use(passport.session());

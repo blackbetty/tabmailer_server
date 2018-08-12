@@ -17,7 +17,7 @@ const callback = [
 			req.user.oauth_provider = OAUTH_PROVIDER;
 			const { state } = req.query;
 			const { redir } = JSON.parse(new Buffer(state, 'base64').toString());
-			res.redirect(_.get(req, redir) || '/#/2');
+			res.redirect(`/#/${redir}`);
 		}
 	}
 ];

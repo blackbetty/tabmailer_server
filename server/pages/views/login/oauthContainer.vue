@@ -15,7 +15,7 @@
 
 			</div>
 			<div class="row">
-				<a class="btn btn-social btn-google" href="/auth/google/?redir=login_successful">
+				<a class="btn btn-social btn-google" href="/auth/google/?redir=login">
 					<span class="fa fa-google"></span>
 					Login with Google
 				</a>

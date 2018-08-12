@@ -4,7 +4,7 @@ const _ = require('lodash');
 const authenticate = (req, res, next) => { 
 	const { redir } = req.query;
 	const state = redir ? new Buffer(JSON.stringify({ redir })).toString('base64') : undefined;
-	const authenticator = passport.authenticate('github', { failureRedirect: '/-/fail' });
+	const authenticator = passport.authenticate('github', { state: state, failureRedirect: '/-/fail' });
 	return authenticator(req, res, next);
 };
 
@@ -12,14 +12,21 @@ const authenticate = (req, res, next) => {
 const OAUTH_PROVIDER = 'GITHUB';
 const callback = [
 	passport.authenticate('github', { failureRedirect: '/login' }),
-	(req, res) => {
+	async (req, res) => {
 		if (req.isAuthenticated()) {
-			if (User.findByID(req.user.id)){
+			const user = await User.findByID(req.user.id);
+			if (user){
 				req.user.oauth_provider = OAUTH_PROVIDER;
-				res.redirect(_.get(req, 'headers.referer') || '/#/2');
+				const { state } = req.query;
+				const { redir } = JSON.parse(new Buffer(state, 'base64').toString());
+				res.redirect(`/#/${redir}`);
 			} else {
 				req.logout();
-				res.sendState('404');
+				if(_.get(req, 'headers.referer') == process.env.HOST){ // If the referer is the base url, that means we're attempting a signup
+					res.redirect('/#/2');
+				} else {
+					res.redirect('/login');
+				}
 			}
 		}
 	}

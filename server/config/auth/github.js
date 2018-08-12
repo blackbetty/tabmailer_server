@@ -1,5 +1,5 @@
 const passport = require('passport');
-const User = require('../../../models/user');
+const User = require('../../models/user');
 const _ = require('lodash');
 const authenticate = (req, res, next) => { 
 	const { redir } = req.query;

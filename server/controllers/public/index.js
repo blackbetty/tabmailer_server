@@ -1,5 +1,5 @@
 const activateUser = require('./activate_user');
-const auth = require('./auth/');
+const auth = require('../../config/auth/');
 
 module.exports = {
 	activateUser: activateUser,

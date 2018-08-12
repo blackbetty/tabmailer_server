@@ -10,7 +10,7 @@ const {
 	Joi
 } = Celebrate;
 const session = require('express-session');
-const passport = require('./config/passport');
+const passport = require('./config/auth/passport_config');
 // Route Handlers
 var getLinksForUser = require('./controllers/private/get_links_for_user.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');

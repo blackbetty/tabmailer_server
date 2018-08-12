@@ -20,18 +20,19 @@ const authenticate = (options) => {
 const callback = (provider, failureRedirect) => [
         passport.authenticate(provider, { failureRedirect: failureRedirect || defaultFailureRedirect }),
         async (req, res) => {
-            if (req.isAuthenticated()) {
+			if (req.isAuthenticated()) {
+				req.user.oauth_provider = provider;
                 const user = (await User.findByID(req.user.id))[0];
                 if (user) {
-                    req.user.oauth_provider = provider;
+					req.user.exists = true; // Hack to allow us to redirect users who already exist straight to the dashboard
                     const { state } = req.query;
                     const { redir } = JSON.parse(new Buffer(state, 'base64').toString());
                     res.redirect(`/#/${redir}`);
                 } else {
-                    req.logout();
-                    if (_.get(req, 'headers.referer') == process.env.HOST) { // If the referer is the base url, that means we're attempting a signup
-                        res.redirect('/#/2');
-                    } else {
+					if (_.get(req, 'headers.referer') == process.env.HOST) { // If the referer is the base url, that means we're attempting a signup
+					res.redirect('/#/2');
+				} else {
+                    	req.logout();
                         res.redirect('/login');
                     }
                 }

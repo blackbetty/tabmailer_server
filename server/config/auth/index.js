@@ -1,7 +1,6 @@
-// Express and Passport Session
 const logout = require('./logout');
-const google = require('./google');
 const github = require('./github');
+const google = require('./google');
 
 module.exports = {
 	// logout: logout,

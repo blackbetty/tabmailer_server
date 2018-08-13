@@ -5,19 +5,19 @@
 			<div class="row">
 
 
-				<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=2">
+				<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=2&hash=true">
 					<span class="fa fa-twitter"></span>
 					Identify with Twitter
 				</a>
 
-				<a class="btn btn-social btn-github" href="/auth/github?redir=2">
+				<a class="btn btn-social btn-github" href="/auth/github?redir=2&hash=true">
 					<span class="fa fa-github"></span>
 					Identify with Github
 				</a>
 
 			</div>
 			<div class="row">
-				<a class="btn btn-social btn-google" href="/auth/google?redir=2">
+				<a class="btn btn-social btn-google" href="/auth/google?redir=2&hash=true">
 					<span class="fa fa-google"></span>
 					Identify with Google
 				</a>

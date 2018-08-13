@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        function loaded() {
+            window.setTimeout(CloseMe, 500);
+        }
+
+        function CloseMe() {
+            window.open('', '_self', '');
+            window.close();
+        }
+    </script>
+</head>
+<style>
+</style>
+
+<body onload="loaded()">
+	Login Successful. If this window doesn't close automatically 
+    <a href="#" onclick="javascript:window.close();opener.window.focus();">click here</a>
+</body>
+
+</html>

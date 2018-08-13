@@ -3,19 +3,19 @@
 		<h2 class="display-5 flexbox">Welcome back, login below!</h2>
 		<div class='login-providers flexbox'>
 			<div class="row">
-				<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=login">
+				<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=login_successful">
 					<span class="fa fa-twitter"></span>
 					Login with Twitter
 				</a>
 
-				<a class="btn btn-social btn-github" href="/auth/github?redir=login">
+				<a class="btn btn-social btn-github" href="/auth/github?redir=login_successful">
 					<span class="fa fa-github"></span>
 					Login with Github
 				</a>
 
 			</div>
 			<div class="row">
-				<a class="btn btn-social btn-google" href="/auth/google/?redir=login">
+				<a class="btn btn-social btn-google" href="/auth/google/?redir=login_successful">
 					<span class="fa fa-google"></span>
 					Login with Google
 				</a>
@@ -32,16 +32,16 @@
 	module.exports = {
 		mounted: function () {},
 		created: function(){
-			 window.onunload = () => { if (window.location.pathname != '/login') {return window.close()}};
+			 window.onunload = () => { 
+				 alert(window.location.pathname)
+				 if (window.location.pathname != '/login') { 
+				 	return window.close() 
+				 }
+			};
 		},
 		destroyed: function(){
 		},
 		methods: {
-			nextPage: function (e) {
-				router.push({
-					path: "/login"
-				});
-			}
 		},
 		updated: function () {},
 		data: function () {}

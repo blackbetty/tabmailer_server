@@ -145,6 +145,12 @@ publicRouter.get('/login/modal', function(req, res) {
     res.sendFile(path.join(__dirname + '/pages/views/login/login.html'));
 });
 
+publicRouter.get('/login_successful', function(req, res) {
+    logger.info('GET received... \tlogin ');
+    res.sendFile(path.join(__dirname + '/pages/views/login/login_successful.html'));
+});
+
+
 protectedRouter.get('/dashboard', function(req, res) {
     if (req.user) {
         logger.info('GET received... \tDashboard ');

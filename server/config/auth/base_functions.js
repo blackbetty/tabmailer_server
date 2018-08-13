@@ -5,8 +5,8 @@ const _ = require('lodash');
 
 const authenticate = (options) => {
     return (req, res, next) => {
-        const { redir } = req.query;
-        const state = redir ? new Buffer(JSON.stringify({ redir })).toString('base64') : undefined;
+        const { redir, hash } = req.query;
+        const state = redir || hash ? new Buffer(JSON.stringify({ redir, hash })).toString('base64') : undefined;
         const authenticator = passport.authenticate(options.provider, {
             state,
             failureRedirect: options.failureRedirect || defaultFailureRedirect,
@@ -25,13 +25,14 @@ const callback = (provider, failureRedirect) => [
                 const user = (await User.findByID(req.user.id))[0];
                 if (user) {
 					req.user.exists = true; // Hack to allow us to redirect users who already exist straight to the dashboard
-                    const { state } = req.query;
-                    const { redir } = JSON.parse(new Buffer(state, 'base64').toString());
-                    res.redirect(`/#/${redir}`);
+					const { state } = req.query;
+					const { redir, hash } = JSON.parse(new Buffer(state, 'base64').toString());
+					const endpoint = hash ? `/#/${redir}` : `/${redir}`;
+                    res.redirect(endpoint);
                 } else {
 					if (_.get(req, 'headers.referer') == process.env.HOST) { // If the referer is the base url, that means we're attempting a signup
-					res.redirect('/#/2');
-				} else {
+						res.redirect('/#/2');
+					} else {
                     	req.logout();
                         res.redirect('/login');
                     }

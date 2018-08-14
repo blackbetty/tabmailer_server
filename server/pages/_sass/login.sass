@@ -1,0 +1,44 @@
+@import 'https://fonts.googleapis.com/css?family=Barlow+Semi+Condensed'
+*,
+.header .display-4
+	font-family: 'Barlow Semi Condensed', sans-serif
+	color: rgba(0, 0, 0, 0.8)
+
+
+/* margin-bottom: 1rem */
+
+#log_in
+	width: 100%
+	background: #9a9999
+	padding: 30px 0px
+	color: rgb(255, 255, 255)
+#app-login
+	position: absolute
+	top: 0px
+	.flexbox
+		padding-top: 0px
+		margin: 0px 0px 0px 0px
+	.login-providers
+		// background-color: red
+		margin-top: 10px
+		margin: 30px 10px 0px 10px
+	.fa
+		color: rgb(255, 255, 255)
+
+@media (max-width: 499px), (max-height: 427px)
+	body
+		overflow-x: scroll
+		overflow-y: scroll
+		a
+			margin-bottom: 15px
+@media (max-height: 423px), (max-width: 483px)
+	.header
+		display: none
+	#log_in
+		background-color: rgba(255,255,255, 0)
+
+@media (max-height: 399px), (max-width: 415px)
+	#app-bg
+		background-color: rgba(255,255,255,0)
+	.btn-social
+		width: 13.312px !important !important

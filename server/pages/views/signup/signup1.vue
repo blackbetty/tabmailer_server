@@ -21,7 +21,7 @@
 					<span class="fa fa-google"></span>
 					Identify with Google
 				</a>
-				<a class="btn btn-social btn-bitbucket">
+				<a class="btn btn-social btn-bitbucket" href="/auth/gitlab?redir=2&hash=true">
 					<span class="fa fa-gitlab"></span>
 					Identify with Gitlab
 				</a>

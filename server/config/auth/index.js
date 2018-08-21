@@ -1,6 +1,7 @@
 const logout = require('./logout');
 const github = require('./github');
 const google = require('./google');
+const gitlab = require('./gitlab');
 
 module.exports = {
 	// logout: logout,
@@ -12,6 +13,10 @@ module.exports = {
 		google: {
 			authenticate: google.authenticate,
 			callback: google.callback
+		},
+		gitlab: {
+			authenticate: gitlab.authenticate,
+			callback: gitlab.callback
 		}
 	}
 };

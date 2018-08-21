@@ -15,26 +15,26 @@ const authenticate = (options) => {
         authenticator(req, res, next);
     };
 };
-
-//Google will call this URL
+ 
+//Provider will call this URL
 const callback = (provider, failureRedirect) => [
         passport.authenticate(provider, { failureRedirect: failureRedirect || defaultFailureRedirect }),
         async (req, res) => {
 			if (req.isAuthenticated()) {
 				req.user.oauth_provider = provider;
+				const { state } = req.query;
+				const { redir, hash } = JSON.parse(new Buffer(state, 'base64').toString());
+				const endpoint = hash ? `/#/${redir}` : `/${redir}`;
                 const user = (await User.findByID(req.user.id))[0];
                 if (user) {
 					req.user.exists = true; // Hack to allow us to redirect users who already exist straight to the dashboard
-					const { state } = req.query;
-					const { redir, hash } = JSON.parse(new Buffer(state, 'base64').toString());
-					const endpoint = hash ? `/#/${redir}` : `/${redir}`;
                     res.redirect(endpoint);
                 } else {
 					if (_.get(req, 'headers.referer') == process.env.HOST) { // If the referer is the base url, that means we're attempting a signup
-						res.redirect('/#/2');
+						res.redirect(endpoint);
 					} else {
                     	req.logout();
-                        res.redirect('/login');
+                        res.redirect('/login?user_not_found=true');
                     }
                 }
             }

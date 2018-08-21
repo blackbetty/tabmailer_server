@@ -103,9 +103,11 @@ publicRouter.use(passport.session());
 
 publicRouter.get('/auth/github', ppAuth.providers.github.authenticate);
 publicRouter.get('/auth/google', ppAuth.providers.google.authenticate);
+publicRouter.get('/auth/gitlab', ppAuth.providers.gitlab.authenticate);
+
 publicRouter.get('/auth/github/callback', ppAuth.providers.github.callback);
 publicRouter.get('/auth/google/callback', ppAuth.providers.google.callback);
-
+publicRouter.get('/auth/gitlab/callback', ppAuth.providers.gitlab.callback);
 /*
  *
  * End server config

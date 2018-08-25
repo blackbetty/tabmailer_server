@@ -4,7 +4,8 @@
 		<h4 id="user-not-found-message" class="display-5 flexbox" v-show="userNotFound">User not found, try signing up <a href="" v-on:click="redirectToHome">here.</a></h4>
 			<div class='login-providers flexbox'>
 				<div class="row">
-					<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=login_successful">
+					<!-- <a class="btn btn-social btn-twitter" href="/auth/twitter?redir=login_successful"> -->
+					<a class="btn btn-social btn-twitter disabled">
 						<span class="fa fa-twitter"></span>
 						Login with Twitter
 					</a>

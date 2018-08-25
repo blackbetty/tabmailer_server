@@ -5,7 +5,7 @@
 			<div class="row">
 
 
-				<a class="btn btn-social btn-twitter" href="/auth/twitter?redir=2&hash=true">
+				<a title="Coming Soon!" class="btn btn-social btn-twitter disabled" href="/auth/twitter?redir=2&hash=true">
 					<span class="fa fa-twitter"></span>
 					Identify with Twitter
 				</a>

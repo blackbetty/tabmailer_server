@@ -2,7 +2,6 @@ const app = require('./app.js');
 const logger = require('./utilities/logger.js');
 const fs = require('fs');
 var server;
-var passport = require('passport');
 if (process.env.NODE_ENV === 'production') {
 	server = app.listen(process.env.PORT || 9145, function () {
 		logger.info('Production Server listening on port ' + process.env.PORT || 9145);

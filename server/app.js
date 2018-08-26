@@ -1,15 +1,19 @@
-require('dotenv').config();
-const _ = require('lodash');
+// const beeline = require('honeycomb-beeline')({
+// 	writeKey: process.env.HONEYCOMB_API_KEY
+//     /* ... additional optional configuration ... */
+// });
+const passport = require('./config/auth/passport_config');
 var express = require('express');
-
+const _ = require('lodash');
 var app = express();
+app.set('trust proxy', true)
 var bodyParser = require('body-parser');
 var path = require('path');
 var httpsRedirect = require('express-https-redirect');
 const Celebrate = require('celebrate');
 const { Joi } = Celebrate;
 const session = require('express-session');
-const passport = require('./config/auth/passport_config');
+
 // Route Handlers
 var getLinksForUser = require('./controllers/private/get_links_for_user.js');
 var getSettingsForUser = require('./route_handlers/getsettingsforuser.js');

@@ -1,7 +1,10 @@
-// const beeline = require('honeycomb-beeline')({
-// 	writeKey: process.env.HONEYCOMB_API_KEY
-//     /* ... additional optional configuration ... */
-// });
+
+if(process.env.ENABLE_HONEYCOMB == "true") {
+	const beeline = require('honeycomb-beeline')({
+		writeKey: process.env.HONEYCOMB_API_KEY
+		/* ... additional optional configuration ... */
+	});
+}
 const passport = require('./config/auth/passport_config');
 var express = require('express');
 const _ = require('lodash');

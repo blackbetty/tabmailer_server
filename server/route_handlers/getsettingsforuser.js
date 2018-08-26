@@ -8,7 +8,7 @@ module.exports = function (googleUserID, callback) {
 			(rows) => {
 				const settings = rows[0];
 				if (!settings) {
-					logger.warning('No settings could be fetched for the given user_id: ', googleUserID);
+					logger.debug('No settings could be fetched for the given user_id: ', googleUserID);
 					callback();
 				} else {
 					logger.silly('Settings user object: ' + JSON.stringify(settings));

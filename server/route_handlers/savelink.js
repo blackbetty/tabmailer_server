@@ -4,10 +4,10 @@ var cryptFunctions = require('../utilities/data_utilities/crypt_functions.js');
 const util = require('util');
 const uuidv4 = require('uuid/v4');
 
-module.exports = function (googleUserID, tab_url, tab_title, callback) {
+module.exports = function (user_id, tab_url, tab_title, callback) {
 	datastore_interface.transaction(function (trx) {
 		trx.insert({
-			user_id: googleUserID,
+			user_id: user_id,
 			link_url: cryptFunctions.encrypt(tab_url),
 			link_title: cryptFunctions.encrypt(tab_title)
 		}).into('links').returning('*').then(
@@ -22,7 +22,7 @@ module.exports = function (googleUserID, tab_url, tab_title, callback) {
 		).catch((reason) => {
 			logger.warn(`Error, saving link object failed: ${reason}`);
 			trx.rollback();
-			callback(reason, googleUserID);
+			callback(reason, user_id);
 		});
 	});
 };

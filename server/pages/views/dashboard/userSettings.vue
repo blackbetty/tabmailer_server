@@ -12,7 +12,7 @@
 			<button type="button" class="close" v-on:click="settingsUpdateFailed=false" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
-			<strong>Something went wrong updating your settings...</strong> please try again later
+			<strong>Something went wrong updating your settings...</strong> <br/>please try again later
 		</div>
 		<div class="dashboard-component-container border-secondary rounded">
 			<div class="dashboard-component-header settings-header">

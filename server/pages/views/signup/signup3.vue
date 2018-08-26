@@ -56,11 +56,13 @@
 		methods: {
 			signupButtonSubmit: function() {
 				var request = new XMLHttpRequest();
-				request.open("POST", "/createUser", true);
+				request.open("POST", "/users/", true);
+				request.withCredentials = true;
 				request.setRequestHeader(
 					"Content-Type",
 					"application/json;charset=UTF-8"
 				);
+				request.credentials = 'same-origin'
 				var that = this;
 	
 				request.onreadystatechange = function() {
@@ -91,11 +93,9 @@
 	
 				request.send(
 					JSON.stringify({
-						gapi_given_name: this.$parent.gapi_user_given_name,
-						google_id_token: this.$parent.gapi_id_token,
-						gapi_user_email: this.$parent.gapi_user_email,
 						username: this.$parent.username,
-						emailaddress: this.$parent.email
+						emailaddress: this.$parent.email,
+						credentials: 'same-origin'
 					})
 				);
 			},

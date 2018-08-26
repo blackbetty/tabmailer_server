@@ -4,7 +4,7 @@
             <div class="alert alert-success">
                 <h2 class="display-5">User Activated Successfully!</h2>
                 <br>
-                <p>You're ready to start savin' some tabbies! Feel free to check out your account settings at that there link below!</p>
+                <p>You're ready to start savin' some tabs! Feel free to check out your account settings at that there link below!</p>
             </div>
             <a href="/dashboard" class="btn btn-primary btn-block" role="button" aria-disabled="true">Account Settings</a>
         </div>

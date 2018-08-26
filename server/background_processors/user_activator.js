@@ -8,7 +8,7 @@ var user_activator = {
 	sendUserActivationEmail: function (entity) {
 
 		var hash = entity.user_hash;
-		var activation_url = process.env.DOMAIN + '/activateUser/' + hash;
+		var activation_url = process.env.DOMAIN + '/activate/' + hash;
 
 		var email_body = 'please visit the following link to activate your account: ' + activation_url;
 		var email_subject = 'TabMailer Activation';
@@ -33,7 +33,7 @@ var user_activator = {
 			}
 		).catch(
 			(error) => {
-				logger.error('Unknown Error In User Activation', error)
+				logger.error('Unknown Error In User Activation', error);
 				cb(error, null);
 			}
 		);

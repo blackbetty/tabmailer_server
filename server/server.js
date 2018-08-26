@@ -1,6 +1,9 @@
-const app = require('./app.js');
-const logger = require('./utilities/logger.js');
+require('dotenv').config();
 
+const app = require('./app.js');
+
+const logger = require('./utilities/logger.js');
+const fs = require('fs');
 var server;
 if (process.env.NODE_ENV === 'production') {
 	server = app.listen(process.env.PORT || 9145, function () {
@@ -8,23 +11,22 @@ if (process.env.NODE_ENV === 'production') {
 		process.env.DOMAIN = 'https://linkmelater.win';
 	});
 } else {
-	var pem = require('pem');
 	var https = require('https');
 	logger.info('Server listening on port ' + process.env.PORT || 9145);
-	pem.createCertificate({
-		days: 1,
-		selfSigned: true
-	}, function (err, keys) {
-		if (err) {
-			throw err;
-		}
+
+	try{
 		server = https.createServer({
-			key: keys.serviceKey,
-			cert: keys.certificate
+			key: fs.readFileSync('./keys/local_ssl/key.pem'),
+			cert: fs.readFileSync('./keys/local_ssl/cert.pem'),
+			passphrase: process.env.SSL_CERT_PASSPHRASE
 		}, app).listen(process.env.PORT || 9145, function () {
 			process.env.DOMAIN = 'https://localhost:' + process.env.PORT;
 		});
-	});
+	} catch(error){
+		logger.error(`Error spinning up local server ${error}`);
+	}
+
+
 }
 
 module.exports = server;

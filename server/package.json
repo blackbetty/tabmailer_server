@@ -49,6 +49,7 @@
 		"os": "^0.1.1",
 		"passport": "^0.4.0",
 		"passport-github": "^1.1.0",
+		"passport-gitlab2": "^4.0.0",
 		"passport-google-oauth20": "^1.0.0",
 		"pem": "^1.9.7",
 		"pg": "^7.4.0",

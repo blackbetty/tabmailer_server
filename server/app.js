@@ -1,15 +1,7 @@
-
-if(process.env.ENABLE_HONEYCOMB == "true") {
-	const beeline = require('honeycomb-beeline')({
-		writeKey: process.env.HONEYCOMB_API_KEY
-		/* ... additional optional configuration ... */
-	});
-}
-const passport = require('./config/auth/passport_config');
-var express = require('express');
 const _ = require('lodash');
+var express = require('express');
 var app = express();
-app.set('trust proxy', true)
+const passport = require('./config/auth/passport_config');
 var bodyParser = require('body-parser');
 var path = require('path');
 var httpsRedirect = require('express-https-redirect');

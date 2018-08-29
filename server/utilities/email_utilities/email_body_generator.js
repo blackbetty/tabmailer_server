@@ -20,6 +20,7 @@ const SCHEMA_userObjectArray = Joi.array().items(
 var SCHEMA_ERROR = 'an error occurred generating email bodies in returnLCOArrayWithEmailBodies: ';
 
 var returnLCOArrayWithEmailBodies = function (userObjectArray) {
+	logger.warn(userObjectArray);
 	return new Promise((resolve, reject) => {
 		function returnUsersWithBodies(userObjectArray) {
 			_.each(userObjectArray, function (user) {

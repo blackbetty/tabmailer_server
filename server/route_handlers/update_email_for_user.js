@@ -11,7 +11,7 @@ module.exports = function (googleUserID, newEmail, callback) {
 			user_email: newEmail,
 			user_activated: false,
 			user_hash: hash([newEmail, googleUserID, Date.now()])
-		}).where('user_google_id', googleUserID).returning('*').then(
+		}).where('user_oauth_id', googleUserID).returning('*').then(
 			(rows) => {
 				var updatedUser = rows[0];
 				logger.debug(`Email updated for user "${googleUserID}" to: ${newEmail}`);

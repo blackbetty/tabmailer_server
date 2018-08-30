@@ -8,7 +8,7 @@ module.exports = function (googleUserID, callback) {
 	datastore_interface.transaction(function (trx) {
 		trx('users').update({
 			settings_changed: false
-		}).where('user_google_id', googleUserID).returning('*').then(
+		}).where('user_oauth_id', googleUserID).returning('*').then(
 			(user) => {
 				logger.debug(`settingsChanged Reset For:\t${user.user_id}`);
 
@@ -49,4 +49,4 @@ module.exports = function (googleUserID, callback) {
 
 	//         });
 	// });
-}
+};
